@@ -2,7 +2,8 @@
 // DO NOT EDIT.
 module pg_query
 
-fn decode_integer(buf []u8) (Integer, int) {
+fn decode_integer(buf []u8, depth int) (Integer, int) {
+	if depth <= 0 { return Integer{}, 0 }
 	mut r := Integer{}
 	mut off := 0
 	for off < buf.len {
@@ -22,7 +23,8 @@ fn decode_integer(buf []u8) (Integer, int) {
 	return r, off
 }
 
-fn decode_float(buf []u8) (Float, int) {
+fn decode_float(buf []u8, depth int) (Float, int) {
+	if depth <= 0 { return Float{}, 0 }
 	mut r := Float{}
 	mut off := 0
 	for off < buf.len {
@@ -42,7 +44,8 @@ fn decode_float(buf []u8) (Float, int) {
 	return r, off
 }
 
-fn decode_boolean(buf []u8) (Boolean, int) {
+fn decode_boolean(buf []u8, depth int) (Boolean, int) {
+	if depth <= 0 { return Boolean{}, 0 }
 	mut r := Boolean{}
 	mut off := 0
 	for off < buf.len {
@@ -62,7 +65,8 @@ fn decode_boolean(buf []u8) (Boolean, int) {
 	return r, off
 }
 
-fn decode_string(buf []u8) (String, int) {
+fn decode_string(buf []u8, depth int) (String, int) {
+	if depth <= 0 { return String{}, 0 }
 	mut r := String{}
 	mut off := 0
 	for off < buf.len {
@@ -82,7 +86,8 @@ fn decode_string(buf []u8) (String, int) {
 	return r, off
 }
 
-fn decode_bit_string(buf []u8) (BitString, int) {
+fn decode_bit_string(buf []u8, depth int) (BitString, int) {
+	if depth <= 0 { return BitString{}, 0 }
 	mut r := BitString{}
 	mut off := 0
 	for off < buf.len {
@@ -102,7 +107,8 @@ fn decode_bit_string(buf []u8) (BitString, int) {
 	return r, off
 }
 
-fn decode_list(buf []u8) (List, int) {
+fn decode_list(buf []u8, depth int) (List, int) {
+	if depth <= 0 { return List{}, 0 }
 	mut r := List{}
 	mut off := 0
 	for off < buf.len {
@@ -111,7 +117,7 @@ fn decode_list(buf []u8) (List, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.items << val
 				off += c2
 			}
@@ -123,7 +129,8 @@ fn decode_list(buf []u8) (List, int) {
 	return r, off
 }
 
-fn decode_oid_list(buf []u8) (OidList, int) {
+fn decode_oid_list(buf []u8, depth int) (OidList, int) {
+	if depth <= 0 { return OidList{}, 0 }
 	mut r := OidList{}
 	mut off := 0
 	for off < buf.len {
@@ -132,7 +139,7 @@ fn decode_oid_list(buf []u8) (OidList, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.items << val
 				off += c2
 			}
@@ -144,7 +151,8 @@ fn decode_oid_list(buf []u8) (OidList, int) {
 	return r, off
 }
 
-fn decode_int_list(buf []u8) (IntList, int) {
+fn decode_int_list(buf []u8, depth int) (IntList, int) {
+	if depth <= 0 { return IntList{}, 0 }
 	mut r := IntList{}
 	mut off := 0
 	for off < buf.len {
@@ -153,7 +161,7 @@ fn decode_int_list(buf []u8) (IntList, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.items << val
 				off += c2
 			}
@@ -165,7 +173,8 @@ fn decode_int_list(buf []u8) (IntList, int) {
 	return r, off
 }
 
-fn decode_a_const(buf []u8) (AConst, int) {
+fn decode_a_const(buf []u8, depth int) (AConst, int) {
+	if depth <= 0 { return AConst{}, 0 }
 	mut r := AConst{}
 	mut off := 0
 	for off < buf.len {
@@ -184,31 +193,31 @@ fn decode_a_const(buf []u8) (AConst, int) {
 			}
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_integer(data)
+				val, _ := decode_integer(data, depth - 1)
 				r.ival = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_float(data)
+				val, _ := decode_float(data, depth - 1)
 				r.fval = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_boolean(data)
+				val, _ := decode_boolean(data, depth - 1)
 				r.boolval = val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_string(data)
+				val, _ := decode_string(data, depth - 1)
 				r.sval = val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_bit_string(data)
+				val, _ := decode_bit_string(data, depth - 1)
 				r.bsval = val
 				off += c2
 			}
@@ -220,7 +229,8 @@ fn decode_a_const(buf []u8) (AConst, int) {
 	return r, off
 }
 
-fn decode_alias(buf []u8) (Alias, int) {
+fn decode_alias(buf []u8, depth int) (Alias, int) {
+	if depth <= 0 { return Alias{}, 0 }
 	mut r := Alias{}
 	mut off := 0
 	for off < buf.len {
@@ -234,7 +244,7 @@ fn decode_alias(buf []u8) (Alias, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.colnames << val
 				off += c2
 			}
@@ -246,7 +256,8 @@ fn decode_alias(buf []u8) (Alias, int) {
 	return r, off
 }
 
-fn decode_table_func(buf []u8) (TableFunc, int) {
+fn decode_table_func(buf []u8, depth int) (TableFunc, int) {
+	if depth <= 0 { return TableFunc{}, 0 }
 	mut r := TableFunc{}
 	mut off := 0
 	for off < buf.len {
@@ -260,73 +271,73 @@ fn decode_table_func(buf []u8) (TableFunc, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.ns_uris << val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.ns_names << val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.docexpr = val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.rowexpr = val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.colnames << val
 				off += c2
 			}
 			7 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.coltypes << val
 				off += c2
 			}
 			8 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.coltypmods << val
 				off += c2
 			}
 			9 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.colcollations << val
 				off += c2
 			}
 			10 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.colexprs << val
 				off += c2
 			}
 			11 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.coldefexprs << val
 				off += c2
 			}
 			12 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.colvalexprs << val
 				off += c2
 			}
 			13 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.passingvalexprs << val
 				off += c2
 			}
@@ -348,7 +359,7 @@ fn decode_table_func(buf []u8) (TableFunc, int) {
 			}
 			15 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.plan = val
 				off += c2
 			}
@@ -370,7 +381,8 @@ fn decode_table_func(buf []u8) (TableFunc, int) {
 	return r, off
 }
 
-fn decode_var(buf []u8) (Var, int) {
+fn decode_var(buf []u8, depth int) (Var, int) {
+	if depth <= 0 { return Var{}, 0 }
 	mut r := Var{}
 	mut off := 0
 	for off < buf.len {
@@ -379,7 +391,7 @@ fn decode_var(buf []u8) (Var, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -442,7 +454,8 @@ fn decode_var(buf []u8) (Var, int) {
 	return r, off
 }
 
-fn decode_param(buf []u8) (Param, int) {
+fn decode_param(buf []u8, depth int) (Param, int) {
+	if depth <= 0 { return Param{}, 0 }
 	mut r := Param{}
 	mut off := 0
 	for off < buf.len {
@@ -451,7 +464,7 @@ fn decode_param(buf []u8) (Param, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -493,7 +506,8 @@ fn decode_param(buf []u8) (Param, int) {
 	return r, off
 }
 
-fn decode_aggref(buf []u8) (Aggref, int) {
+fn decode_aggref(buf []u8, depth int) (Aggref, int) {
+	if depth <= 0 { return Aggref{}, 0 }
 	mut r := Aggref{}
 	mut off := 0
 	for off < buf.len {
@@ -502,7 +516,7 @@ fn decode_aggref(buf []u8) (Aggref, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -528,37 +542,37 @@ fn decode_aggref(buf []u8) (Aggref, int) {
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.aggargtypes << val
 				off += c2
 			}
 			7 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.aggdirectargs << val
 				off += c2
 			}
 			8 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.args << val
 				off += c2
 			}
 			9 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.aggorder << val
 				off += c2
 			}
 			10 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.aggdistinct << val
 				off += c2
 			}
 			11 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.aggfilter = val
 				off += c2
 			}
@@ -610,7 +624,8 @@ fn decode_aggref(buf []u8) (Aggref, int) {
 	return r, off
 }
 
-fn decode_grouping_func(buf []u8) (GroupingFunc, int) {
+fn decode_grouping_func(buf []u8, depth int) (GroupingFunc, int) {
+	if depth <= 0 { return GroupingFunc{}, 0 }
 	mut r := GroupingFunc{}
 	mut off := 0
 	for off < buf.len {
@@ -619,19 +634,19 @@ fn decode_grouping_func(buf []u8) (GroupingFunc, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.args << val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.refs << val
 				off += c2
 			}
@@ -653,7 +668,8 @@ fn decode_grouping_func(buf []u8) (GroupingFunc, int) {
 	return r, off
 }
 
-fn decode_window_func(buf []u8) (WindowFunc, int) {
+fn decode_window_func(buf []u8, depth int) (WindowFunc, int) {
+	if depth <= 0 { return WindowFunc{}, 0 }
 	mut r := WindowFunc{}
 	mut off := 0
 	for off < buf.len {
@@ -662,7 +678,7 @@ fn decode_window_func(buf []u8) (WindowFunc, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -688,19 +704,19 @@ fn decode_window_func(buf []u8) (WindowFunc, int) {
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.args << val
 				off += c2
 			}
 			7 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.aggfilter = val
 				off += c2
 			}
 			8 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.run_condition << val
 				off += c2
 			}
@@ -732,7 +748,8 @@ fn decode_window_func(buf []u8) (WindowFunc, int) {
 	return r, off
 }
 
-fn decode_window_func_run_condition(buf []u8) (WindowFuncRunCondition, int) {
+fn decode_window_func_run_condition(buf []u8, depth int) (WindowFuncRunCondition, int) {
+	if depth <= 0 { return WindowFuncRunCondition{}, 0 }
 	mut r := WindowFuncRunCondition{}
 	mut off := 0
 	for off < buf.len {
@@ -741,7 +758,7 @@ fn decode_window_func_run_condition(buf []u8) (WindowFuncRunCondition, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -762,7 +779,7 @@ fn decode_window_func_run_condition(buf []u8) (WindowFuncRunCondition, int) {
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.arg = val
 				off += c2
 			}
@@ -774,7 +791,8 @@ fn decode_window_func_run_condition(buf []u8) (WindowFuncRunCondition, int) {
 	return r, off
 }
 
-fn decode_merge_support_func(buf []u8) (MergeSupportFunc, int) {
+fn decode_merge_support_func(buf []u8, depth int) (MergeSupportFunc, int) {
+	if depth <= 0 { return MergeSupportFunc{}, 0 }
 	mut r := MergeSupportFunc{}
 	mut off := 0
 	for off < buf.len {
@@ -783,7 +801,7 @@ fn decode_merge_support_func(buf []u8) (MergeSupportFunc, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -810,7 +828,8 @@ fn decode_merge_support_func(buf []u8) (MergeSupportFunc, int) {
 	return r, off
 }
 
-fn decode_subscripting_ref(buf []u8) (SubscriptingRef, int) {
+fn decode_subscripting_ref(buf []u8, depth int) (SubscriptingRef, int) {
+	if depth <= 0 { return SubscriptingRef{}, 0 }
 	mut r := SubscriptingRef{}
 	mut off := 0
 	for off < buf.len {
@@ -819,7 +838,7 @@ fn decode_subscripting_ref(buf []u8) (SubscriptingRef, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -850,25 +869,25 @@ fn decode_subscripting_ref(buf []u8) (SubscriptingRef, int) {
 			}
 			7 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.refupperindexpr << val
 				off += c2
 			}
 			8 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.reflowerindexpr << val
 				off += c2
 			}
 			9 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.refexpr = val
 				off += c2
 			}
 			10 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.refassgnexpr = val
 				off += c2
 			}
@@ -880,7 +899,8 @@ fn decode_subscripting_ref(buf []u8) (SubscriptingRef, int) {
 	return r, off
 }
 
-fn decode_func_expr(buf []u8) (FuncExpr, int) {
+fn decode_func_expr(buf []u8, depth int) (FuncExpr, int) {
+	if depth <= 0 { return FuncExpr{}, 0 }
 	mut r := FuncExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -889,7 +909,7 @@ fn decode_func_expr(buf []u8) (FuncExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -930,7 +950,7 @@ fn decode_func_expr(buf []u8) (FuncExpr, int) {
 			}
 			9 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.args << val
 				off += c2
 			}
@@ -947,7 +967,8 @@ fn decode_func_expr(buf []u8) (FuncExpr, int) {
 	return r, off
 }
 
-fn decode_named_arg_expr(buf []u8) (NamedArgExpr, int) {
+fn decode_named_arg_expr(buf []u8, depth int) (NamedArgExpr, int) {
+	if depth <= 0 { return NamedArgExpr{}, 0 }
 	mut r := NamedArgExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -956,13 +977,13 @@ fn decode_named_arg_expr(buf []u8) (NamedArgExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.arg = val
 				off += c2
 			}
@@ -989,7 +1010,8 @@ fn decode_named_arg_expr(buf []u8) (NamedArgExpr, int) {
 	return r, off
 }
 
-fn decode_op_expr(buf []u8) (OpExpr, int) {
+fn decode_op_expr(buf []u8, depth int) (OpExpr, int) {
+	if depth <= 0 { return OpExpr{}, 0 }
 	mut r := OpExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -998,7 +1020,7 @@ fn decode_op_expr(buf []u8) (OpExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -1029,7 +1051,7 @@ fn decode_op_expr(buf []u8) (OpExpr, int) {
 			}
 			7 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.args << val
 				off += c2
 			}
@@ -1046,7 +1068,8 @@ fn decode_op_expr(buf []u8) (OpExpr, int) {
 	return r, off
 }
 
-fn decode_distinct_expr(buf []u8) (DistinctExpr, int) {
+fn decode_distinct_expr(buf []u8, depth int) (DistinctExpr, int) {
+	if depth <= 0 { return DistinctExpr{}, 0 }
 	mut r := DistinctExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -1055,7 +1078,7 @@ fn decode_distinct_expr(buf []u8) (DistinctExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -1086,7 +1109,7 @@ fn decode_distinct_expr(buf []u8) (DistinctExpr, int) {
 			}
 			7 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.args << val
 				off += c2
 			}
@@ -1103,7 +1126,8 @@ fn decode_distinct_expr(buf []u8) (DistinctExpr, int) {
 	return r, off
 }
 
-fn decode_null_if_expr(buf []u8) (NullIfExpr, int) {
+fn decode_null_if_expr(buf []u8, depth int) (NullIfExpr, int) {
+	if depth <= 0 { return NullIfExpr{}, 0 }
 	mut r := NullIfExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -1112,7 +1136,7 @@ fn decode_null_if_expr(buf []u8) (NullIfExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -1143,7 +1167,7 @@ fn decode_null_if_expr(buf []u8) (NullIfExpr, int) {
 			}
 			7 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.args << val
 				off += c2
 			}
@@ -1160,7 +1184,8 @@ fn decode_null_if_expr(buf []u8) (NullIfExpr, int) {
 	return r, off
 }
 
-fn decode_scalar_array_op_expr(buf []u8) (ScalarArrayOpExpr, int) {
+fn decode_scalar_array_op_expr(buf []u8, depth int) (ScalarArrayOpExpr, int) {
+	if depth <= 0 { return ScalarArrayOpExpr{}, 0 }
 	mut r := ScalarArrayOpExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -1169,7 +1194,7 @@ fn decode_scalar_array_op_expr(buf []u8) (ScalarArrayOpExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -1190,7 +1215,7 @@ fn decode_scalar_array_op_expr(buf []u8) (ScalarArrayOpExpr, int) {
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.args << val
 				off += c2
 			}
@@ -1207,7 +1232,8 @@ fn decode_scalar_array_op_expr(buf []u8) (ScalarArrayOpExpr, int) {
 	return r, off
 }
 
-fn decode_bool_expr(buf []u8) (BoolExpr, int) {
+fn decode_bool_expr(buf []u8, depth int) (BoolExpr, int) {
+	if depth <= 0 { return BoolExpr{}, 0 }
 	mut r := BoolExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -1216,7 +1242,7 @@ fn decode_bool_expr(buf []u8) (BoolExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -1227,7 +1253,7 @@ fn decode_bool_expr(buf []u8) (BoolExpr, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.args << val
 				off += c2
 			}
@@ -1244,7 +1270,8 @@ fn decode_bool_expr(buf []u8) (BoolExpr, int) {
 	return r, off
 }
 
-fn decode_sub_link(buf []u8) (SubLink, int) {
+fn decode_sub_link(buf []u8, depth int) (SubLink, int) {
+	if depth <= 0 { return SubLink{}, 0 }
 	mut r := SubLink{}
 	mut off := 0
 	for off < buf.len {
@@ -1253,7 +1280,7 @@ fn decode_sub_link(buf []u8) (SubLink, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -1269,19 +1296,19 @@ fn decode_sub_link(buf []u8) (SubLink, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.testexpr = val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.oper_name << val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.subselect = val
 				off += c2
 			}
@@ -1298,7 +1325,8 @@ fn decode_sub_link(buf []u8) (SubLink, int) {
 	return r, off
 }
 
-fn decode_sub_plan(buf []u8) (SubPlan, int) {
+fn decode_sub_plan(buf []u8, depth int) (SubPlan, int) {
+	if depth <= 0 { return SubPlan{}, 0 }
 	mut r := SubPlan{}
 	mut off := 0
 	for off < buf.len {
@@ -1307,7 +1335,7 @@ fn decode_sub_plan(buf []u8) (SubPlan, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -1318,13 +1346,13 @@ fn decode_sub_plan(buf []u8) (SubPlan, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.testexpr = val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.param_ids << val
 				off += c2
 			}
@@ -1370,19 +1398,19 @@ fn decode_sub_plan(buf []u8) (SubPlan, int) {
 			}
 			13 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.set_param << val
 				off += c2
 			}
 			14 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.par_param << val
 				off += c2
 			}
 			15 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.args << val
 				off += c2
 			}
@@ -1404,7 +1432,8 @@ fn decode_sub_plan(buf []u8) (SubPlan, int) {
 	return r, off
 }
 
-fn decode_alternative_sub_plan(buf []u8) (AlternativeSubPlan, int) {
+fn decode_alternative_sub_plan(buf []u8, depth int) (AlternativeSubPlan, int) {
+	if depth <= 0 { return AlternativeSubPlan{}, 0 }
 	mut r := AlternativeSubPlan{}
 	mut off := 0
 	for off < buf.len {
@@ -1413,13 +1442,13 @@ fn decode_alternative_sub_plan(buf []u8) (AlternativeSubPlan, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.subplans << val
 				off += c2
 			}
@@ -1431,7 +1460,8 @@ fn decode_alternative_sub_plan(buf []u8) (AlternativeSubPlan, int) {
 	return r, off
 }
 
-fn decode_field_select(buf []u8) (FieldSelect, int) {
+fn decode_field_select(buf []u8, depth int) (FieldSelect, int) {
+	if depth <= 0 { return FieldSelect{}, 0 }
 	mut r := FieldSelect{}
 	mut off := 0
 	for off < buf.len {
@@ -1440,13 +1470,13 @@ fn decode_field_select(buf []u8) (FieldSelect, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.arg = val
 				off += c2
 			}
@@ -1478,7 +1508,8 @@ fn decode_field_select(buf []u8) (FieldSelect, int) {
 	return r, off
 }
 
-fn decode_field_store(buf []u8) (FieldStore, int) {
+fn decode_field_store(buf []u8, depth int) (FieldStore, int) {
+	if depth <= 0 { return FieldStore{}, 0 }
 	mut r := FieldStore{}
 	mut off := 0
 	for off < buf.len {
@@ -1487,25 +1518,25 @@ fn decode_field_store(buf []u8) (FieldStore, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.arg = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.newvals << val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.fieldnums << val
 				off += c2
 			}
@@ -1522,7 +1553,8 @@ fn decode_field_store(buf []u8) (FieldStore, int) {
 	return r, off
 }
 
-fn decode_relabel_type(buf []u8) (RelabelType, int) {
+fn decode_relabel_type(buf []u8, depth int) (RelabelType, int) {
+	if depth <= 0 { return RelabelType{}, 0 }
 	mut r := RelabelType{}
 	mut off := 0
 	for off < buf.len {
@@ -1531,13 +1563,13 @@ fn decode_relabel_type(buf []u8) (RelabelType, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.arg = val
 				off += c2
 			}
@@ -1574,7 +1606,8 @@ fn decode_relabel_type(buf []u8) (RelabelType, int) {
 	return r, off
 }
 
-fn decode_coerce_via_i_o(buf []u8) (CoerceViaIO, int) {
+fn decode_coerce_via_i_o(buf []u8, depth int) (CoerceViaIO, int) {
+	if depth <= 0 { return CoerceViaIO{}, 0 }
 	mut r := CoerceViaIO{}
 	mut off := 0
 	for off < buf.len {
@@ -1583,13 +1616,13 @@ fn decode_coerce_via_i_o(buf []u8) (CoerceViaIO, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.arg = val
 				off += c2
 			}
@@ -1621,7 +1654,8 @@ fn decode_coerce_via_i_o(buf []u8) (CoerceViaIO, int) {
 	return r, off
 }
 
-fn decode_array_coerce_expr(buf []u8) (ArrayCoerceExpr, int) {
+fn decode_array_coerce_expr(buf []u8, depth int) (ArrayCoerceExpr, int) {
+	if depth <= 0 { return ArrayCoerceExpr{}, 0 }
 	mut r := ArrayCoerceExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -1630,19 +1664,19 @@ fn decode_array_coerce_expr(buf []u8) (ArrayCoerceExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.arg = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.elemexpr = val
 				off += c2
 			}
@@ -1679,7 +1713,8 @@ fn decode_array_coerce_expr(buf []u8) (ArrayCoerceExpr, int) {
 	return r, off
 }
 
-fn decode_convert_rowtype_expr(buf []u8) (ConvertRowtypeExpr, int) {
+fn decode_convert_rowtype_expr(buf []u8, depth int) (ConvertRowtypeExpr, int) {
+	if depth <= 0 { return ConvertRowtypeExpr{}, 0 }
 	mut r := ConvertRowtypeExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -1688,13 +1723,13 @@ fn decode_convert_rowtype_expr(buf []u8) (ConvertRowtypeExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.arg = val
 				off += c2
 			}
@@ -1721,7 +1756,8 @@ fn decode_convert_rowtype_expr(buf []u8) (ConvertRowtypeExpr, int) {
 	return r, off
 }
 
-fn decode_collate_expr(buf []u8) (CollateExpr, int) {
+fn decode_collate_expr(buf []u8, depth int) (CollateExpr, int) {
+	if depth <= 0 { return CollateExpr{}, 0 }
 	mut r := CollateExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -1730,13 +1766,13 @@ fn decode_collate_expr(buf []u8) (CollateExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.arg = val
 				off += c2
 			}
@@ -1758,7 +1794,8 @@ fn decode_collate_expr(buf []u8) (CollateExpr, int) {
 	return r, off
 }
 
-fn decode_case_expr(buf []u8) (CaseExpr, int) {
+fn decode_case_expr(buf []u8, depth int) (CaseExpr, int) {
+	if depth <= 0 { return CaseExpr{}, 0 }
 	mut r := CaseExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -1767,7 +1804,7 @@ fn decode_case_expr(buf []u8) (CaseExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -1783,19 +1820,19 @@ fn decode_case_expr(buf []u8) (CaseExpr, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.arg = val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.args << val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.defresult = val
 				off += c2
 			}
@@ -1812,7 +1849,8 @@ fn decode_case_expr(buf []u8) (CaseExpr, int) {
 	return r, off
 }
 
-fn decode_case_when(buf []u8) (CaseWhen, int) {
+fn decode_case_when(buf []u8, depth int) (CaseWhen, int) {
+	if depth <= 0 { return CaseWhen{}, 0 }
 	mut r := CaseWhen{}
 	mut off := 0
 	for off < buf.len {
@@ -1821,19 +1859,19 @@ fn decode_case_when(buf []u8) (CaseWhen, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.expr = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.result = val
 				off += c2
 			}
@@ -1850,7 +1888,8 @@ fn decode_case_when(buf []u8) (CaseWhen, int) {
 	return r, off
 }
 
-fn decode_case_test_expr(buf []u8) (CaseTestExpr, int) {
+fn decode_case_test_expr(buf []u8, depth int) (CaseTestExpr, int) {
+	if depth <= 0 { return CaseTestExpr{}, 0 }
 	mut r := CaseTestExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -1859,7 +1898,7 @@ fn decode_case_test_expr(buf []u8) (CaseTestExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -1886,7 +1925,8 @@ fn decode_case_test_expr(buf []u8) (CaseTestExpr, int) {
 	return r, off
 }
 
-fn decode_array_expr(buf []u8) (ArrayExpr, int) {
+fn decode_array_expr(buf []u8, depth int) (ArrayExpr, int) {
+	if depth <= 0 { return ArrayExpr{}, 0 }
 	mut r := ArrayExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -1895,7 +1935,7 @@ fn decode_array_expr(buf []u8) (ArrayExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -1916,7 +1956,7 @@ fn decode_array_expr(buf []u8) (ArrayExpr, int) {
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.elements << val
 				off += c2
 			}
@@ -1938,7 +1978,8 @@ fn decode_array_expr(buf []u8) (ArrayExpr, int) {
 	return r, off
 }
 
-fn decode_row_expr(buf []u8) (RowExpr, int) {
+fn decode_row_expr(buf []u8, depth int) (RowExpr, int) {
+	if depth <= 0 { return RowExpr{}, 0 }
 	mut r := RowExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -1947,13 +1988,13 @@ fn decode_row_expr(buf []u8) (RowExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.args << val
 				off += c2
 			}
@@ -1969,7 +2010,7 @@ fn decode_row_expr(buf []u8) (RowExpr, int) {
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.colnames << val
 				off += c2
 			}
@@ -1986,7 +2027,8 @@ fn decode_row_expr(buf []u8) (RowExpr, int) {
 	return r, off
 }
 
-fn decode_row_compare_expr(buf []u8) (RowCompareExpr, int) {
+fn decode_row_compare_expr(buf []u8, depth int) (RowCompareExpr, int) {
+	if depth <= 0 { return RowCompareExpr{}, 0 }
 	mut r := RowCompareExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -1995,7 +2037,7 @@ fn decode_row_compare_expr(buf []u8) (RowCompareExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -2006,31 +2048,31 @@ fn decode_row_compare_expr(buf []u8) (RowCompareExpr, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.opnos << val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.opfamilies << val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.inputcollids << val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.largs << val
 				off += c2
 			}
 			7 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.rargs << val
 				off += c2
 			}
@@ -2042,7 +2084,8 @@ fn decode_row_compare_expr(buf []u8) (RowCompareExpr, int) {
 	return r, off
 }
 
-fn decode_coalesce_expr(buf []u8) (CoalesceExpr, int) {
+fn decode_coalesce_expr(buf []u8, depth int) (CoalesceExpr, int) {
+	if depth <= 0 { return CoalesceExpr{}, 0 }
 	mut r := CoalesceExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -2051,7 +2094,7 @@ fn decode_coalesce_expr(buf []u8) (CoalesceExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -2067,7 +2110,7 @@ fn decode_coalesce_expr(buf []u8) (CoalesceExpr, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.args << val
 				off += c2
 			}
@@ -2084,7 +2127,8 @@ fn decode_coalesce_expr(buf []u8) (CoalesceExpr, int) {
 	return r, off
 }
 
-fn decode_min_max_expr(buf []u8) (MinMaxExpr, int) {
+fn decode_min_max_expr(buf []u8, depth int) (MinMaxExpr, int) {
+	if depth <= 0 { return MinMaxExpr{}, 0 }
 	mut r := MinMaxExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -2093,7 +2137,7 @@ fn decode_min_max_expr(buf []u8) (MinMaxExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -2119,7 +2163,7 @@ fn decode_min_max_expr(buf []u8) (MinMaxExpr, int) {
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.args << val
 				off += c2
 			}
@@ -2136,7 +2180,8 @@ fn decode_min_max_expr(buf []u8) (MinMaxExpr, int) {
 	return r, off
 }
 
-fn decode_s_q_l_value_function(buf []u8) (SQLValueFunction, int) {
+fn decode_s_q_l_value_function(buf []u8, depth int) (SQLValueFunction, int) {
+	if depth <= 0 { return SQLValueFunction{}, 0 }
 	mut r := SQLValueFunction{}
 	mut off := 0
 	for off < buf.len {
@@ -2145,7 +2190,7 @@ fn decode_s_q_l_value_function(buf []u8) (SQLValueFunction, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -2177,7 +2222,8 @@ fn decode_s_q_l_value_function(buf []u8) (SQLValueFunction, int) {
 	return r, off
 }
 
-fn decode_xml_expr(buf []u8) (XmlExpr, int) {
+fn decode_xml_expr(buf []u8, depth int) (XmlExpr, int) {
+	if depth <= 0 { return XmlExpr{}, 0 }
 	mut r := XmlExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -2186,7 +2232,7 @@ fn decode_xml_expr(buf []u8) (XmlExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -2202,19 +2248,19 @@ fn decode_xml_expr(buf []u8) (XmlExpr, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.named_args << val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.arg_names << val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.args << val
 				off += c2
 			}
@@ -2251,7 +2297,8 @@ fn decode_xml_expr(buf []u8) (XmlExpr, int) {
 	return r, off
 }
 
-fn decode_json_format(buf []u8) (JsonFormat, int) {
+fn decode_json_format(buf []u8, depth int) (JsonFormat, int) {
+	if depth <= 0 { return JsonFormat{}, 0 }
 	mut r := JsonFormat{}
 	mut off := 0
 	for off < buf.len {
@@ -2281,7 +2328,8 @@ fn decode_json_format(buf []u8) (JsonFormat, int) {
 	return r, off
 }
 
-fn decode_json_behavior(buf []u8) (JsonBehavior, int) {
+fn decode_json_behavior(buf []u8, depth int) (JsonBehavior, int) {
+	if depth <= 0 { return JsonBehavior{}, 0 }
 	mut r := JsonBehavior{}
 	mut off := 0
 	for off < buf.len {
@@ -2295,7 +2343,7 @@ fn decode_json_behavior(buf []u8) (JsonBehavior, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.expr = val
 				off += c2
 			}
@@ -2317,7 +2365,8 @@ fn decode_json_behavior(buf []u8) (JsonBehavior, int) {
 	return r, off
 }
 
-fn decode_json_table_path(buf []u8) (JsonTablePath, int) {
+fn decode_json_table_path(buf []u8, depth int) (JsonTablePath, int) {
+	if depth <= 0 { return JsonTablePath{}, 0 }
 	mut r := JsonTablePath{}
 	mut off := 0
 	for off < buf.len {
@@ -2337,7 +2386,8 @@ fn decode_json_table_path(buf []u8) (JsonTablePath, int) {
 	return r, off
 }
 
-fn decode_json_table_sibling_join(buf []u8) (JsonTableSiblingJoin, int) {
+fn decode_json_table_sibling_join(buf []u8, depth int) (JsonTableSiblingJoin, int) {
+	if depth <= 0 { return JsonTableSiblingJoin{}, 0 }
 	mut r := JsonTableSiblingJoin{}
 	mut off := 0
 	for off < buf.len {
@@ -2346,19 +2396,19 @@ fn decode_json_table_sibling_join(buf []u8) (JsonTableSiblingJoin, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.plan = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.lplan = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.rplan = val
 				off += c2
 			}
@@ -2370,7 +2420,8 @@ fn decode_json_table_sibling_join(buf []u8) (JsonTableSiblingJoin, int) {
 	return r, off
 }
 
-fn decode_null_test(buf []u8) (NullTest, int) {
+fn decode_null_test(buf []u8, depth int) (NullTest, int) {
+	if depth <= 0 { return NullTest{}, 0 }
 	mut r := NullTest{}
 	mut off := 0
 	for off < buf.len {
@@ -2379,13 +2430,13 @@ fn decode_null_test(buf []u8) (NullTest, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.arg = val
 				off += c2
 			}
@@ -2412,7 +2463,8 @@ fn decode_null_test(buf []u8) (NullTest, int) {
 	return r, off
 }
 
-fn decode_boolean_test(buf []u8) (BooleanTest, int) {
+fn decode_boolean_test(buf []u8, depth int) (BooleanTest, int) {
+	if depth <= 0 { return BooleanTest{}, 0 }
 	mut r := BooleanTest{}
 	mut off := 0
 	for off < buf.len {
@@ -2421,13 +2473,13 @@ fn decode_boolean_test(buf []u8) (BooleanTest, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.arg = val
 				off += c2
 			}
@@ -2449,7 +2501,8 @@ fn decode_boolean_test(buf []u8) (BooleanTest, int) {
 	return r, off
 }
 
-fn decode_merge_action(buf []u8) (MergeAction, int) {
+fn decode_merge_action(buf []u8, depth int) (MergeAction, int) {
+	if depth <= 0 { return MergeAction{}, 0 }
 	mut r := MergeAction{}
 	mut off := 0
 	for off < buf.len {
@@ -2473,19 +2526,19 @@ fn decode_merge_action(buf []u8) (MergeAction, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.qual = val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.target_list << val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.update_colnos << val
 				off += c2
 			}
@@ -2497,7 +2550,8 @@ fn decode_merge_action(buf []u8) (MergeAction, int) {
 	return r, off
 }
 
-fn decode_coerce_to_domain(buf []u8) (CoerceToDomain, int) {
+fn decode_coerce_to_domain(buf []u8, depth int) (CoerceToDomain, int) {
+	if depth <= 0 { return CoerceToDomain{}, 0 }
 	mut r := CoerceToDomain{}
 	mut off := 0
 	for off < buf.len {
@@ -2506,13 +2560,13 @@ fn decode_coerce_to_domain(buf []u8) (CoerceToDomain, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.arg = val
 				off += c2
 			}
@@ -2549,7 +2603,8 @@ fn decode_coerce_to_domain(buf []u8) (CoerceToDomain, int) {
 	return r, off
 }
 
-fn decode_coerce_to_domain_value(buf []u8) (CoerceToDomainValue, int) {
+fn decode_coerce_to_domain_value(buf []u8, depth int) (CoerceToDomainValue, int) {
+	if depth <= 0 { return CoerceToDomainValue{}, 0 }
 	mut r := CoerceToDomainValue{}
 	mut off := 0
 	for off < buf.len {
@@ -2558,7 +2613,7 @@ fn decode_coerce_to_domain_value(buf []u8) (CoerceToDomainValue, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -2590,7 +2645,8 @@ fn decode_coerce_to_domain_value(buf []u8) (CoerceToDomainValue, int) {
 	return r, off
 }
 
-fn decode_set_to_default(buf []u8) (SetToDefault, int) {
+fn decode_set_to_default(buf []u8, depth int) (SetToDefault, int) {
+	if depth <= 0 { return SetToDefault{}, 0 }
 	mut r := SetToDefault{}
 	mut off := 0
 	for off < buf.len {
@@ -2599,7 +2655,7 @@ fn decode_set_to_default(buf []u8) (SetToDefault, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -2631,7 +2687,8 @@ fn decode_set_to_default(buf []u8) (SetToDefault, int) {
 	return r, off
 }
 
-fn decode_current_of_expr(buf []u8) (CurrentOfExpr, int) {
+fn decode_current_of_expr(buf []u8, depth int) (CurrentOfExpr, int) {
+	if depth <= 0 { return CurrentOfExpr{}, 0 }
 	mut r := CurrentOfExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -2640,7 +2697,7 @@ fn decode_current_of_expr(buf []u8) (CurrentOfExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -2667,7 +2724,8 @@ fn decode_current_of_expr(buf []u8) (CurrentOfExpr, int) {
 	return r, off
 }
 
-fn decode_next_value_expr(buf []u8) (NextValueExpr, int) {
+fn decode_next_value_expr(buf []u8, depth int) (NextValueExpr, int) {
+	if depth <= 0 { return NextValueExpr{}, 0 }
 	mut r := NextValueExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -2676,7 +2734,7 @@ fn decode_next_value_expr(buf []u8) (NextValueExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -2698,7 +2756,8 @@ fn decode_next_value_expr(buf []u8) (NextValueExpr, int) {
 	return r, off
 }
 
-fn decode_inference_elem(buf []u8) (InferenceElem, int) {
+fn decode_inference_elem(buf []u8, depth int) (InferenceElem, int) {
+	if depth <= 0 { return InferenceElem{}, 0 }
 	mut r := InferenceElem{}
 	mut off := 0
 	for off < buf.len {
@@ -2707,13 +2766,13 @@ fn decode_inference_elem(buf []u8) (InferenceElem, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.expr = val
 				off += c2
 			}
@@ -2735,7 +2794,8 @@ fn decode_inference_elem(buf []u8) (InferenceElem, int) {
 	return r, off
 }
 
-fn decode_target_entry(buf []u8) (TargetEntry, int) {
+fn decode_target_entry(buf []u8, depth int) (TargetEntry, int) {
+	if depth <= 0 { return TargetEntry{}, 0 }
 	mut r := TargetEntry{}
 	mut off := 0
 	for off < buf.len {
@@ -2744,13 +2804,13 @@ fn decode_target_entry(buf []u8) (TargetEntry, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.expr = val
 				off += c2
 			}
@@ -2792,7 +2852,8 @@ fn decode_target_entry(buf []u8) (TargetEntry, int) {
 	return r, off
 }
 
-fn decode_range_tbl_ref(buf []u8) (RangeTblRef, int) {
+fn decode_range_tbl_ref(buf []u8, depth int) (RangeTblRef, int) {
+	if depth <= 0 { return RangeTblRef{}, 0 }
 	mut r := RangeTblRef{}
 	mut off := 0
 	for off < buf.len {
@@ -2812,7 +2873,8 @@ fn decode_range_tbl_ref(buf []u8) (RangeTblRef, int) {
 	return r, off
 }
 
-fn decode_from_expr(buf []u8) (FromExpr, int) {
+fn decode_from_expr(buf []u8, depth int) (FromExpr, int) {
+	if depth <= 0 { return FromExpr{}, 0 }
 	mut r := FromExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -2821,13 +2883,13 @@ fn decode_from_expr(buf []u8) (FromExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.fromlist << val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.quals = val
 				off += c2
 			}
@@ -2839,7 +2901,8 @@ fn decode_from_expr(buf []u8) (FromExpr, int) {
 	return r, off
 }
 
-fn decode_on_conflict_expr(buf []u8) (OnConflictExpr, int) {
+fn decode_on_conflict_expr(buf []u8, depth int) (OnConflictExpr, int) {
+	if depth <= 0 { return OnConflictExpr{}, 0 }
 	mut r := OnConflictExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -2853,13 +2916,13 @@ fn decode_on_conflict_expr(buf []u8) (OnConflictExpr, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.arbiter_elems << val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.arbiter_where = val
 				off += c2
 			}
@@ -2870,13 +2933,13 @@ fn decode_on_conflict_expr(buf []u8) (OnConflictExpr, int) {
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.on_conflict_set << val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.on_conflict_where = val
 				off += c2
 			}
@@ -2887,7 +2950,7 @@ fn decode_on_conflict_expr(buf []u8) (OnConflictExpr, int) {
 			}
 			8 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.excl_rel_tlist << val
 				off += c2
 			}
@@ -2899,7 +2962,8 @@ fn decode_on_conflict_expr(buf []u8) (OnConflictExpr, int) {
 	return r, off
 }
 
-fn decode_type_name(buf []u8) (TypeName, int) {
+fn decode_type_name(buf []u8, depth int) (TypeName, int) {
+	if depth <= 0 { return TypeName{}, 0 }
 	mut r := TypeName{}
 	mut off := 0
 	for off < buf.len {
@@ -2908,7 +2972,7 @@ fn decode_type_name(buf []u8) (TypeName, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.names << val
 				off += c2
 			}
@@ -2929,7 +2993,7 @@ fn decode_type_name(buf []u8) (TypeName, int) {
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.typmods << val
 				off += c2
 			}
@@ -2940,7 +3004,7 @@ fn decode_type_name(buf []u8) (TypeName, int) {
 			}
 			7 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.array_bounds << val
 				off += c2
 			}
@@ -2957,7 +3021,8 @@ fn decode_type_name(buf []u8) (TypeName, int) {
 	return r, off
 }
 
-fn decode_column_ref(buf []u8) (ColumnRef, int) {
+fn decode_column_ref(buf []u8, depth int) (ColumnRef, int) {
+	if depth <= 0 { return ColumnRef{}, 0 }
 	mut r := ColumnRef{}
 	mut off := 0
 	for off < buf.len {
@@ -2966,7 +3031,7 @@ fn decode_column_ref(buf []u8) (ColumnRef, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.fields << val
 				off += c2
 			}
@@ -2983,7 +3048,8 @@ fn decode_column_ref(buf []u8) (ColumnRef, int) {
 	return r, off
 }
 
-fn decode_param_ref(buf []u8) (ParamRef, int) {
+fn decode_param_ref(buf []u8, depth int) (ParamRef, int) {
+	if depth <= 0 { return ParamRef{}, 0 }
 	mut r := ParamRef{}
 	mut off := 0
 	for off < buf.len {
@@ -3008,7 +3074,8 @@ fn decode_param_ref(buf []u8) (ParamRef, int) {
 	return r, off
 }
 
-fn decode_a_expr(buf []u8) (AExpr, int) {
+fn decode_a_expr(buf []u8, depth int) (AExpr, int) {
+	if depth <= 0 { return AExpr{}, 0 }
 	mut r := AExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -3022,19 +3089,19 @@ fn decode_a_expr(buf []u8) (AExpr, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.name << val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.lexpr = val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.rexpr = val
 				off += c2
 			}
@@ -3051,7 +3118,8 @@ fn decode_a_expr(buf []u8) (AExpr, int) {
 	return r, off
 }
 
-fn decode_collate_clause(buf []u8) (CollateClause, int) {
+fn decode_collate_clause(buf []u8, depth int) (CollateClause, int) {
+	if depth <= 0 { return CollateClause{}, 0 }
 	mut r := CollateClause{}
 	mut off := 0
 	for off < buf.len {
@@ -3060,13 +3128,13 @@ fn decode_collate_clause(buf []u8) (CollateClause, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.arg = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.collname << val
 				off += c2
 			}
@@ -3083,7 +3151,8 @@ fn decode_collate_clause(buf []u8) (CollateClause, int) {
 	return r, off
 }
 
-fn decode_role_spec(buf []u8) (RoleSpec, int) {
+fn decode_role_spec(buf []u8, depth int) (RoleSpec, int) {
+	if depth <= 0 { return RoleSpec{}, 0 }
 	mut r := RoleSpec{}
 	mut off := 0
 	for off < buf.len {
@@ -3113,12 +3182,14 @@ fn decode_role_spec(buf []u8) (RoleSpec, int) {
 	return r, off
 }
 
-fn decode_a_star(buf []u8) (AStar, int) {
+fn decode_a_star(buf []u8, depth int) (AStar, int) {
+	if depth <= 0 { return AStar{}, 0 }
 	mut r := AStar{}
 	return r, buf.len
 }
 
-fn decode_a_indices(buf []u8) (AIndices, int) {
+fn decode_a_indices(buf []u8, depth int) (AIndices, int) {
+	if depth <= 0 { return AIndices{}, 0 }
 	mut r := AIndices{}
 	mut off := 0
 	for off < buf.len {
@@ -3132,13 +3203,13 @@ fn decode_a_indices(buf []u8) (AIndices, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.lidx = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.uidx = val
 				off += c2
 			}
@@ -3150,7 +3221,8 @@ fn decode_a_indices(buf []u8) (AIndices, int) {
 	return r, off
 }
 
-fn decode_a_indirection(buf []u8) (AIndirection, int) {
+fn decode_a_indirection(buf []u8, depth int) (AIndirection, int) {
+	if depth <= 0 { return AIndirection{}, 0 }
 	mut r := AIndirection{}
 	mut off := 0
 	for off < buf.len {
@@ -3159,13 +3231,13 @@ fn decode_a_indirection(buf []u8) (AIndirection, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.arg = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.indirection << val
 				off += c2
 			}
@@ -3177,7 +3249,8 @@ fn decode_a_indirection(buf []u8) (AIndirection, int) {
 	return r, off
 }
 
-fn decode_a_array_expr(buf []u8) (AArrayExpr, int) {
+fn decode_a_array_expr(buf []u8, depth int) (AArrayExpr, int) {
+	if depth <= 0 { return AArrayExpr{}, 0 }
 	mut r := AArrayExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -3186,7 +3259,7 @@ fn decode_a_array_expr(buf []u8) (AArrayExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.elements << val
 				off += c2
 			}
@@ -3203,7 +3276,8 @@ fn decode_a_array_expr(buf []u8) (AArrayExpr, int) {
 	return r, off
 }
 
-fn decode_res_target(buf []u8) (ResTarget, int) {
+fn decode_res_target(buf []u8, depth int) (ResTarget, int) {
+	if depth <= 0 { return ResTarget{}, 0 }
 	mut r := ResTarget{}
 	mut off := 0
 	for off < buf.len {
@@ -3217,13 +3291,13 @@ fn decode_res_target(buf []u8) (ResTarget, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.indirection << val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.val = val
 				off += c2
 			}
@@ -3240,7 +3314,8 @@ fn decode_res_target(buf []u8) (ResTarget, int) {
 	return r, off
 }
 
-fn decode_multi_assign_ref(buf []u8) (MultiAssignRef, int) {
+fn decode_multi_assign_ref(buf []u8, depth int) (MultiAssignRef, int) {
+	if depth <= 0 { return MultiAssignRef{}, 0 }
 	mut r := MultiAssignRef{}
 	mut off := 0
 	for off < buf.len {
@@ -3249,7 +3324,7 @@ fn decode_multi_assign_ref(buf []u8) (MultiAssignRef, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.source = val
 				off += c2
 			}
@@ -3271,7 +3346,8 @@ fn decode_multi_assign_ref(buf []u8) (MultiAssignRef, int) {
 	return r, off
 }
 
-fn decode_sort_by(buf []u8) (SortBy, int) {
+fn decode_sort_by(buf []u8, depth int) (SortBy, int) {
+	if depth <= 0 { return SortBy{}, 0 }
 	mut r := SortBy{}
 	mut off := 0
 	for off < buf.len {
@@ -3280,7 +3356,7 @@ fn decode_sort_by(buf []u8) (SortBy, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.node = val
 				off += c2
 			}
@@ -3296,7 +3372,7 @@ fn decode_sort_by(buf []u8) (SortBy, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.use_op << val
 				off += c2
 			}
@@ -3313,7 +3389,8 @@ fn decode_sort_by(buf []u8) (SortBy, int) {
 	return r, off
 }
 
-fn decode_window_def(buf []u8) (WindowDef, int) {
+fn decode_window_def(buf []u8, depth int) (WindowDef, int) {
+	if depth <= 0 { return WindowDef{}, 0 }
 	mut r := WindowDef{}
 	mut off := 0
 	for off < buf.len {
@@ -3332,13 +3409,13 @@ fn decode_window_def(buf []u8) (WindowDef, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.partition_clause << val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.order_clause << val
 				off += c2
 			}
@@ -3349,13 +3426,13 @@ fn decode_window_def(buf []u8) (WindowDef, int) {
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.start_offset = val
 				off += c2
 			}
 			7 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.end_offset = val
 				off += c2
 			}
@@ -3372,7 +3449,8 @@ fn decode_window_def(buf []u8) (WindowDef, int) {
 	return r, off
 }
 
-fn decode_range_table_sample(buf []u8) (RangeTableSample, int) {
+fn decode_range_table_sample(buf []u8, depth int) (RangeTableSample, int) {
+	if depth <= 0 { return RangeTableSample{}, 0 }
 	mut r := RangeTableSample{}
 	mut off := 0
 	for off < buf.len {
@@ -3381,25 +3459,25 @@ fn decode_range_table_sample(buf []u8) (RangeTableSample, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.relation = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.method << val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.args << val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.repeatable = val
 				off += c2
 			}
@@ -3416,7 +3494,8 @@ fn decode_range_table_sample(buf []u8) (RangeTableSample, int) {
 	return r, off
 }
 
-fn decode_index_elem(buf []u8) (IndexElem, int) {
+fn decode_index_elem(buf []u8, depth int) (IndexElem, int) {
+	if depth <= 0 { return IndexElem{}, 0 }
 	mut r := IndexElem{}
 	mut off := 0
 	for off < buf.len {
@@ -3430,7 +3509,7 @@ fn decode_index_elem(buf []u8) (IndexElem, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.expr = val
 				off += c2
 			}
@@ -3441,19 +3520,19 @@ fn decode_index_elem(buf []u8) (IndexElem, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.collation << val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.opclass << val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.opclassopts << val
 				off += c2
 			}
@@ -3475,7 +3554,8 @@ fn decode_index_elem(buf []u8) (IndexElem, int) {
 	return r, off
 }
 
-fn decode_def_elem(buf []u8) (DefElem, int) {
+fn decode_def_elem(buf []u8, depth int) (DefElem, int) {
+	if depth <= 0 { return DefElem{}, 0 }
 	mut r := DefElem{}
 	mut off := 0
 	for off < buf.len {
@@ -3494,7 +3574,7 @@ fn decode_def_elem(buf []u8) (DefElem, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.arg = val
 				off += c2
 			}
@@ -3516,7 +3596,8 @@ fn decode_def_elem(buf []u8) (DefElem, int) {
 	return r, off
 }
 
-fn decode_locking_clause(buf []u8) (LockingClause, int) {
+fn decode_locking_clause(buf []u8, depth int) (LockingClause, int) {
+	if depth <= 0 { return LockingClause{}, 0 }
 	mut r := LockingClause{}
 	mut off := 0
 	for off < buf.len {
@@ -3525,7 +3606,7 @@ fn decode_locking_clause(buf []u8) (LockingClause, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.locked_rels << val
 				off += c2
 			}
@@ -3547,7 +3628,8 @@ fn decode_locking_clause(buf []u8) (LockingClause, int) {
 	return r, off
 }
 
-fn decode_partition_elem(buf []u8) (PartitionElem, int) {
+fn decode_partition_elem(buf []u8, depth int) (PartitionElem, int) {
+	if depth <= 0 { return PartitionElem{}, 0 }
 	mut r := PartitionElem{}
 	mut off := 0
 	for off < buf.len {
@@ -3561,19 +3643,19 @@ fn decode_partition_elem(buf []u8) (PartitionElem, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.expr = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.collation << val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.opclass << val
 				off += c2
 			}
@@ -3590,7 +3672,8 @@ fn decode_partition_elem(buf []u8) (PartitionElem, int) {
 	return r, off
 }
 
-fn decode_partition_spec(buf []u8) (PartitionSpec, int) {
+fn decode_partition_spec(buf []u8, depth int) (PartitionSpec, int) {
+	if depth <= 0 { return PartitionSpec{}, 0 }
 	mut r := PartitionSpec{}
 	mut off := 0
 	for off < buf.len {
@@ -3604,7 +3687,7 @@ fn decode_partition_spec(buf []u8) (PartitionSpec, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.part_params << val
 				off += c2
 			}
@@ -3621,7 +3704,8 @@ fn decode_partition_spec(buf []u8) (PartitionSpec, int) {
 	return r, off
 }
 
-fn decode_partition_bound_spec(buf []u8) (PartitionBoundSpec, int) {
+fn decode_partition_bound_spec(buf []u8, depth int) (PartitionBoundSpec, int) {
+	if depth <= 0 { return PartitionBoundSpec{}, 0 }
 	mut r := PartitionBoundSpec{}
 	mut off := 0
 	for off < buf.len {
@@ -3650,19 +3734,19 @@ fn decode_partition_bound_spec(buf []u8) (PartitionBoundSpec, int) {
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.listdatums << val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.lowerdatums << val
 				off += c2
 			}
 			7 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.upperdatums << val
 				off += c2
 			}
@@ -3679,7 +3763,8 @@ fn decode_partition_bound_spec(buf []u8) (PartitionBoundSpec, int) {
 	return r, off
 }
 
-fn decode_partition_range_datum(buf []u8) (PartitionRangeDatum, int) {
+fn decode_partition_range_datum(buf []u8, depth int) (PartitionRangeDatum, int) {
+	if depth <= 0 { return PartitionRangeDatum{}, 0 }
 	mut r := PartitionRangeDatum{}
 	mut off := 0
 	for off < buf.len {
@@ -3693,7 +3778,7 @@ fn decode_partition_range_datum(buf []u8) (PartitionRangeDatum, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.value = val
 				off += c2
 			}
@@ -3710,12 +3795,14 @@ fn decode_partition_range_datum(buf []u8) (PartitionRangeDatum, int) {
 	return r, off
 }
 
-fn decode_single_partition_spec(buf []u8) (SinglePartitionSpec, int) {
+fn decode_single_partition_spec(buf []u8, depth int) (SinglePartitionSpec, int) {
+	if depth <= 0 { return SinglePartitionSpec{}, 0 }
 	mut r := SinglePartitionSpec{}
 	return r, buf.len
 }
 
-fn decode_r_t_e_permission_info(buf []u8) (RTEPermissionInfo, int) {
+fn decode_r_t_e_permission_info(buf []u8, depth int) (RTEPermissionInfo, int) {
+	if depth <= 0 { return RTEPermissionInfo{}, 0 }
 	mut r := RTEPermissionInfo{}
 	mut off := 0
 	for off < buf.len {
@@ -3798,7 +3885,8 @@ fn decode_r_t_e_permission_info(buf []u8) (RTEPermissionInfo, int) {
 	return r, off
 }
 
-fn decode_range_tbl_function(buf []u8) (RangeTblFunction, int) {
+fn decode_range_tbl_function(buf []u8, depth int) (RangeTblFunction, int) {
+	if depth <= 0 { return RangeTblFunction{}, 0 }
 	mut r := RangeTblFunction{}
 	mut off := 0
 	for off < buf.len {
@@ -3807,7 +3895,7 @@ fn decode_range_tbl_function(buf []u8) (RangeTblFunction, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.funcexpr = val
 				off += c2
 			}
@@ -3818,25 +3906,25 @@ fn decode_range_tbl_function(buf []u8) (RangeTblFunction, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.funccolnames << val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.funccoltypes << val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.funccoltypmods << val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.funccolcollations << val
 				off += c2
 			}
@@ -3864,7 +3952,8 @@ fn decode_range_tbl_function(buf []u8) (RangeTblFunction, int) {
 	return r, off
 }
 
-fn decode_table_sample_clause(buf []u8) (TableSampleClause, int) {
+fn decode_table_sample_clause(buf []u8, depth int) (TableSampleClause, int) {
+	if depth <= 0 { return TableSampleClause{}, 0 }
 	mut r := TableSampleClause{}
 	mut off := 0
 	for off < buf.len {
@@ -3878,13 +3967,13 @@ fn decode_table_sample_clause(buf []u8) (TableSampleClause, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.args << val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.repeatable = val
 				off += c2
 			}
@@ -3896,7 +3985,8 @@ fn decode_table_sample_clause(buf []u8) (TableSampleClause, int) {
 	return r, off
 }
 
-fn decode_with_check_option(buf []u8) (WithCheckOption, int) {
+fn decode_with_check_option(buf []u8, depth int) (WithCheckOption, int) {
+	if depth <= 0 { return WithCheckOption{}, 0 }
 	mut r := WithCheckOption{}
 	mut off := 0
 	for off < buf.len {
@@ -3920,7 +4010,7 @@ fn decode_with_check_option(buf []u8) (WithCheckOption, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.qual = val
 				off += c2
 			}
@@ -3937,7 +4027,8 @@ fn decode_with_check_option(buf []u8) (WithCheckOption, int) {
 	return r, off
 }
 
-fn decode_sort_group_clause(buf []u8) (SortGroupClause, int) {
+fn decode_sort_group_clause(buf []u8, depth int) (SortGroupClause, int) {
+	if depth <= 0 { return SortGroupClause{}, 0 }
 	mut r := SortGroupClause{}
 	mut off := 0
 	for off < buf.len {
@@ -3977,7 +4068,8 @@ fn decode_sort_group_clause(buf []u8) (SortGroupClause, int) {
 	return r, off
 }
 
-fn decode_grouping_set(buf []u8) (GroupingSet, int) {
+fn decode_grouping_set(buf []u8, depth int) (GroupingSet, int) {
+	if depth <= 0 { return GroupingSet{}, 0 }
 	mut r := GroupingSet{}
 	mut off := 0
 	for off < buf.len {
@@ -3991,7 +4083,7 @@ fn decode_grouping_set(buf []u8) (GroupingSet, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.content << val
 				off += c2
 			}
@@ -4008,7 +4100,8 @@ fn decode_grouping_set(buf []u8) (GroupingSet, int) {
 	return r, off
 }
 
-fn decode_window_clause(buf []u8) (WindowClause, int) {
+fn decode_window_clause(buf []u8, depth int) (WindowClause, int) {
+	if depth <= 0 { return WindowClause{}, 0 }
 	mut r := WindowClause{}
 	mut off := 0
 	for off < buf.len {
@@ -4027,13 +4120,13 @@ fn decode_window_clause(buf []u8) (WindowClause, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.partition_clause << val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.order_clause << val
 				off += c2
 			}
@@ -4044,13 +4137,13 @@ fn decode_window_clause(buf []u8) (WindowClause, int) {
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.start_offset = val
 				off += c2
 			}
 			7 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.end_offset = val
 				off += c2
 			}
@@ -4097,7 +4190,8 @@ fn decode_window_clause(buf []u8) (WindowClause, int) {
 	return r, off
 }
 
-fn decode_row_mark_clause(buf []u8) (RowMarkClause, int) {
+fn decode_row_mark_clause(buf []u8, depth int) (RowMarkClause, int) {
+	if depth <= 0 { return RowMarkClause{}, 0 }
 	mut r := RowMarkClause{}
 	mut off := 0
 	for off < buf.len {
@@ -4132,7 +4226,8 @@ fn decode_row_mark_clause(buf []u8) (RowMarkClause, int) {
 	return r, off
 }
 
-fn decode_with_clause(buf []u8) (WithClause, int) {
+fn decode_with_clause(buf []u8, depth int) (WithClause, int) {
+	if depth <= 0 { return WithClause{}, 0 }
 	mut r := WithClause{}
 	mut off := 0
 	for off < buf.len {
@@ -4141,7 +4236,7 @@ fn decode_with_clause(buf []u8) (WithClause, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.ctes << val
 				off += c2
 			}
@@ -4163,7 +4258,8 @@ fn decode_with_clause(buf []u8) (WithClause, int) {
 	return r, off
 }
 
-fn decode_infer_clause(buf []u8) (InferClause, int) {
+fn decode_infer_clause(buf []u8, depth int) (InferClause, int) {
+	if depth <= 0 { return InferClause{}, 0 }
 	mut r := InferClause{}
 	mut off := 0
 	for off < buf.len {
@@ -4172,13 +4268,13 @@ fn decode_infer_clause(buf []u8) (InferClause, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.index_elems << val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.where_clause = val
 				off += c2
 			}
@@ -4200,7 +4296,8 @@ fn decode_infer_clause(buf []u8) (InferClause, int) {
 	return r, off
 }
 
-fn decode_c_t_e_search_clause(buf []u8) (CTESearchClause, int) {
+fn decode_c_t_e_search_clause(buf []u8, depth int) (CTESearchClause, int) {
+	if depth <= 0 { return CTESearchClause{}, 0 }
 	mut r := CTESearchClause{}
 	mut off := 0
 	for off < buf.len {
@@ -4209,7 +4306,7 @@ fn decode_c_t_e_search_clause(buf []u8) (CTESearchClause, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.search_col_list << val
 				off += c2
 			}
@@ -4236,7 +4333,8 @@ fn decode_c_t_e_search_clause(buf []u8) (CTESearchClause, int) {
 	return r, off
 }
 
-fn decode_c_t_e_cycle_clause(buf []u8) (CTECycleClause, int) {
+fn decode_c_t_e_cycle_clause(buf []u8, depth int) (CTECycleClause, int) {
+	if depth <= 0 { return CTECycleClause{}, 0 }
 	mut r := CTECycleClause{}
 	mut off := 0
 	for off < buf.len {
@@ -4245,7 +4343,7 @@ fn decode_c_t_e_cycle_clause(buf []u8) (CTECycleClause, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.cycle_col_list << val
 				off += c2
 			}
@@ -4256,13 +4354,13 @@ fn decode_c_t_e_cycle_clause(buf []u8) (CTECycleClause, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.cycle_mark_value = val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.cycle_mark_default = val
 				off += c2
 			}
@@ -4304,7 +4402,8 @@ fn decode_c_t_e_cycle_clause(buf []u8) (CTECycleClause, int) {
 	return r, off
 }
 
-fn decode_merge_when_clause(buf []u8) (MergeWhenClause, int) {
+fn decode_merge_when_clause(buf []u8, depth int) (MergeWhenClause, int) {
+	if depth <= 0 { return MergeWhenClause{}, 0 }
 	mut r := MergeWhenClause{}
 	mut off := 0
 	for off < buf.len {
@@ -4328,19 +4427,19 @@ fn decode_merge_when_clause(buf []u8) (MergeWhenClause, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.condition = val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.target_list << val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.values << val
 				off += c2
 			}
@@ -4352,7 +4451,8 @@ fn decode_merge_when_clause(buf []u8) (MergeWhenClause, int) {
 	return r, off
 }
 
-fn decode_trigger_transition(buf []u8) (TriggerTransition, int) {
+fn decode_trigger_transition(buf []u8, depth int) (TriggerTransition, int) {
+	if depth <= 0 { return TriggerTransition{}, 0 }
 	mut r := TriggerTransition{}
 	mut off := 0
 	for off < buf.len {
@@ -4382,7 +4482,8 @@ fn decode_trigger_transition(buf []u8) (TriggerTransition, int) {
 	return r, off
 }
 
-fn decode_json_table_path_spec(buf []u8) (JsonTablePathSpec, int) {
+fn decode_json_table_path_spec(buf []u8, depth int) (JsonTablePathSpec, int) {
+	if depth <= 0 { return JsonTablePathSpec{}, 0 }
 	mut r := JsonTablePathSpec{}
 	mut off := 0
 	for off < buf.len {
@@ -4391,7 +4492,7 @@ fn decode_json_table_path_spec(buf []u8) (JsonTablePathSpec, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.string = val
 				off += c2
 			}
@@ -4418,7 +4519,8 @@ fn decode_json_table_path_spec(buf []u8) (JsonTablePathSpec, int) {
 	return r, off
 }
 
-fn decode_raw_stmt(buf []u8) (RawStmt, int) {
+fn decode_raw_stmt(buf []u8, depth int) (RawStmt, int) {
+	if depth <= 0 { return RawStmt{}, 0 }
 	mut r := RawStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4427,7 +4529,7 @@ fn decode_raw_stmt(buf []u8) (RawStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.stmt = val
 				off += c2
 			}
@@ -4449,7 +4551,8 @@ fn decode_raw_stmt(buf []u8) (RawStmt, int) {
 	return r, off
 }
 
-fn decode_set_operation_stmt(buf []u8) (SetOperationStmt, int) {
+fn decode_set_operation_stmt(buf []u8, depth int) (SetOperationStmt, int) {
+	if depth <= 0 { return SetOperationStmt{}, 0 }
 	mut r := SetOperationStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4468,37 +4571,37 @@ fn decode_set_operation_stmt(buf []u8) (SetOperationStmt, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.larg = val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.rarg = val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.col_types << val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.col_typmods << val
 				off += c2
 			}
 			7 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.col_collations << val
 				off += c2
 			}
 			8 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.group_clauses << val
 				off += c2
 			}
@@ -4510,7 +4613,8 @@ fn decode_set_operation_stmt(buf []u8) (SetOperationStmt, int) {
 	return r, off
 }
 
-fn decode_return_stmt(buf []u8) (ReturnStmt, int) {
+fn decode_return_stmt(buf []u8, depth int) (ReturnStmt, int) {
+	if depth <= 0 { return ReturnStmt{}, 0 }
 	mut r := ReturnStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4519,7 +4623,7 @@ fn decode_return_stmt(buf []u8) (ReturnStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.returnval = val
 				off += c2
 			}
@@ -4531,7 +4635,8 @@ fn decode_return_stmt(buf []u8) (ReturnStmt, int) {
 	return r, off
 }
 
-fn decode_replica_identity_stmt(buf []u8) (ReplicaIdentityStmt, int) {
+fn decode_replica_identity_stmt(buf []u8, depth int) (ReplicaIdentityStmt, int) {
+	if depth <= 0 { return ReplicaIdentityStmt{}, 0 }
 	mut r := ReplicaIdentityStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4556,7 +4661,8 @@ fn decode_replica_identity_stmt(buf []u8) (ReplicaIdentityStmt, int) {
 	return r, off
 }
 
-fn decode_alter_collation_stmt(buf []u8) (AlterCollationStmt, int) {
+fn decode_alter_collation_stmt(buf []u8, depth int) (AlterCollationStmt, int) {
+	if depth <= 0 { return AlterCollationStmt{}, 0 }
 	mut r := AlterCollationStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4565,7 +4671,7 @@ fn decode_alter_collation_stmt(buf []u8) (AlterCollationStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.collname << val
 				off += c2
 			}
@@ -4577,7 +4683,8 @@ fn decode_alter_collation_stmt(buf []u8) (AlterCollationStmt, int) {
 	return r, off
 }
 
-fn decode_alter_domain_stmt(buf []u8) (AlterDomainStmt, int) {
+fn decode_alter_domain_stmt(buf []u8, depth int) (AlterDomainStmt, int) {
+	if depth <= 0 { return AlterDomainStmt{}, 0 }
 	mut r := AlterDomainStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4591,7 +4698,7 @@ fn decode_alter_domain_stmt(buf []u8) (AlterDomainStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.type_name << val
 				off += c2
 			}
@@ -4602,7 +4709,7 @@ fn decode_alter_domain_stmt(buf []u8) (AlterDomainStmt, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.def = val
 				off += c2
 			}
@@ -4624,7 +4731,8 @@ fn decode_alter_domain_stmt(buf []u8) (AlterDomainStmt, int) {
 	return r, off
 }
 
-fn decode_object_with_args(buf []u8) (ObjectWithArgs, int) {
+fn decode_object_with_args(buf []u8, depth int) (ObjectWithArgs, int) {
+	if depth <= 0 { return ObjectWithArgs{}, 0 }
 	mut r := ObjectWithArgs{}
 	mut off := 0
 	for off < buf.len {
@@ -4633,19 +4741,19 @@ fn decode_object_with_args(buf []u8) (ObjectWithArgs, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.objname << val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.objargs << val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.objfuncargs << val
 				off += c2
 			}
@@ -4662,7 +4770,8 @@ fn decode_object_with_args(buf []u8) (ObjectWithArgs, int) {
 	return r, off
 }
 
-fn decode_access_priv(buf []u8) (AccessPriv, int) {
+fn decode_access_priv(buf []u8, depth int) (AccessPriv, int) {
+	if depth <= 0 { return AccessPriv{}, 0 }
 	mut r := AccessPriv{}
 	mut off := 0
 	for off < buf.len {
@@ -4676,7 +4785,7 @@ fn decode_access_priv(buf []u8) (AccessPriv, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.cols << val
 				off += c2
 			}
@@ -4688,7 +4797,8 @@ fn decode_access_priv(buf []u8) (AccessPriv, int) {
 	return r, off
 }
 
-fn decode_variable_set_stmt(buf []u8) (VariableSetStmt, int) {
+fn decode_variable_set_stmt(buf []u8, depth int) (VariableSetStmt, int) {
+	if depth <= 0 { return VariableSetStmt{}, 0 }
 	mut r := VariableSetStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4707,7 +4817,7 @@ fn decode_variable_set_stmt(buf []u8) (VariableSetStmt, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.args << val
 				off += c2
 			}
@@ -4724,7 +4834,8 @@ fn decode_variable_set_stmt(buf []u8) (VariableSetStmt, int) {
 	return r, off
 }
 
-fn decode_variable_show_stmt(buf []u8) (VariableShowStmt, int) {
+fn decode_variable_show_stmt(buf []u8, depth int) (VariableShowStmt, int) {
+	if depth <= 0 { return VariableShowStmt{}, 0 }
 	mut r := VariableShowStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4744,7 +4855,8 @@ fn decode_variable_show_stmt(buf []u8) (VariableShowStmt, int) {
 	return r, off
 }
 
-fn decode_drop_table_space_stmt(buf []u8) (DropTableSpaceStmt, int) {
+fn decode_drop_table_space_stmt(buf []u8, depth int) (DropTableSpaceStmt, int) {
+	if depth <= 0 { return DropTableSpaceStmt{}, 0 }
 	mut r := DropTableSpaceStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4769,7 +4881,8 @@ fn decode_drop_table_space_stmt(buf []u8) (DropTableSpaceStmt, int) {
 	return r, off
 }
 
-fn decode_alter_table_space_options_stmt(buf []u8) (AlterTableSpaceOptionsStmt, int) {
+fn decode_alter_table_space_options_stmt(buf []u8, depth int) (AlterTableSpaceOptionsStmt, int) {
+	if depth <= 0 { return AlterTableSpaceOptionsStmt{}, 0 }
 	mut r := AlterTableSpaceOptionsStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4783,7 +4896,7 @@ fn decode_alter_table_space_options_stmt(buf []u8) (AlterTableSpaceOptionsStmt, 
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -4800,7 +4913,8 @@ fn decode_alter_table_space_options_stmt(buf []u8) (AlterTableSpaceOptionsStmt, 
 	return r, off
 }
 
-fn decode_alter_table_move_all_stmt(buf []u8) (AlterTableMoveAllStmt, int) {
+fn decode_alter_table_move_all_stmt(buf []u8, depth int) (AlterTableMoveAllStmt, int) {
+	if depth <= 0 { return AlterTableMoveAllStmt{}, 0 }
 	mut r := AlterTableMoveAllStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4819,7 +4933,7 @@ fn decode_alter_table_move_all_stmt(buf []u8) (AlterTableMoveAllStmt, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.roles << val
 				off += c2
 			}
@@ -4841,7 +4955,8 @@ fn decode_alter_table_move_all_stmt(buf []u8) (AlterTableMoveAllStmt, int) {
 	return r, off
 }
 
-fn decode_create_extension_stmt(buf []u8) (CreateExtensionStmt, int) {
+fn decode_create_extension_stmt(buf []u8, depth int) (CreateExtensionStmt, int) {
+	if depth <= 0 { return CreateExtensionStmt{}, 0 }
 	mut r := CreateExtensionStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4860,7 +4975,7 @@ fn decode_create_extension_stmt(buf []u8) (CreateExtensionStmt, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -4872,7 +4987,8 @@ fn decode_create_extension_stmt(buf []u8) (CreateExtensionStmt, int) {
 	return r, off
 }
 
-fn decode_alter_extension_stmt(buf []u8) (AlterExtensionStmt, int) {
+fn decode_alter_extension_stmt(buf []u8, depth int) (AlterExtensionStmt, int) {
+	if depth <= 0 { return AlterExtensionStmt{}, 0 }
 	mut r := AlterExtensionStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4886,7 +5002,7 @@ fn decode_alter_extension_stmt(buf []u8) (AlterExtensionStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -4898,7 +5014,8 @@ fn decode_alter_extension_stmt(buf []u8) (AlterExtensionStmt, int) {
 	return r, off
 }
 
-fn decode_alter_extension_contents_stmt(buf []u8) (AlterExtensionContentsStmt, int) {
+fn decode_alter_extension_contents_stmt(buf []u8, depth int) (AlterExtensionContentsStmt, int) {
+	if depth <= 0 { return AlterExtensionContentsStmt{}, 0 }
 	mut r := AlterExtensionContentsStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4922,7 +5039,7 @@ fn decode_alter_extension_contents_stmt(buf []u8) (AlterExtensionContentsStmt, i
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.object = val
 				off += c2
 			}
@@ -4934,7 +5051,8 @@ fn decode_alter_extension_contents_stmt(buf []u8) (AlterExtensionContentsStmt, i
 	return r, off
 }
 
-fn decode_create_fdw_stmt(buf []u8) (CreateFdwStmt, int) {
+fn decode_create_fdw_stmt(buf []u8, depth int) (CreateFdwStmt, int) {
+	if depth <= 0 { return CreateFdwStmt{}, 0 }
 	mut r := CreateFdwStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4948,13 +5066,13 @@ fn decode_create_fdw_stmt(buf []u8) (CreateFdwStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.func_options << val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -4966,7 +5084,8 @@ fn decode_create_fdw_stmt(buf []u8) (CreateFdwStmt, int) {
 	return r, off
 }
 
-fn decode_alter_fdw_stmt(buf []u8) (AlterFdwStmt, int) {
+fn decode_alter_fdw_stmt(buf []u8, depth int) (AlterFdwStmt, int) {
+	if depth <= 0 { return AlterFdwStmt{}, 0 }
 	mut r := AlterFdwStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4980,13 +5099,13 @@ fn decode_alter_fdw_stmt(buf []u8) (AlterFdwStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.func_options << val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -4998,7 +5117,8 @@ fn decode_alter_fdw_stmt(buf []u8) (AlterFdwStmt, int) {
 	return r, off
 }
 
-fn decode_create_foreign_server_stmt(buf []u8) (CreateForeignServerStmt, int) {
+fn decode_create_foreign_server_stmt(buf []u8, depth int) (CreateForeignServerStmt, int) {
+	if depth <= 0 { return CreateForeignServerStmt{}, 0 }
 	mut r := CreateForeignServerStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5032,7 +5152,7 @@ fn decode_create_foreign_server_stmt(buf []u8) (CreateForeignServerStmt, int) {
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -5044,7 +5164,8 @@ fn decode_create_foreign_server_stmt(buf []u8) (CreateForeignServerStmt, int) {
 	return r, off
 }
 
-fn decode_alter_foreign_server_stmt(buf []u8) (AlterForeignServerStmt, int) {
+fn decode_alter_foreign_server_stmt(buf []u8, depth int) (AlterForeignServerStmt, int) {
+	if depth <= 0 { return AlterForeignServerStmt{}, 0 }
 	mut r := AlterForeignServerStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5063,7 +5184,7 @@ fn decode_alter_foreign_server_stmt(buf []u8) (AlterForeignServerStmt, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -5080,7 +5201,8 @@ fn decode_alter_foreign_server_stmt(buf []u8) (AlterForeignServerStmt, int) {
 	return r, off
 }
 
-fn decode_import_foreign_schema_stmt(buf []u8) (ImportForeignSchemaStmt, int) {
+fn decode_import_foreign_schema_stmt(buf []u8, depth int) (ImportForeignSchemaStmt, int) {
+	if depth <= 0 { return ImportForeignSchemaStmt{}, 0 }
 	mut r := ImportForeignSchemaStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5109,13 +5231,13 @@ fn decode_import_foreign_schema_stmt(buf []u8) (ImportForeignSchemaStmt, int) {
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.table_list << val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -5127,7 +5249,8 @@ fn decode_import_foreign_schema_stmt(buf []u8) (ImportForeignSchemaStmt, int) {
 	return r, off
 }
 
-fn decode_create_am_stmt(buf []u8) (CreateAmStmt, int) {
+fn decode_create_am_stmt(buf []u8, depth int) (CreateAmStmt, int) {
+	if depth <= 0 { return CreateAmStmt{}, 0 }
 	mut r := CreateAmStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5141,7 +5264,7 @@ fn decode_create_am_stmt(buf []u8) (CreateAmStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.handler_name << val
 				off += c2
 			}
@@ -5158,7 +5281,8 @@ fn decode_create_am_stmt(buf []u8) (CreateAmStmt, int) {
 	return r, off
 }
 
-fn decode_create_event_trig_stmt(buf []u8) (CreateEventTrigStmt, int) {
+fn decode_create_event_trig_stmt(buf []u8, depth int) (CreateEventTrigStmt, int) {
+	if depth <= 0 { return CreateEventTrigStmt{}, 0 }
 	mut r := CreateEventTrigStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5177,13 +5301,13 @@ fn decode_create_event_trig_stmt(buf []u8) (CreateEventTrigStmt, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.whenclause << val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.funcname << val
 				off += c2
 			}
@@ -5195,7 +5319,8 @@ fn decode_create_event_trig_stmt(buf []u8) (CreateEventTrigStmt, int) {
 	return r, off
 }
 
-fn decode_alter_event_trig_stmt(buf []u8) (AlterEventTrigStmt, int) {
+fn decode_alter_event_trig_stmt(buf []u8, depth int) (AlterEventTrigStmt, int) {
+	if depth <= 0 { return AlterEventTrigStmt{}, 0 }
 	mut r := AlterEventTrigStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5220,7 +5345,8 @@ fn decode_alter_event_trig_stmt(buf []u8) (AlterEventTrigStmt, int) {
 	return r, off
 }
 
-fn decode_create_p_lang_stmt(buf []u8) (CreatePLangStmt, int) {
+fn decode_create_p_lang_stmt(buf []u8, depth int) (CreatePLangStmt, int) {
+	if depth <= 0 { return CreatePLangStmt{}, 0 }
 	mut r := CreatePLangStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5239,19 +5365,19 @@ fn decode_create_p_lang_stmt(buf []u8) (CreatePLangStmt, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.plhandler << val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.plinline << val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.plvalidator << val
 				off += c2
 			}
@@ -5268,7 +5394,8 @@ fn decode_create_p_lang_stmt(buf []u8) (CreatePLangStmt, int) {
 	return r, off
 }
 
-fn decode_create_role_stmt(buf []u8) (CreateRoleStmt, int) {
+fn decode_create_role_stmt(buf []u8, depth int) (CreateRoleStmt, int) {
+	if depth <= 0 { return CreateRoleStmt{}, 0 }
 	mut r := CreateRoleStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5287,7 +5414,7 @@ fn decode_create_role_stmt(buf []u8) (CreateRoleStmt, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -5299,7 +5426,8 @@ fn decode_create_role_stmt(buf []u8) (CreateRoleStmt, int) {
 	return r, off
 }
 
-fn decode_drop_role_stmt(buf []u8) (DropRoleStmt, int) {
+fn decode_drop_role_stmt(buf []u8, depth int) (DropRoleStmt, int) {
+	if depth <= 0 { return DropRoleStmt{}, 0 }
 	mut r := DropRoleStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5308,7 +5436,7 @@ fn decode_drop_role_stmt(buf []u8) (DropRoleStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.roles << val
 				off += c2
 			}
@@ -5325,7 +5453,8 @@ fn decode_drop_role_stmt(buf []u8) (DropRoleStmt, int) {
 	return r, off
 }
 
-fn decode_define_stmt(buf []u8) (DefineStmt, int) {
+fn decode_define_stmt(buf []u8, depth int) (DefineStmt, int) {
+	if depth <= 0 { return DefineStmt{}, 0 }
 	mut r := DefineStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5344,19 +5473,19 @@ fn decode_define_stmt(buf []u8) (DefineStmt, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.defnames << val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.args << val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.definition << val
 				off += c2
 			}
@@ -5378,7 +5507,8 @@ fn decode_define_stmt(buf []u8) (DefineStmt, int) {
 	return r, off
 }
 
-fn decode_create_op_family_stmt(buf []u8) (CreateOpFamilyStmt, int) {
+fn decode_create_op_family_stmt(buf []u8, depth int) (CreateOpFamilyStmt, int) {
+	if depth <= 0 { return CreateOpFamilyStmt{}, 0 }
 	mut r := CreateOpFamilyStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5387,7 +5517,7 @@ fn decode_create_op_family_stmt(buf []u8) (CreateOpFamilyStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.opfamilyname << val
 				off += c2
 			}
@@ -5404,7 +5534,8 @@ fn decode_create_op_family_stmt(buf []u8) (CreateOpFamilyStmt, int) {
 	return r, off
 }
 
-fn decode_alter_op_family_stmt(buf []u8) (AlterOpFamilyStmt, int) {
+fn decode_alter_op_family_stmt(buf []u8, depth int) (AlterOpFamilyStmt, int) {
+	if depth <= 0 { return AlterOpFamilyStmt{}, 0 }
 	mut r := AlterOpFamilyStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5413,7 +5544,7 @@ fn decode_alter_op_family_stmt(buf []u8) (AlterOpFamilyStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.opfamilyname << val
 				off += c2
 			}
@@ -5429,7 +5560,7 @@ fn decode_alter_op_family_stmt(buf []u8) (AlterOpFamilyStmt, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.items << val
 				off += c2
 			}
@@ -5441,7 +5572,8 @@ fn decode_alter_op_family_stmt(buf []u8) (AlterOpFamilyStmt, int) {
 	return r, off
 }
 
-fn decode_drop_stmt(buf []u8) (DropStmt, int) {
+fn decode_drop_stmt(buf []u8, depth int) (DropStmt, int) {
+	if depth <= 0 { return DropStmt{}, 0 }
 	mut r := DropStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5450,7 +5582,7 @@ fn decode_drop_stmt(buf []u8) (DropStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.objects << val
 				off += c2
 			}
@@ -5482,7 +5614,8 @@ fn decode_drop_stmt(buf []u8) (DropStmt, int) {
 	return r, off
 }
 
-fn decode_truncate_stmt(buf []u8) (TruncateStmt, int) {
+fn decode_truncate_stmt(buf []u8, depth int) (TruncateStmt, int) {
+	if depth <= 0 { return TruncateStmt{}, 0 }
 	mut r := TruncateStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5491,7 +5624,7 @@ fn decode_truncate_stmt(buf []u8) (TruncateStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.relations << val
 				off += c2
 			}
@@ -5513,7 +5646,8 @@ fn decode_truncate_stmt(buf []u8) (TruncateStmt, int) {
 	return r, off
 }
 
-fn decode_comment_stmt(buf []u8) (CommentStmt, int) {
+fn decode_comment_stmt(buf []u8, depth int) (CommentStmt, int) {
+	if depth <= 0 { return CommentStmt{}, 0 }
 	mut r := CommentStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5527,7 +5661,7 @@ fn decode_comment_stmt(buf []u8) (CommentStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.object = val
 				off += c2
 			}
@@ -5544,7 +5678,8 @@ fn decode_comment_stmt(buf []u8) (CommentStmt, int) {
 	return r, off
 }
 
-fn decode_sec_label_stmt(buf []u8) (SecLabelStmt, int) {
+fn decode_sec_label_stmt(buf []u8, depth int) (SecLabelStmt, int) {
+	if depth <= 0 { return SecLabelStmt{}, 0 }
 	mut r := SecLabelStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5558,7 +5693,7 @@ fn decode_sec_label_stmt(buf []u8) (SecLabelStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.object = val
 				off += c2
 			}
@@ -5580,7 +5715,8 @@ fn decode_sec_label_stmt(buf []u8) (SecLabelStmt, int) {
 	return r, off
 }
 
-fn decode_declare_cursor_stmt(buf []u8) (DeclareCursorStmt, int) {
+fn decode_declare_cursor_stmt(buf []u8, depth int) (DeclareCursorStmt, int) {
+	if depth <= 0 { return DeclareCursorStmt{}, 0 }
 	mut r := DeclareCursorStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5599,7 +5735,7 @@ fn decode_declare_cursor_stmt(buf []u8) (DeclareCursorStmt, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.query = val
 				off += c2
 			}
@@ -5611,7 +5747,8 @@ fn decode_declare_cursor_stmt(buf []u8) (DeclareCursorStmt, int) {
 	return r, off
 }
 
-fn decode_close_portal_stmt(buf []u8) (ClosePortalStmt, int) {
+fn decode_close_portal_stmt(buf []u8, depth int) (ClosePortalStmt, int) {
+	if depth <= 0 { return ClosePortalStmt{}, 0 }
 	mut r := ClosePortalStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5631,7 +5768,8 @@ fn decode_close_portal_stmt(buf []u8) (ClosePortalStmt, int) {
 	return r, off
 }
 
-fn decode_fetch_stmt(buf []u8) (FetchStmt, int) {
+fn decode_fetch_stmt(buf []u8, depth int) (FetchStmt, int) {
+	if depth <= 0 { return FetchStmt{}, 0 }
 	mut r := FetchStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5666,7 +5804,8 @@ fn decode_fetch_stmt(buf []u8) (FetchStmt, int) {
 	return r, off
 }
 
-fn decode_create_stats_stmt(buf []u8) (CreateStatsStmt, int) {
+fn decode_create_stats_stmt(buf []u8, depth int) (CreateStatsStmt, int) {
+	if depth <= 0 { return CreateStatsStmt{}, 0 }
 	mut r := CreateStatsStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5675,25 +5814,25 @@ fn decode_create_stats_stmt(buf []u8) (CreateStatsStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.defnames << val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.stat_types << val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.exprs << val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.relations << val
 				off += c2
 			}
@@ -5720,7 +5859,8 @@ fn decode_create_stats_stmt(buf []u8) (CreateStatsStmt, int) {
 	return r, off
 }
 
-fn decode_stats_elem(buf []u8) (StatsElem, int) {
+fn decode_stats_elem(buf []u8, depth int) (StatsElem, int) {
+	if depth <= 0 { return StatsElem{}, 0 }
 	mut r := StatsElem{}
 	mut off := 0
 	for off < buf.len {
@@ -5734,7 +5874,7 @@ fn decode_stats_elem(buf []u8) (StatsElem, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.expr = val
 				off += c2
 			}
@@ -5746,7 +5886,8 @@ fn decode_stats_elem(buf []u8) (StatsElem, int) {
 	return r, off
 }
 
-fn decode_alter_stats_stmt(buf []u8) (AlterStatsStmt, int) {
+fn decode_alter_stats_stmt(buf []u8, depth int) (AlterStatsStmt, int) {
+	if depth <= 0 { return AlterStatsStmt{}, 0 }
 	mut r := AlterStatsStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5755,13 +5896,13 @@ fn decode_alter_stats_stmt(buf []u8) (AlterStatsStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.defnames << val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.stxstattarget = val
 				off += c2
 			}
@@ -5778,7 +5919,8 @@ fn decode_alter_stats_stmt(buf []u8) (AlterStatsStmt, int) {
 	return r, off
 }
 
-fn decode_do_stmt(buf []u8) (DoStmt, int) {
+fn decode_do_stmt(buf []u8, depth int) (DoStmt, int) {
+	if depth <= 0 { return DoStmt{}, 0 }
 	mut r := DoStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5787,7 +5929,7 @@ fn decode_do_stmt(buf []u8) (DoStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.args << val
 				off += c2
 			}
@@ -5799,7 +5941,8 @@ fn decode_do_stmt(buf []u8) (DoStmt, int) {
 	return r, off
 }
 
-fn decode_inline_code_block(buf []u8) (InlineCodeBlock, int) {
+fn decode_inline_code_block(buf []u8, depth int) (InlineCodeBlock, int) {
+	if depth <= 0 { return InlineCodeBlock{}, 0 }
 	mut r := InlineCodeBlock{}
 	mut off := 0
 	for off < buf.len {
@@ -5834,7 +5977,8 @@ fn decode_inline_code_block(buf []u8) (InlineCodeBlock, int) {
 	return r, off
 }
 
-fn decode_call_context(buf []u8) (CallContext, int) {
+fn decode_call_context(buf []u8, depth int) (CallContext, int) {
+	if depth <= 0 { return CallContext{}, 0 }
 	mut r := CallContext{}
 	mut off := 0
 	for off < buf.len {
@@ -5854,7 +5998,8 @@ fn decode_call_context(buf []u8) (CallContext, int) {
 	return r, off
 }
 
-fn decode_alter_type_stmt(buf []u8) (AlterTypeStmt, int) {
+fn decode_alter_type_stmt(buf []u8, depth int) (AlterTypeStmt, int) {
+	if depth <= 0 { return AlterTypeStmt{}, 0 }
 	mut r := AlterTypeStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5863,13 +6008,13 @@ fn decode_alter_type_stmt(buf []u8) (AlterTypeStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.type_name << val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -5881,7 +6026,8 @@ fn decode_alter_type_stmt(buf []u8) (AlterTypeStmt, int) {
 	return r, off
 }
 
-fn decode_notify_stmt(buf []u8) (NotifyStmt, int) {
+fn decode_notify_stmt(buf []u8, depth int) (NotifyStmt, int) {
+	if depth <= 0 { return NotifyStmt{}, 0 }
 	mut r := NotifyStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5906,7 +6052,8 @@ fn decode_notify_stmt(buf []u8) (NotifyStmt, int) {
 	return r, off
 }
 
-fn decode_listen_stmt(buf []u8) (ListenStmt, int) {
+fn decode_listen_stmt(buf []u8, depth int) (ListenStmt, int) {
+	if depth <= 0 { return ListenStmt{}, 0 }
 	mut r := ListenStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5926,7 +6073,8 @@ fn decode_listen_stmt(buf []u8) (ListenStmt, int) {
 	return r, off
 }
 
-fn decode_unlisten_stmt(buf []u8) (UnlistenStmt, int) {
+fn decode_unlisten_stmt(buf []u8, depth int) (UnlistenStmt, int) {
+	if depth <= 0 { return UnlistenStmt{}, 0 }
 	mut r := UnlistenStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5946,7 +6094,8 @@ fn decode_unlisten_stmt(buf []u8) (UnlistenStmt, int) {
 	return r, off
 }
 
-fn decode_transaction_stmt(buf []u8) (TransactionStmt, int) {
+fn decode_transaction_stmt(buf []u8, depth int) (TransactionStmt, int) {
+	if depth <= 0 { return TransactionStmt{}, 0 }
 	mut r := TransactionStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5960,7 +6109,7 @@ fn decode_transaction_stmt(buf []u8) (TransactionStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -5992,7 +6141,8 @@ fn decode_transaction_stmt(buf []u8) (TransactionStmt, int) {
 	return r, off
 }
 
-fn decode_create_enum_stmt(buf []u8) (CreateEnumStmt, int) {
+fn decode_create_enum_stmt(buf []u8, depth int) (CreateEnumStmt, int) {
+	if depth <= 0 { return CreateEnumStmt{}, 0 }
 	mut r := CreateEnumStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6001,13 +6151,13 @@ fn decode_create_enum_stmt(buf []u8) (CreateEnumStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.type_name << val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.vals << val
 				off += c2
 			}
@@ -6019,7 +6169,8 @@ fn decode_create_enum_stmt(buf []u8) (CreateEnumStmt, int) {
 	return r, off
 }
 
-fn decode_create_range_stmt(buf []u8) (CreateRangeStmt, int) {
+fn decode_create_range_stmt(buf []u8, depth int) (CreateRangeStmt, int) {
+	if depth <= 0 { return CreateRangeStmt{}, 0 }
 	mut r := CreateRangeStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6028,13 +6179,13 @@ fn decode_create_range_stmt(buf []u8) (CreateRangeStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.type_name << val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.params << val
 				off += c2
 			}
@@ -6046,7 +6197,8 @@ fn decode_create_range_stmt(buf []u8) (CreateRangeStmt, int) {
 	return r, off
 }
 
-fn decode_alter_enum_stmt(buf []u8) (AlterEnumStmt, int) {
+fn decode_alter_enum_stmt(buf []u8, depth int) (AlterEnumStmt, int) {
+	if depth <= 0 { return AlterEnumStmt{}, 0 }
 	mut r := AlterEnumStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6055,7 +6207,7 @@ fn decode_alter_enum_stmt(buf []u8) (AlterEnumStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.type_name << val
 				off += c2
 			}
@@ -6092,7 +6244,8 @@ fn decode_alter_enum_stmt(buf []u8) (AlterEnumStmt, int) {
 	return r, off
 }
 
-fn decode_load_stmt(buf []u8) (LoadStmt, int) {
+fn decode_load_stmt(buf []u8, depth int) (LoadStmt, int) {
+	if depth <= 0 { return LoadStmt{}, 0 }
 	mut r := LoadStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6112,7 +6265,8 @@ fn decode_load_stmt(buf []u8) (LoadStmt, int) {
 	return r, off
 }
 
-fn decode_createdb_stmt(buf []u8) (CreatedbStmt, int) {
+fn decode_createdb_stmt(buf []u8, depth int) (CreatedbStmt, int) {
+	if depth <= 0 { return CreatedbStmt{}, 0 }
 	mut r := CreatedbStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6126,7 +6280,7 @@ fn decode_createdb_stmt(buf []u8) (CreatedbStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -6138,7 +6292,8 @@ fn decode_createdb_stmt(buf []u8) (CreatedbStmt, int) {
 	return r, off
 }
 
-fn decode_alter_database_stmt(buf []u8) (AlterDatabaseStmt, int) {
+fn decode_alter_database_stmt(buf []u8, depth int) (AlterDatabaseStmt, int) {
+	if depth <= 0 { return AlterDatabaseStmt{}, 0 }
 	mut r := AlterDatabaseStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6152,7 +6307,7 @@ fn decode_alter_database_stmt(buf []u8) (AlterDatabaseStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -6164,7 +6319,8 @@ fn decode_alter_database_stmt(buf []u8) (AlterDatabaseStmt, int) {
 	return r, off
 }
 
-fn decode_alter_database_refresh_coll_stmt(buf []u8) (AlterDatabaseRefreshCollStmt, int) {
+fn decode_alter_database_refresh_coll_stmt(buf []u8, depth int) (AlterDatabaseRefreshCollStmt, int) {
+	if depth <= 0 { return AlterDatabaseRefreshCollStmt{}, 0 }
 	mut r := AlterDatabaseRefreshCollStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6184,7 +6340,8 @@ fn decode_alter_database_refresh_coll_stmt(buf []u8) (AlterDatabaseRefreshCollSt
 	return r, off
 }
 
-fn decode_dropdb_stmt(buf []u8) (DropdbStmt, int) {
+fn decode_dropdb_stmt(buf []u8, depth int) (DropdbStmt, int) {
+	if depth <= 0 { return DropdbStmt{}, 0 }
 	mut r := DropdbStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6203,7 +6360,7 @@ fn decode_dropdb_stmt(buf []u8) (DropdbStmt, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -6215,7 +6372,8 @@ fn decode_dropdb_stmt(buf []u8) (DropdbStmt, int) {
 	return r, off
 }
 
-fn decode_vacuum_stmt(buf []u8) (VacuumStmt, int) {
+fn decode_vacuum_stmt(buf []u8, depth int) (VacuumStmt, int) {
+	if depth <= 0 { return VacuumStmt{}, 0 }
 	mut r := VacuumStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6224,13 +6382,13 @@ fn decode_vacuum_stmt(buf []u8) (VacuumStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.rels << val
 				off += c2
 			}
@@ -6247,7 +6405,8 @@ fn decode_vacuum_stmt(buf []u8) (VacuumStmt, int) {
 	return r, off
 }
 
-fn decode_explain_stmt(buf []u8) (ExplainStmt, int) {
+fn decode_explain_stmt(buf []u8, depth int) (ExplainStmt, int) {
+	if depth <= 0 { return ExplainStmt{}, 0 }
 	mut r := ExplainStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6256,13 +6415,13 @@ fn decode_explain_stmt(buf []u8) (ExplainStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.query = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -6274,12 +6433,14 @@ fn decode_explain_stmt(buf []u8) (ExplainStmt, int) {
 	return r, off
 }
 
-fn decode_check_point_stmt(buf []u8) (CheckPointStmt, int) {
+fn decode_check_point_stmt(buf []u8, depth int) (CheckPointStmt, int) {
+	if depth <= 0 { return CheckPointStmt{}, 0 }
 	mut r := CheckPointStmt{}
 	return r, buf.len
 }
 
-fn decode_discard_stmt(buf []u8) (DiscardStmt, int) {
+fn decode_discard_stmt(buf []u8, depth int) (DiscardStmt, int) {
+	if depth <= 0 { return DiscardStmt{}, 0 }
 	mut r := DiscardStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6299,7 +6460,8 @@ fn decode_discard_stmt(buf []u8) (DiscardStmt, int) {
 	return r, off
 }
 
-fn decode_lock_stmt(buf []u8) (LockStmt, int) {
+fn decode_lock_stmt(buf []u8, depth int) (LockStmt, int) {
+	if depth <= 0 { return LockStmt{}, 0 }
 	mut r := LockStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6308,7 +6470,7 @@ fn decode_lock_stmt(buf []u8) (LockStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.relations << val
 				off += c2
 			}
@@ -6330,7 +6492,8 @@ fn decode_lock_stmt(buf []u8) (LockStmt, int) {
 	return r, off
 }
 
-fn decode_constraints_set_stmt(buf []u8) (ConstraintsSetStmt, int) {
+fn decode_constraints_set_stmt(buf []u8, depth int) (ConstraintsSetStmt, int) {
+	if depth <= 0 { return ConstraintsSetStmt{}, 0 }
 	mut r := ConstraintsSetStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6339,7 +6502,7 @@ fn decode_constraints_set_stmt(buf []u8) (ConstraintsSetStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.constraints << val
 				off += c2
 			}
@@ -6356,7 +6519,8 @@ fn decode_constraints_set_stmt(buf []u8) (ConstraintsSetStmt, int) {
 	return r, off
 }
 
-fn decode_create_conversion_stmt(buf []u8) (CreateConversionStmt, int) {
+fn decode_create_conversion_stmt(buf []u8, depth int) (CreateConversionStmt, int) {
+	if depth <= 0 { return CreateConversionStmt{}, 0 }
 	mut r := CreateConversionStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6365,7 +6529,7 @@ fn decode_create_conversion_stmt(buf []u8) (CreateConversionStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.conversion_name << val
 				off += c2
 			}
@@ -6381,7 +6545,7 @@ fn decode_create_conversion_stmt(buf []u8) (CreateConversionStmt, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.func_name << val
 				off += c2
 			}
@@ -6398,7 +6562,8 @@ fn decode_create_conversion_stmt(buf []u8) (CreateConversionStmt, int) {
 	return r, off
 }
 
-fn decode_prepare_stmt(buf []u8) (PrepareStmt, int) {
+fn decode_prepare_stmt(buf []u8, depth int) (PrepareStmt, int) {
+	if depth <= 0 { return PrepareStmt{}, 0 }
 	mut r := PrepareStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6412,13 +6577,13 @@ fn decode_prepare_stmt(buf []u8) (PrepareStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.argtypes << val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.query = val
 				off += c2
 			}
@@ -6430,7 +6595,8 @@ fn decode_prepare_stmt(buf []u8) (PrepareStmt, int) {
 	return r, off
 }
 
-fn decode_execute_stmt(buf []u8) (ExecuteStmt, int) {
+fn decode_execute_stmt(buf []u8, depth int) (ExecuteStmt, int) {
+	if depth <= 0 { return ExecuteStmt{}, 0 }
 	mut r := ExecuteStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6444,7 +6610,7 @@ fn decode_execute_stmt(buf []u8) (ExecuteStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.params << val
 				off += c2
 			}
@@ -6456,7 +6622,8 @@ fn decode_execute_stmt(buf []u8) (ExecuteStmt, int) {
 	return r, off
 }
 
-fn decode_deallocate_stmt(buf []u8) (DeallocateStmt, int) {
+fn decode_deallocate_stmt(buf []u8, depth int) (DeallocateStmt, int) {
+	if depth <= 0 { return DeallocateStmt{}, 0 }
 	mut r := DeallocateStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6486,7 +6653,8 @@ fn decode_deallocate_stmt(buf []u8) (DeallocateStmt, int) {
 	return r, off
 }
 
-fn decode_drop_owned_stmt(buf []u8) (DropOwnedStmt, int) {
+fn decode_drop_owned_stmt(buf []u8, depth int) (DropOwnedStmt, int) {
+	if depth <= 0 { return DropOwnedStmt{}, 0 }
 	mut r := DropOwnedStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6495,7 +6663,7 @@ fn decode_drop_owned_stmt(buf []u8) (DropOwnedStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.roles << val
 				off += c2
 			}
@@ -6512,7 +6680,8 @@ fn decode_drop_owned_stmt(buf []u8) (DropOwnedStmt, int) {
 	return r, off
 }
 
-fn decode_alter_t_s_dictionary_stmt(buf []u8) (AlterTSDictionaryStmt, int) {
+fn decode_alter_t_s_dictionary_stmt(buf []u8, depth int) (AlterTSDictionaryStmt, int) {
+	if depth <= 0 { return AlterTSDictionaryStmt{}, 0 }
 	mut r := AlterTSDictionaryStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6521,13 +6690,13 @@ fn decode_alter_t_s_dictionary_stmt(buf []u8) (AlterTSDictionaryStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.dictname << val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -6539,7 +6708,8 @@ fn decode_alter_t_s_dictionary_stmt(buf []u8) (AlterTSDictionaryStmt, int) {
 	return r, off
 }
 
-fn decode_alter_t_s_configuration_stmt(buf []u8) (AlterTSConfigurationStmt, int) {
+fn decode_alter_t_s_configuration_stmt(buf []u8, depth int) (AlterTSConfigurationStmt, int) {
+	if depth <= 0 { return AlterTSConfigurationStmt{}, 0 }
 	mut r := AlterTSConfigurationStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6553,19 +6723,19 @@ fn decode_alter_t_s_configuration_stmt(buf []u8) (AlterTSConfigurationStmt, int)
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.cfgname << val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.tokentype << val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.dicts << val
 				off += c2
 			}
@@ -6592,7 +6762,8 @@ fn decode_alter_t_s_configuration_stmt(buf []u8) (AlterTSConfigurationStmt, int)
 	return r, off
 }
 
-fn decode_create_publication_stmt(buf []u8) (CreatePublicationStmt, int) {
+fn decode_create_publication_stmt(buf []u8, depth int) (CreatePublicationStmt, int) {
+	if depth <= 0 { return CreatePublicationStmt{}, 0 }
 	mut r := CreatePublicationStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6606,13 +6777,13 @@ fn decode_create_publication_stmt(buf []u8) (CreatePublicationStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.pubobjects << val
 				off += c2
 			}
@@ -6629,7 +6800,8 @@ fn decode_create_publication_stmt(buf []u8) (CreatePublicationStmt, int) {
 	return r, off
 }
 
-fn decode_alter_publication_stmt(buf []u8) (AlterPublicationStmt, int) {
+fn decode_alter_publication_stmt(buf []u8, depth int) (AlterPublicationStmt, int) {
+	if depth <= 0 { return AlterPublicationStmt{}, 0 }
 	mut r := AlterPublicationStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6643,13 +6815,13 @@ fn decode_alter_publication_stmt(buf []u8) (AlterPublicationStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.pubobjects << val
 				off += c2
 			}
@@ -6671,7 +6843,8 @@ fn decode_alter_publication_stmt(buf []u8) (AlterPublicationStmt, int) {
 	return r, off
 }
 
-fn decode_create_subscription_stmt(buf []u8) (CreateSubscriptionStmt, int) {
+fn decode_create_subscription_stmt(buf []u8, depth int) (CreateSubscriptionStmt, int) {
+	if depth <= 0 { return CreateSubscriptionStmt{}, 0 }
 	mut r := CreateSubscriptionStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6690,13 +6863,13 @@ fn decode_create_subscription_stmt(buf []u8) (CreateSubscriptionStmt, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.publication << val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -6708,7 +6881,8 @@ fn decode_create_subscription_stmt(buf []u8) (CreateSubscriptionStmt, int) {
 	return r, off
 }
 
-fn decode_alter_subscription_stmt(buf []u8) (AlterSubscriptionStmt, int) {
+fn decode_alter_subscription_stmt(buf []u8, depth int) (AlterSubscriptionStmt, int) {
+	if depth <= 0 { return AlterSubscriptionStmt{}, 0 }
 	mut r := AlterSubscriptionStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6732,13 +6906,13 @@ fn decode_alter_subscription_stmt(buf []u8) (AlterSubscriptionStmt, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.publication << val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -6750,7 +6924,8 @@ fn decode_alter_subscription_stmt(buf []u8) (AlterSubscriptionStmt, int) {
 	return r, off
 }
 
-fn decode_drop_subscription_stmt(buf []u8) (DropSubscriptionStmt, int) {
+fn decode_drop_subscription_stmt(buf []u8, depth int) (DropSubscriptionStmt, int) {
+	if depth <= 0 { return DropSubscriptionStmt{}, 0 }
 	mut r := DropSubscriptionStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6780,7 +6955,8 @@ fn decode_drop_subscription_stmt(buf []u8) (DropSubscriptionStmt, int) {
 	return r, off
 }
 
-fn decode_scan_token(buf []u8) (ScanToken, int) {
+fn decode_scan_token(buf []u8, depth int) (ScanToken, int) {
+	if depth <= 0 { return ScanToken{}, 0 }
 	mut r := ScanToken{}
 	mut off := 0
 	for off < buf.len {
@@ -6815,7 +6991,8 @@ fn decode_scan_token(buf []u8) (ScanToken, int) {
 	return r, off
 }
 
-fn decode_range_var(buf []u8) (RangeVar, int) {
+fn decode_range_var(buf []u8, depth int) (RangeVar, int) {
+	if depth <= 0 { return RangeVar{}, 0 }
 	mut r := RangeVar{}
 	mut off := 0
 	for off < buf.len {
@@ -6849,7 +7026,7 @@ fn decode_range_var(buf []u8) (RangeVar, int) {
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_alias(data)
+				val, _ := decode_alias(data, depth - 1)
 				r.alias = val
 				off += c2
 			}
@@ -6866,7 +7043,8 @@ fn decode_range_var(buf []u8) (RangeVar, int) {
 	return r, off
 }
 
-fn decode_join_expr(buf []u8) (JoinExpr, int) {
+fn decode_join_expr(buf []u8, depth int) (JoinExpr, int) {
+	if depth <= 0 { return JoinExpr{}, 0 }
 	mut r := JoinExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -6885,37 +7063,37 @@ fn decode_join_expr(buf []u8) (JoinExpr, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.larg = val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.rarg = val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.using_clause << val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_alias(data)
+				val, _ := decode_alias(data, depth - 1)
 				r.join_using_alias = val
 				off += c2
 			}
 			7 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.quals = val
 				off += c2
 			}
 			8 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_alias(data)
+				val, _ := decode_alias(data, depth - 1)
 				r.alias = val
 				off += c2
 			}
@@ -6932,7 +7110,8 @@ fn decode_join_expr(buf []u8) (JoinExpr, int) {
 	return r, off
 }
 
-fn decode_range_subselect(buf []u8) (RangeSubselect, int) {
+fn decode_range_subselect(buf []u8, depth int) (RangeSubselect, int) {
+	if depth <= 0 { return RangeSubselect{}, 0 }
 	mut r := RangeSubselect{}
 	mut off := 0
 	for off < buf.len {
@@ -6946,13 +7125,13 @@ fn decode_range_subselect(buf []u8) (RangeSubselect, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.subquery = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_alias(data)
+				val, _ := decode_alias(data, depth - 1)
 				r.alias = val
 				off += c2
 			}
@@ -6964,7 +7143,8 @@ fn decode_range_subselect(buf []u8) (RangeSubselect, int) {
 	return r, off
 }
 
-fn decode_range_function(buf []u8) (RangeFunction, int) {
+fn decode_range_function(buf []u8, depth int) (RangeFunction, int) {
+	if depth <= 0 { return RangeFunction{}, 0 }
 	mut r := RangeFunction{}
 	mut off := 0
 	for off < buf.len {
@@ -6988,19 +7168,19 @@ fn decode_range_function(buf []u8) (RangeFunction, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.functions << val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_alias(data)
+				val, _ := decode_alias(data, depth - 1)
 				r.alias = val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.coldeflist << val
 				off += c2
 			}
@@ -7012,7 +7192,8 @@ fn decode_range_function(buf []u8) (RangeFunction, int) {
 	return r, off
 }
 
-fn decode_range_table_func(buf []u8) (RangeTableFunc, int) {
+fn decode_range_table_func(buf []u8, depth int) (RangeTableFunc, int) {
+	if depth <= 0 { return RangeTableFunc{}, 0 }
 	mut r := RangeTableFunc{}
 	mut off := 0
 	for off < buf.len {
@@ -7026,31 +7207,31 @@ fn decode_range_table_func(buf []u8) (RangeTableFunc, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.docexpr = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.rowexpr = val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.namespaces << val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.columns << val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_alias(data)
+				val, _ := decode_alias(data, depth - 1)
 				r.alias = val
 				off += c2
 			}
@@ -7067,7 +7248,8 @@ fn decode_range_table_func(buf []u8) (RangeTableFunc, int) {
 	return r, off
 }
 
-fn decode_json_returning(buf []u8) (JsonReturning, int) {
+fn decode_json_returning(buf []u8, depth int) (JsonReturning, int) {
+	if depth <= 0 { return JsonReturning{}, 0 }
 	mut r := JsonReturning{}
 	mut off := 0
 	for off < buf.len {
@@ -7076,7 +7258,7 @@ fn decode_json_returning(buf []u8) (JsonReturning, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_format(data)
+				val, _ := decode_json_format(data, depth - 1)
 				r.format = val
 				off += c2
 			}
@@ -7098,7 +7280,8 @@ fn decode_json_returning(buf []u8) (JsonReturning, int) {
 	return r, off
 }
 
-fn decode_json_value_expr(buf []u8) (JsonValueExpr, int) {
+fn decode_json_value_expr(buf []u8, depth int) (JsonValueExpr, int) {
+	if depth <= 0 { return JsonValueExpr{}, 0 }
 	mut r := JsonValueExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -7107,19 +7290,19 @@ fn decode_json_value_expr(buf []u8) (JsonValueExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.raw_expr = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.formatted_expr = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_format(data)
+				val, _ := decode_json_format(data, depth - 1)
 				r.format = val
 				off += c2
 			}
@@ -7131,7 +7314,8 @@ fn decode_json_value_expr(buf []u8) (JsonValueExpr, int) {
 	return r, off
 }
 
-fn decode_json_is_predicate(buf []u8) (JsonIsPredicate, int) {
+fn decode_json_is_predicate(buf []u8, depth int) (JsonIsPredicate, int) {
+	if depth <= 0 { return JsonIsPredicate{}, 0 }
 	mut r := JsonIsPredicate{}
 	mut off := 0
 	for off < buf.len {
@@ -7140,13 +7324,13 @@ fn decode_json_is_predicate(buf []u8) (JsonIsPredicate, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.expr = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_format(data)
+				val, _ := decode_json_format(data, depth - 1)
 				r.format = val
 				off += c2
 			}
@@ -7173,7 +7357,8 @@ fn decode_json_is_predicate(buf []u8) (JsonIsPredicate, int) {
 	return r, off
 }
 
-fn decode_json_table_path_scan(buf []u8) (JsonTablePathScan, int) {
+fn decode_json_table_path_scan(buf []u8, depth int) (JsonTablePathScan, int) {
+	if depth <= 0 { return JsonTablePathScan{}, 0 }
 	mut r := JsonTablePathScan{}
 	mut off := 0
 	for off < buf.len {
@@ -7182,13 +7367,13 @@ fn decode_json_table_path_scan(buf []u8) (JsonTablePathScan, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.plan = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_table_path(data)
+				val, _ := decode_json_table_path(data, depth - 1)
 				r.path = val
 				off += c2
 			}
@@ -7199,7 +7384,7 @@ fn decode_json_table_path_scan(buf []u8) (JsonTablePathScan, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.child = val
 				off += c2
 			}
@@ -7221,7 +7406,8 @@ fn decode_json_table_path_scan(buf []u8) (JsonTablePathScan, int) {
 	return r, off
 }
 
-fn decode_query(buf []u8) (Query, int) {
+fn decode_query(buf []u8, depth int) (Query, int) {
+	if depth <= 0 { return Query{}, 0 }
 	mut r := Query{}
 	mut off := 0
 	for off < buf.len {
@@ -7245,7 +7431,7 @@ fn decode_query(buf []u8) (Query, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.utility_stmt = val
 				off += c2
 			}
@@ -7306,31 +7492,31 @@ fn decode_query(buf []u8) (Query, int) {
 			}
 			16 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.cte_list << val
 				off += c2
 			}
 			17 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.rtable << val
 				off += c2
 			}
 			18 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.rteperminfos << val
 				off += c2
 			}
 			19 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_from_expr(data)
+				val, _ := decode_from_expr(data, depth - 1)
 				r.jointree = val
 				off += c2
 			}
 			20 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.merge_action_list << val
 				off += c2
 			}
@@ -7341,13 +7527,13 @@ fn decode_query(buf []u8) (Query, int) {
 			}
 			22 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.merge_join_condition = val
 				off += c2
 			}
 			23 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.target_list << val
 				off += c2
 			}
@@ -7358,19 +7544,19 @@ fn decode_query(buf []u8) (Query, int) {
 			}
 			25 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_on_conflict_expr(data)
+				val, _ := decode_on_conflict_expr(data, depth - 1)
 				r.on_conflict = val
 				off += c2
 			}
 			26 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.returning_list << val
 				off += c2
 			}
 			27 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.group_clause << val
 				off += c2
 			}
@@ -7381,43 +7567,43 @@ fn decode_query(buf []u8) (Query, int) {
 			}
 			29 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.grouping_sets << val
 				off += c2
 			}
 			30 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.having_qual = val
 				off += c2
 			}
 			31 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.window_clause << val
 				off += c2
 			}
 			32 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.distinct_clause << val
 				off += c2
 			}
 			33 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.sort_clause << val
 				off += c2
 			}
 			34 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.limit_offset = val
 				off += c2
 			}
 			35 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.limit_count = val
 				off += c2
 			}
@@ -7428,25 +7614,25 @@ fn decode_query(buf []u8) (Query, int) {
 			}
 			37 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.row_marks << val
 				off += c2
 			}
 			38 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.set_operations = val
 				off += c2
 			}
 			39 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.constraint_deps << val
 				off += c2
 			}
 			40 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.with_check_options << val
 				off += c2
 			}
@@ -7468,7 +7654,8 @@ fn decode_query(buf []u8) (Query, int) {
 	return r, off
 }
 
-fn decode_type_cast(buf []u8) (TypeCast, int) {
+fn decode_type_cast(buf []u8, depth int) (TypeCast, int) {
+	if depth <= 0 { return TypeCast{}, 0 }
 	mut r := TypeCast{}
 	mut off := 0
 	for off < buf.len {
@@ -7477,13 +7664,13 @@ fn decode_type_cast(buf []u8) (TypeCast, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.arg = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_type_name(data)
+				val, _ := decode_type_name(data, depth - 1)
 				r.type_name = val
 				off += c2
 			}
@@ -7500,7 +7687,8 @@ fn decode_type_cast(buf []u8) (TypeCast, int) {
 	return r, off
 }
 
-fn decode_range_table_func_col(buf []u8) (RangeTableFuncCol, int) {
+fn decode_range_table_func_col(buf []u8, depth int) (RangeTableFuncCol, int) {
+	if depth <= 0 { return RangeTableFuncCol{}, 0 }
 	mut r := RangeTableFuncCol{}
 	mut off := 0
 	for off < buf.len {
@@ -7514,7 +7702,7 @@ fn decode_range_table_func_col(buf []u8) (RangeTableFuncCol, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_type_name(data)
+				val, _ := decode_type_name(data, depth - 1)
 				r.type_name = val
 				off += c2
 			}
@@ -7530,13 +7718,13 @@ fn decode_range_table_func_col(buf []u8) (RangeTableFuncCol, int) {
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.colexpr = val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.coldefexpr = val
 				off += c2
 			}
@@ -7553,7 +7741,8 @@ fn decode_range_table_func_col(buf []u8) (RangeTableFuncCol, int) {
 	return r, off
 }
 
-fn decode_xml_serialize(buf []u8) (XmlSerialize, int) {
+fn decode_xml_serialize(buf []u8, depth int) (XmlSerialize, int) {
+	if depth <= 0 { return XmlSerialize{}, 0 }
 	mut r := XmlSerialize{}
 	mut off := 0
 	for off < buf.len {
@@ -7567,13 +7756,13 @@ fn decode_xml_serialize(buf []u8) (XmlSerialize, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.expr = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_type_name(data)
+				val, _ := decode_type_name(data, depth - 1)
 				r.type_name = val
 				off += c2
 			}
@@ -7595,7 +7784,8 @@ fn decode_xml_serialize(buf []u8) (XmlSerialize, int) {
 	return r, off
 }
 
-fn decode_create_op_class_stmt(buf []u8) (CreateOpClassStmt, int) {
+fn decode_create_op_class_stmt(buf []u8, depth int) (CreateOpClassStmt, int) {
+	if depth <= 0 { return CreateOpClassStmt{}, 0 }
 	mut r := CreateOpClassStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -7604,13 +7794,13 @@ fn decode_create_op_class_stmt(buf []u8) (CreateOpClassStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.opclassname << val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.opfamilyname << val
 				off += c2
 			}
@@ -7621,13 +7811,13 @@ fn decode_create_op_class_stmt(buf []u8) (CreateOpClassStmt, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_type_name(data)
+				val, _ := decode_type_name(data, depth - 1)
 				r.datatype = val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.items << val
 				off += c2
 			}
@@ -7644,7 +7834,8 @@ fn decode_create_op_class_stmt(buf []u8) (CreateOpClassStmt, int) {
 	return r, off
 }
 
-fn decode_create_function_stmt(buf []u8) (CreateFunctionStmt, int) {
+fn decode_create_function_stmt(buf []u8, depth int) (CreateFunctionStmt, int) {
+	if depth <= 0 { return CreateFunctionStmt{}, 0 }
 	mut r := CreateFunctionStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -7663,31 +7854,31 @@ fn decode_create_function_stmt(buf []u8) (CreateFunctionStmt, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.funcname << val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.parameters << val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_type_name(data)
+				val, _ := decode_type_name(data, depth - 1)
 				r.return_type = val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
 			7 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.sql_body = val
 				off += c2
 			}
@@ -7699,7 +7890,8 @@ fn decode_create_function_stmt(buf []u8) (CreateFunctionStmt, int) {
 	return r, off
 }
 
-fn decode_function_parameter(buf []u8) (FunctionParameter, int) {
+fn decode_function_parameter(buf []u8, depth int) (FunctionParameter, int) {
+	if depth <= 0 { return FunctionParameter{}, 0 }
 	mut r := FunctionParameter{}
 	mut off := 0
 	for off < buf.len {
@@ -7713,7 +7905,7 @@ fn decode_function_parameter(buf []u8) (FunctionParameter, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_type_name(data)
+				val, _ := decode_type_name(data, depth - 1)
 				r.arg_type = val
 				off += c2
 			}
@@ -7724,7 +7916,7 @@ fn decode_function_parameter(buf []u8) (FunctionParameter, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.defexpr = val
 				off += c2
 			}
@@ -7736,7 +7928,8 @@ fn decode_function_parameter(buf []u8) (FunctionParameter, int) {
 	return r, off
 }
 
-fn decode_create_domain_stmt(buf []u8) (CreateDomainStmt, int) {
+fn decode_create_domain_stmt(buf []u8, depth int) (CreateDomainStmt, int) {
+	if depth <= 0 { return CreateDomainStmt{}, 0 }
 	mut r := CreateDomainStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -7745,25 +7938,25 @@ fn decode_create_domain_stmt(buf []u8) (CreateDomainStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.domainname << val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_type_name(data)
+				val, _ := decode_type_name(data, depth - 1)
 				r.type_name = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_collate_clause(data)
+				val, _ := decode_collate_clause(data, depth - 1)
 				r.coll_clause = val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.constraints << val
 				off += c2
 			}
@@ -7775,7 +7968,8 @@ fn decode_create_domain_stmt(buf []u8) (CreateDomainStmt, int) {
 	return r, off
 }
 
-fn decode_create_schema_stmt(buf []u8) (CreateSchemaStmt, int) {
+fn decode_create_schema_stmt(buf []u8, depth int) (CreateSchemaStmt, int) {
+	if depth <= 0 { return CreateSchemaStmt{}, 0 }
 	mut r := CreateSchemaStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -7789,13 +7983,13 @@ fn decode_create_schema_stmt(buf []u8) (CreateSchemaStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_role_spec(data)
+				val, _ := decode_role_spec(data, depth - 1)
 				r.authrole = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.schema_elts << val
 				off += c2
 			}
@@ -7812,7 +8006,8 @@ fn decode_create_schema_stmt(buf []u8) (CreateSchemaStmt, int) {
 	return r, off
 }
 
-fn decode_alter_table_cmd(buf []u8) (AlterTableCmd, int) {
+fn decode_alter_table_cmd(buf []u8, depth int) (AlterTableCmd, int) {
+	if depth <= 0 { return AlterTableCmd{}, 0 }
 	mut r := AlterTableCmd{}
 	mut off := 0
 	for off < buf.len {
@@ -7836,13 +8031,13 @@ fn decode_alter_table_cmd(buf []u8) (AlterTableCmd, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_role_spec(data)
+				val, _ := decode_role_spec(data, depth - 1)
 				r.newowner = val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.def = val
 				off += c2
 			}
@@ -7869,7 +8064,8 @@ fn decode_alter_table_cmd(buf []u8) (AlterTableCmd, int) {
 	return r, off
 }
 
-fn decode_grant_stmt(buf []u8) (GrantStmt, int) {
+fn decode_grant_stmt(buf []u8, depth int) (GrantStmt, int) {
+	if depth <= 0 { return GrantStmt{}, 0 }
 	mut r := GrantStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -7893,19 +8089,19 @@ fn decode_grant_stmt(buf []u8) (GrantStmt, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.objects << val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.privileges << val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.grantees << val
 				off += c2
 			}
@@ -7916,7 +8112,7 @@ fn decode_grant_stmt(buf []u8) (GrantStmt, int) {
 			}
 			8 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_role_spec(data)
+				val, _ := decode_role_spec(data, depth - 1)
 				r.grantor = val
 				off += c2
 			}
@@ -7933,7 +8129,8 @@ fn decode_grant_stmt(buf []u8) (GrantStmt, int) {
 	return r, off
 }
 
-fn decode_grant_role_stmt(buf []u8) (GrantRoleStmt, int) {
+fn decode_grant_role_stmt(buf []u8, depth int) (GrantRoleStmt, int) {
+	if depth <= 0 { return GrantRoleStmt{}, 0 }
 	mut r := GrantRoleStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -7942,13 +8139,13 @@ fn decode_grant_role_stmt(buf []u8) (GrantRoleStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.granted_roles << val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.grantee_roles << val
 				off += c2
 			}
@@ -7959,13 +8156,13 @@ fn decode_grant_role_stmt(buf []u8) (GrantRoleStmt, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.opt << val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_role_spec(data)
+				val, _ := decode_role_spec(data, depth - 1)
 				r.grantor = val
 				off += c2
 			}
@@ -7982,7 +8179,8 @@ fn decode_grant_role_stmt(buf []u8) (GrantRoleStmt, int) {
 	return r, off
 }
 
-fn decode_create_table_space_stmt(buf []u8) (CreateTableSpaceStmt, int) {
+fn decode_create_table_space_stmt(buf []u8, depth int) (CreateTableSpaceStmt, int) {
+	if depth <= 0 { return CreateTableSpaceStmt{}, 0 }
 	mut r := CreateTableSpaceStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -7996,7 +8194,7 @@ fn decode_create_table_space_stmt(buf []u8) (CreateTableSpaceStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_role_spec(data)
+				val, _ := decode_role_spec(data, depth - 1)
 				r.owner = val
 				off += c2
 			}
@@ -8007,7 +8205,7 @@ fn decode_create_table_space_stmt(buf []u8) (CreateTableSpaceStmt, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -8019,7 +8217,8 @@ fn decode_create_table_space_stmt(buf []u8) (CreateTableSpaceStmt, int) {
 	return r, off
 }
 
-fn decode_create_user_mapping_stmt(buf []u8) (CreateUserMappingStmt, int) {
+fn decode_create_user_mapping_stmt(buf []u8, depth int) (CreateUserMappingStmt, int) {
+	if depth <= 0 { return CreateUserMappingStmt{}, 0 }
 	mut r := CreateUserMappingStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8028,7 +8227,7 @@ fn decode_create_user_mapping_stmt(buf []u8) (CreateUserMappingStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_role_spec(data)
+				val, _ := decode_role_spec(data, depth - 1)
 				r.user = val
 				off += c2
 			}
@@ -8044,7 +8243,7 @@ fn decode_create_user_mapping_stmt(buf []u8) (CreateUserMappingStmt, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -8056,7 +8255,8 @@ fn decode_create_user_mapping_stmt(buf []u8) (CreateUserMappingStmt, int) {
 	return r, off
 }
 
-fn decode_alter_user_mapping_stmt(buf []u8) (AlterUserMappingStmt, int) {
+fn decode_alter_user_mapping_stmt(buf []u8, depth int) (AlterUserMappingStmt, int) {
+	if depth <= 0 { return AlterUserMappingStmt{}, 0 }
 	mut r := AlterUserMappingStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8065,7 +8265,7 @@ fn decode_alter_user_mapping_stmt(buf []u8) (AlterUserMappingStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_role_spec(data)
+				val, _ := decode_role_spec(data, depth - 1)
 				r.user = val
 				off += c2
 			}
@@ -8076,7 +8276,7 @@ fn decode_alter_user_mapping_stmt(buf []u8) (AlterUserMappingStmt, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -8088,7 +8288,8 @@ fn decode_alter_user_mapping_stmt(buf []u8) (AlterUserMappingStmt, int) {
 	return r, off
 }
 
-fn decode_drop_user_mapping_stmt(buf []u8) (DropUserMappingStmt, int) {
+fn decode_drop_user_mapping_stmt(buf []u8, depth int) (DropUserMappingStmt, int) {
+	if depth <= 0 { return DropUserMappingStmt{}, 0 }
 	mut r := DropUserMappingStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8097,7 +8298,7 @@ fn decode_drop_user_mapping_stmt(buf []u8) (DropUserMappingStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_role_spec(data)
+				val, _ := decode_role_spec(data, depth - 1)
 				r.user = val
 				off += c2
 			}
@@ -8119,7 +8320,8 @@ fn decode_drop_user_mapping_stmt(buf []u8) (DropUserMappingStmt, int) {
 	return r, off
 }
 
-fn decode_alter_role_stmt(buf []u8) (AlterRoleStmt, int) {
+fn decode_alter_role_stmt(buf []u8, depth int) (AlterRoleStmt, int) {
+	if depth <= 0 { return AlterRoleStmt{}, 0 }
 	mut r := AlterRoleStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8128,13 +8330,13 @@ fn decode_alter_role_stmt(buf []u8) (AlterRoleStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_role_spec(data)
+				val, _ := decode_role_spec(data, depth - 1)
 				r.role = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -8151,7 +8353,8 @@ fn decode_alter_role_stmt(buf []u8) (AlterRoleStmt, int) {
 	return r, off
 }
 
-fn decode_reassign_owned_stmt(buf []u8) (ReassignOwnedStmt, int) {
+fn decode_reassign_owned_stmt(buf []u8, depth int) (ReassignOwnedStmt, int) {
+	if depth <= 0 { return ReassignOwnedStmt{}, 0 }
 	mut r := ReassignOwnedStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8160,13 +8363,13 @@ fn decode_reassign_owned_stmt(buf []u8) (ReassignOwnedStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.roles << val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_role_spec(data)
+				val, _ := decode_role_spec(data, depth - 1)
 				r.newrole = val
 				off += c2
 			}
@@ -8178,7 +8381,8 @@ fn decode_reassign_owned_stmt(buf []u8) (ReassignOwnedStmt, int) {
 	return r, off
 }
 
-fn decode_func_call(buf []u8) (FuncCall, int) {
+fn decode_func_call(buf []u8, depth int) (FuncCall, int) {
+	if depth <= 0 { return FuncCall{}, 0 }
 	mut r := FuncCall{}
 	mut off := 0
 	for off < buf.len {
@@ -8187,31 +8391,31 @@ fn decode_func_call(buf []u8) (FuncCall, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.funcname << val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.args << val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.agg_order << val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.agg_filter = val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_window_def(data)
+				val, _ := decode_window_def(data, depth - 1)
 				r.over = val
 				off += c2
 			}
@@ -8253,7 +8457,8 @@ fn decode_func_call(buf []u8) (FuncCall, int) {
 	return r, off
 }
 
-fn decode_on_conflict_clause(buf []u8) (OnConflictClause, int) {
+fn decode_on_conflict_clause(buf []u8, depth int) (OnConflictClause, int) {
+	if depth <= 0 { return OnConflictClause{}, 0 }
 	mut r := OnConflictClause{}
 	mut off := 0
 	for off < buf.len {
@@ -8267,19 +8472,19 @@ fn decode_on_conflict_clause(buf []u8) (OnConflictClause, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_infer_clause(data)
+				val, _ := decode_infer_clause(data, depth - 1)
 				r.infer = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.target_list << val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.where_clause = val
 				off += c2
 			}
@@ -8296,7 +8501,8 @@ fn decode_on_conflict_clause(buf []u8) (OnConflictClause, int) {
 	return r, off
 }
 
-fn decode_common_table_expr(buf []u8) (CommonTableExpr, int) {
+fn decode_common_table_expr(buf []u8, depth int) (CommonTableExpr, int) {
+	if depth <= 0 { return CommonTableExpr{}, 0 }
 	mut r := CommonTableExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -8310,7 +8516,7 @@ fn decode_common_table_expr(buf []u8) (CommonTableExpr, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.aliascolnames << val
 				off += c2
 			}
@@ -8321,19 +8527,19 @@ fn decode_common_table_expr(buf []u8) (CommonTableExpr, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.ctequery = val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_c_t_e_search_clause(data)
+				val, _ := decode_c_t_e_search_clause(data, depth - 1)
 				r.search_clause = val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_c_t_e_cycle_clause(data)
+				val, _ := decode_c_t_e_cycle_clause(data, depth - 1)
 				r.cycle_clause = val
 				off += c2
 			}
@@ -8354,25 +8560,25 @@ fn decode_common_table_expr(buf []u8) (CommonTableExpr, int) {
 			}
 			10 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.ctecolnames << val
 				off += c2
 			}
 			11 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.ctecoltypes << val
 				off += c2
 			}
 			12 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.ctecoltypmods << val
 				off += c2
 			}
 			13 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.ctecolcollations << val
 				off += c2
 			}
@@ -8384,7 +8590,8 @@ fn decode_common_table_expr(buf []u8) (CommonTableExpr, int) {
 	return r, off
 }
 
-fn decode_json_table_column(buf []u8) (JsonTableColumn, int) {
+fn decode_json_table_column(buf []u8, depth int) (JsonTableColumn, int) {
+	if depth <= 0 { return JsonTableColumn{}, 0 }
 	mut r := JsonTableColumn{}
 	mut off := 0
 	for off < buf.len {
@@ -8403,19 +8610,19 @@ fn decode_json_table_column(buf []u8) (JsonTableColumn, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_type_name(data)
+				val, _ := decode_type_name(data, depth - 1)
 				r.type_name = val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_table_path_spec(data)
+				val, _ := decode_json_table_path_spec(data, depth - 1)
 				r.pathspec = val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_format(data)
+				val, _ := decode_json_format(data, depth - 1)
 				r.format = val
 				off += c2
 			}
@@ -8431,19 +8638,19 @@ fn decode_json_table_column(buf []u8) (JsonTableColumn, int) {
 			}
 			8 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.columns << val
 				off += c2
 			}
 			9 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_behavior(data)
+				val, _ := decode_json_behavior(data, depth - 1)
 				r.on_empty = val
 				off += c2
 			}
 			10 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_behavior(data)
+				val, _ := decode_json_behavior(data, depth - 1)
 				r.on_error = val
 				off += c2
 			}
@@ -8460,7 +8667,8 @@ fn decode_json_table_column(buf []u8) (JsonTableColumn, int) {
 	return r, off
 }
 
-fn decode_create_op_class_item(buf []u8) (CreateOpClassItem, int) {
+fn decode_create_op_class_item(buf []u8, depth int) (CreateOpClassItem, int) {
+	if depth <= 0 { return CreateOpClassItem{}, 0 }
 	mut r := CreateOpClassItem{}
 	mut off := 0
 	for off < buf.len {
@@ -8474,7 +8682,7 @@ fn decode_create_op_class_item(buf []u8) (CreateOpClassItem, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_object_with_args(data)
+				val, _ := decode_object_with_args(data, depth - 1)
 				r.name = val
 				off += c2
 			}
@@ -8485,19 +8693,19 @@ fn decode_create_op_class_item(buf []u8) (CreateOpClassItem, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.order_family << val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.class_args << val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_type_name(data)
+				val, _ := decode_type_name(data, depth - 1)
 				r.storedtype = val
 				off += c2
 			}
@@ -8509,7 +8717,8 @@ fn decode_create_op_class_item(buf []u8) (CreateOpClassItem, int) {
 	return r, off
 }
 
-fn decode_alter_function_stmt(buf []u8) (AlterFunctionStmt, int) {
+fn decode_alter_function_stmt(buf []u8, depth int) (AlterFunctionStmt, int) {
+	if depth <= 0 { return AlterFunctionStmt{}, 0 }
 	mut r := AlterFunctionStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8523,13 +8732,13 @@ fn decode_alter_function_stmt(buf []u8) (AlterFunctionStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_object_with_args(data)
+				val, _ := decode_object_with_args(data, depth - 1)
 				r.func = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.actions << val
 				off += c2
 			}
@@ -8541,7 +8750,8 @@ fn decode_alter_function_stmt(buf []u8) (AlterFunctionStmt, int) {
 	return r, off
 }
 
-fn decode_alter_operator_stmt(buf []u8) (AlterOperatorStmt, int) {
+fn decode_alter_operator_stmt(buf []u8, depth int) (AlterOperatorStmt, int) {
+	if depth <= 0 { return AlterOperatorStmt{}, 0 }
 	mut r := AlterOperatorStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8550,13 +8760,13 @@ fn decode_alter_operator_stmt(buf []u8) (AlterOperatorStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_object_with_args(data)
+				val, _ := decode_object_with_args(data, depth - 1)
 				r.opername = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -8568,7 +8778,8 @@ fn decode_alter_operator_stmt(buf []u8) (AlterOperatorStmt, int) {
 	return r, off
 }
 
-fn decode_create_cast_stmt(buf []u8) (CreateCastStmt, int) {
+fn decode_create_cast_stmt(buf []u8, depth int) (CreateCastStmt, int) {
+	if depth <= 0 { return CreateCastStmt{}, 0 }
 	mut r := CreateCastStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8577,19 +8788,19 @@ fn decode_create_cast_stmt(buf []u8) (CreateCastStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_type_name(data)
+				val, _ := decode_type_name(data, depth - 1)
 				r.sourcetype = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_type_name(data)
+				val, _ := decode_type_name(data, depth - 1)
 				r.targettype = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_object_with_args(data)
+				val, _ := decode_object_with_args(data, depth - 1)
 				r.func = val
 				off += c2
 			}
@@ -8611,7 +8822,8 @@ fn decode_create_cast_stmt(buf []u8) (CreateCastStmt, int) {
 	return r, off
 }
 
-fn decode_create_transform_stmt(buf []u8) (CreateTransformStmt, int) {
+fn decode_create_transform_stmt(buf []u8, depth int) (CreateTransformStmt, int) {
+	if depth <= 0 { return CreateTransformStmt{}, 0 }
 	mut r := CreateTransformStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8625,7 +8837,7 @@ fn decode_create_transform_stmt(buf []u8) (CreateTransformStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_type_name(data)
+				val, _ := decode_type_name(data, depth - 1)
 				r.type_name = val
 				off += c2
 			}
@@ -8636,13 +8848,13 @@ fn decode_create_transform_stmt(buf []u8) (CreateTransformStmt, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_object_with_args(data)
+				val, _ := decode_object_with_args(data, depth - 1)
 				r.fromsql = val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_object_with_args(data)
+				val, _ := decode_object_with_args(data, depth - 1)
 				r.tosql = val
 				off += c2
 			}
@@ -8654,7 +8866,8 @@ fn decode_create_transform_stmt(buf []u8) (CreateTransformStmt, int) {
 	return r, off
 }
 
-fn decode_alter_role_set_stmt(buf []u8) (AlterRoleSetStmt, int) {
+fn decode_alter_role_set_stmt(buf []u8, depth int) (AlterRoleSetStmt, int) {
+	if depth <= 0 { return AlterRoleSetStmt{}, 0 }
 	mut r := AlterRoleSetStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8663,7 +8876,7 @@ fn decode_alter_role_set_stmt(buf []u8) (AlterRoleSetStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_role_spec(data)
+				val, _ := decode_role_spec(data, depth - 1)
 				r.role = val
 				off += c2
 			}
@@ -8674,7 +8887,7 @@ fn decode_alter_role_set_stmt(buf []u8) (AlterRoleSetStmt, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_variable_set_stmt(data)
+				val, _ := decode_variable_set_stmt(data, depth - 1)
 				r.setstmt = val
 				off += c2
 			}
@@ -8686,7 +8899,8 @@ fn decode_alter_role_set_stmt(buf []u8) (AlterRoleSetStmt, int) {
 	return r, off
 }
 
-fn decode_alter_database_set_stmt(buf []u8) (AlterDatabaseSetStmt, int) {
+fn decode_alter_database_set_stmt(buf []u8, depth int) (AlterDatabaseSetStmt, int) {
+	if depth <= 0 { return AlterDatabaseSetStmt{}, 0 }
 	mut r := AlterDatabaseSetStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8700,7 +8914,7 @@ fn decode_alter_database_set_stmt(buf []u8) (AlterDatabaseSetStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_variable_set_stmt(data)
+				val, _ := decode_variable_set_stmt(data, depth - 1)
 				r.setstmt = val
 				off += c2
 			}
@@ -8712,7 +8926,8 @@ fn decode_alter_database_set_stmt(buf []u8) (AlterDatabaseSetStmt, int) {
 	return r, off
 }
 
-fn decode_alter_system_stmt(buf []u8) (AlterSystemStmt, int) {
+fn decode_alter_system_stmt(buf []u8, depth int) (AlterSystemStmt, int) {
+	if depth <= 0 { return AlterSystemStmt{}, 0 }
 	mut r := AlterSystemStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8721,7 +8936,7 @@ fn decode_alter_system_stmt(buf []u8) (AlterSystemStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_variable_set_stmt(data)
+				val, _ := decode_variable_set_stmt(data, depth - 1)
 				r.setstmt = val
 				off += c2
 			}
@@ -8733,7 +8948,8 @@ fn decode_alter_system_stmt(buf []u8) (AlterSystemStmt, int) {
 	return r, off
 }
 
-fn decode_into_clause(buf []u8) (IntoClause, int) {
+fn decode_into_clause(buf []u8, depth int) (IntoClause, int) {
+	if depth <= 0 { return IntoClause{}, 0 }
 	mut r := IntoClause{}
 	mut off := 0
 	for off < buf.len {
@@ -8742,13 +8958,13 @@ fn decode_into_clause(buf []u8) (IntoClause, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.rel = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.col_names << val
 				off += c2
 			}
@@ -8759,7 +8975,7 @@ fn decode_into_clause(buf []u8) (IntoClause, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -8775,7 +8991,7 @@ fn decode_into_clause(buf []u8) (IntoClause, int) {
 			}
 			7 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.view_query = val
 				off += c2
 			}
@@ -8792,7 +9008,8 @@ fn decode_into_clause(buf []u8) (IntoClause, int) {
 	return r, off
 }
 
-fn decode_column_def(buf []u8) (ColumnDef, int) {
+fn decode_column_def(buf []u8, depth int) (ColumnDef, int) {
+	if depth <= 0 { return ColumnDef{}, 0 }
 	mut r := ColumnDef{}
 	mut off := 0
 	for off < buf.len {
@@ -8806,7 +9023,7 @@ fn decode_column_def(buf []u8) (ColumnDef, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_type_name(data)
+				val, _ := decode_type_name(data, depth - 1)
 				r.type_name = val
 				off += c2
 			}
@@ -8847,13 +9064,13 @@ fn decode_column_def(buf []u8) (ColumnDef, int) {
 			}
 			10 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.raw_default = val
 				off += c2
 			}
 			11 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.cooked_default = val
 				off += c2
 			}
@@ -8864,7 +9081,7 @@ fn decode_column_def(buf []u8) (ColumnDef, int) {
 			}
 			13 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.identity_sequence = val
 				off += c2
 			}
@@ -8875,7 +9092,7 @@ fn decode_column_def(buf []u8) (ColumnDef, int) {
 			}
 			15 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_collate_clause(data)
+				val, _ := decode_collate_clause(data, depth - 1)
 				r.coll_clause = val
 				off += c2
 			}
@@ -8886,13 +9103,13 @@ fn decode_column_def(buf []u8) (ColumnDef, int) {
 			}
 			17 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.constraints << val
 				off += c2
 			}
 			18 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.fdwoptions << val
 				off += c2
 			}
@@ -8909,7 +9126,8 @@ fn decode_column_def(buf []u8) (ColumnDef, int) {
 	return r, off
 }
 
-fn decode_table_like_clause(buf []u8) (TableLikeClause, int) {
+fn decode_table_like_clause(buf []u8, depth int) (TableLikeClause, int) {
+	if depth <= 0 { return TableLikeClause{}, 0 }
 	mut r := TableLikeClause{}
 	mut off := 0
 	for off < buf.len {
@@ -8918,7 +9136,7 @@ fn decode_table_like_clause(buf []u8) (TableLikeClause, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.relation = val
 				off += c2
 			}
@@ -8940,7 +9158,8 @@ fn decode_table_like_clause(buf []u8) (TableLikeClause, int) {
 	return r, off
 }
 
-fn decode_partition_cmd(buf []u8) (PartitionCmd, int) {
+fn decode_partition_cmd(buf []u8, depth int) (PartitionCmd, int) {
+	if depth <= 0 { return PartitionCmd{}, 0 }
 	mut r := PartitionCmd{}
 	mut off := 0
 	for off < buf.len {
@@ -8949,13 +9168,13 @@ fn decode_partition_cmd(buf []u8) (PartitionCmd, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.name = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_partition_bound_spec(data)
+				val, _ := decode_partition_bound_spec(data, depth - 1)
 				r.bound = val
 				off += c2
 			}
@@ -8972,7 +9191,8 @@ fn decode_partition_cmd(buf []u8) (PartitionCmd, int) {
 	return r, off
 }
 
-fn decode_delete_stmt(buf []u8) (DeleteStmt, int) {
+fn decode_delete_stmt(buf []u8, depth int) (DeleteStmt, int) {
+	if depth <= 0 { return DeleteStmt{}, 0 }
 	mut r := DeleteStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8981,31 +9201,31 @@ fn decode_delete_stmt(buf []u8) (DeleteStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.relation = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.using_clause << val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.where_clause = val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.returning_list << val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_with_clause(data)
+				val, _ := decode_with_clause(data, depth - 1)
 				r.with_clause = val
 				off += c2
 			}
@@ -9017,7 +9237,8 @@ fn decode_delete_stmt(buf []u8) (DeleteStmt, int) {
 	return r, off
 }
 
-fn decode_update_stmt(buf []u8) (UpdateStmt, int) {
+fn decode_update_stmt(buf []u8, depth int) (UpdateStmt, int) {
+	if depth <= 0 { return UpdateStmt{}, 0 }
 	mut r := UpdateStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -9026,37 +9247,37 @@ fn decode_update_stmt(buf []u8) (UpdateStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.relation = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.target_list << val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.where_clause = val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.from_clause << val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.returning_list << val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_with_clause(data)
+				val, _ := decode_with_clause(data, depth - 1)
 				r.with_clause = val
 				off += c2
 			}
@@ -9068,7 +9289,8 @@ fn decode_update_stmt(buf []u8) (UpdateStmt, int) {
 	return r, off
 }
 
-fn decode_merge_stmt(buf []u8) (MergeStmt, int) {
+fn decode_merge_stmt(buf []u8, depth int) (MergeStmt, int) {
+	if depth <= 0 { return MergeStmt{}, 0 }
 	mut r := MergeStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -9077,37 +9299,37 @@ fn decode_merge_stmt(buf []u8) (MergeStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.relation = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.source_relation = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.join_condition = val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.merge_when_clauses << val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.returning_list << val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_with_clause(data)
+				val, _ := decode_with_clause(data, depth - 1)
 				r.with_clause = val
 				off += c2
 			}
@@ -9119,7 +9341,8 @@ fn decode_merge_stmt(buf []u8) (MergeStmt, int) {
 	return r, off
 }
 
-fn decode_alter_table_stmt(buf []u8) (AlterTableStmt, int) {
+fn decode_alter_table_stmt(buf []u8, depth int) (AlterTableStmt, int) {
+	if depth <= 0 { return AlterTableStmt{}, 0 }
 	mut r := AlterTableStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -9128,13 +9351,13 @@ fn decode_alter_table_stmt(buf []u8) (AlterTableStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.relation = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.cmds << val
 				off += c2
 			}
@@ -9156,7 +9379,8 @@ fn decode_alter_table_stmt(buf []u8) (AlterTableStmt, int) {
 	return r, off
 }
 
-fn decode_copy_stmt(buf []u8) (CopyStmt, int) {
+fn decode_copy_stmt(buf []u8, depth int) (CopyStmt, int) {
+	if depth <= 0 { return CopyStmt{}, 0 }
 	mut r := CopyStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -9165,19 +9389,19 @@ fn decode_copy_stmt(buf []u8) (CopyStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.relation = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.query = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.attlist << val
 				off += c2
 			}
@@ -9198,13 +9422,13 @@ fn decode_copy_stmt(buf []u8) (CopyStmt, int) {
 			}
 			7 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
 			8 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.where_clause = val
 				off += c2
 			}
@@ -9216,7 +9440,8 @@ fn decode_copy_stmt(buf []u8) (CopyStmt, int) {
 	return r, off
 }
 
-fn decode_create_stmt(buf []u8) (CreateStmt, int) {
+fn decode_create_stmt(buf []u8, depth int) (CreateStmt, int) {
+	if depth <= 0 { return CreateStmt{}, 0 }
 	mut r := CreateStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -9225,49 +9450,49 @@ fn decode_create_stmt(buf []u8) (CreateStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.relation = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.table_elts << val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.inh_relations << val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_partition_bound_spec(data)
+				val, _ := decode_partition_bound_spec(data, depth - 1)
 				r.partbound = val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_partition_spec(data)
+				val, _ := decode_partition_spec(data, depth - 1)
 				r.partspec = val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_type_name(data)
+				val, _ := decode_type_name(data, depth - 1)
 				r.of_typename = val
 				off += c2
 			}
 			7 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.constraints << val
 				off += c2
 			}
 			8 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -9299,7 +9524,8 @@ fn decode_create_stmt(buf []u8) (CreateStmt, int) {
 	return r, off
 }
 
-fn decode_constraint(buf []u8) (Constraint, int) {
+fn decode_constraint(buf []u8, depth int) (Constraint, int) {
+	if depth <= 0 { return Constraint{}, 0 }
 	mut r := Constraint{}
 	mut off := 0
 	for off < buf.len {
@@ -9343,7 +9569,7 @@ fn decode_constraint(buf []u8) (Constraint, int) {
 			}
 			8 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.raw_expr = val
 				off += c2
 			}
@@ -9369,25 +9595,25 @@ fn decode_constraint(buf []u8) (Constraint, int) {
 			}
 			13 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.keys << val
 				off += c2
 			}
 			14 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.including << val
 				off += c2
 			}
 			15 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.exclusions << val
 				off += c2
 			}
 			16 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -9413,25 +9639,25 @@ fn decode_constraint(buf []u8) (Constraint, int) {
 			}
 			21 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.where_clause = val
 				off += c2
 			}
 			22 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.pktable = val
 				off += c2
 			}
 			23 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.fk_attrs << val
 				off += c2
 			}
 			24 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.pk_attrs << val
 				off += c2
 			}
@@ -9452,13 +9678,13 @@ fn decode_constraint(buf []u8) (Constraint, int) {
 			}
 			28 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.fk_del_set_cols << val
 				off += c2
 			}
 			29 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.old_conpfeqop << val
 				off += c2
 			}
@@ -9480,7 +9706,8 @@ fn decode_constraint(buf []u8) (Constraint, int) {
 	return r, off
 }
 
-fn decode_create_policy_stmt(buf []u8) (CreatePolicyStmt, int) {
+fn decode_create_policy_stmt(buf []u8, depth int) (CreatePolicyStmt, int) {
+	if depth <= 0 { return CreatePolicyStmt{}, 0 }
 	mut r := CreatePolicyStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -9494,7 +9721,7 @@ fn decode_create_policy_stmt(buf []u8) (CreatePolicyStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.table = val
 				off += c2
 			}
@@ -9510,19 +9737,19 @@ fn decode_create_policy_stmt(buf []u8) (CreatePolicyStmt, int) {
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.roles << val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.qual = val
 				off += c2
 			}
 			7 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.with_check = val
 				off += c2
 			}
@@ -9534,7 +9761,8 @@ fn decode_create_policy_stmt(buf []u8) (CreatePolicyStmt, int) {
 	return r, off
 }
 
-fn decode_alter_policy_stmt(buf []u8) (AlterPolicyStmt, int) {
+fn decode_alter_policy_stmt(buf []u8, depth int) (AlterPolicyStmt, int) {
+	if depth <= 0 { return AlterPolicyStmt{}, 0 }
 	mut r := AlterPolicyStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -9548,25 +9776,25 @@ fn decode_alter_policy_stmt(buf []u8) (AlterPolicyStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.table = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.roles << val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.qual = val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.with_check = val
 				off += c2
 			}
@@ -9578,7 +9806,8 @@ fn decode_alter_policy_stmt(buf []u8) (AlterPolicyStmt, int) {
 	return r, off
 }
 
-fn decode_create_trig_stmt(buf []u8) (CreateTrigStmt, int) {
+fn decode_create_trig_stmt(buf []u8, depth int) (CreateTrigStmt, int) {
+	if depth <= 0 { return CreateTrigStmt{}, 0 }
 	mut r := CreateTrigStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -9602,19 +9831,19 @@ fn decode_create_trig_stmt(buf []u8) (CreateTrigStmt, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.relation = val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.funcname << val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.args << val
 				off += c2
 			}
@@ -9635,19 +9864,19 @@ fn decode_create_trig_stmt(buf []u8) (CreateTrigStmt, int) {
 			}
 			10 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.columns << val
 				off += c2
 			}
 			11 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.when_clause = val
 				off += c2
 			}
 			12 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.transition_rels << val
 				off += c2
 			}
@@ -9663,7 +9892,7 @@ fn decode_create_trig_stmt(buf []u8) (CreateTrigStmt, int) {
 			}
 			15 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.constrrel = val
 				off += c2
 			}
@@ -9675,7 +9904,8 @@ fn decode_create_trig_stmt(buf []u8) (CreateTrigStmt, int) {
 	return r, off
 }
 
-fn decode_create_seq_stmt(buf []u8) (CreateSeqStmt, int) {
+fn decode_create_seq_stmt(buf []u8, depth int) (CreateSeqStmt, int) {
+	if depth <= 0 { return CreateSeqStmt{}, 0 }
 	mut r := CreateSeqStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -9684,13 +9914,13 @@ fn decode_create_seq_stmt(buf []u8) (CreateSeqStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.sequence = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -9717,7 +9947,8 @@ fn decode_create_seq_stmt(buf []u8) (CreateSeqStmt, int) {
 	return r, off
 }
 
-fn decode_alter_seq_stmt(buf []u8) (AlterSeqStmt, int) {
+fn decode_alter_seq_stmt(buf []u8, depth int) (AlterSeqStmt, int) {
+	if depth <= 0 { return AlterSeqStmt{}, 0 }
 	mut r := AlterSeqStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -9726,13 +9957,13 @@ fn decode_alter_seq_stmt(buf []u8) (AlterSeqStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.sequence = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -9754,7 +9985,8 @@ fn decode_alter_seq_stmt(buf []u8) (AlterSeqStmt, int) {
 	return r, off
 }
 
-fn decode_index_stmt(buf []u8) (IndexStmt, int) {
+fn decode_index_stmt(buf []u8, depth int) (IndexStmt, int) {
+	if depth <= 0 { return IndexStmt{}, 0 }
 	mut r := IndexStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -9768,7 +10000,7 @@ fn decode_index_stmt(buf []u8) (IndexStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.relation = val
 				off += c2
 			}
@@ -9784,31 +10016,31 @@ fn decode_index_stmt(buf []u8) (IndexStmt, int) {
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.index_params << val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.index_including_params << val
 				off += c2
 			}
 			7 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
 			8 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.where_clause = val
 				off += c2
 			}
 			9 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.exclude_op_names << val
 				off += c2
 			}
@@ -9895,7 +10127,8 @@ fn decode_index_stmt(buf []u8) (IndexStmt, int) {
 	return r, off
 }
 
-fn decode_rename_stmt(buf []u8) (RenameStmt, int) {
+fn decode_rename_stmt(buf []u8, depth int) (RenameStmt, int) {
+	if depth <= 0 { return RenameStmt{}, 0 }
 	mut r := RenameStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -9914,13 +10147,13 @@ fn decode_rename_stmt(buf []u8) (RenameStmt, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.relation = val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.object = val
 				off += c2
 			}
@@ -9952,7 +10185,8 @@ fn decode_rename_stmt(buf []u8) (RenameStmt, int) {
 	return r, off
 }
 
-fn decode_alter_object_depends_stmt(buf []u8) (AlterObjectDependsStmt, int) {
+fn decode_alter_object_depends_stmt(buf []u8, depth int) (AlterObjectDependsStmt, int) {
+	if depth <= 0 { return AlterObjectDependsStmt{}, 0 }
 	mut r := AlterObjectDependsStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -9966,19 +10200,19 @@ fn decode_alter_object_depends_stmt(buf []u8) (AlterObjectDependsStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.relation = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.object = val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_string(data)
+				val, _ := decode_string(data, depth - 1)
 				r.extname = val
 				off += c2
 			}
@@ -9995,7 +10229,8 @@ fn decode_alter_object_depends_stmt(buf []u8) (AlterObjectDependsStmt, int) {
 	return r, off
 }
 
-fn decode_alter_object_schema_stmt(buf []u8) (AlterObjectSchemaStmt, int) {
+fn decode_alter_object_schema_stmt(buf []u8, depth int) (AlterObjectSchemaStmt, int) {
+	if depth <= 0 { return AlterObjectSchemaStmt{}, 0 }
 	mut r := AlterObjectSchemaStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -10009,13 +10244,13 @@ fn decode_alter_object_schema_stmt(buf []u8) (AlterObjectSchemaStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.relation = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.object = val
 				off += c2
 			}
@@ -10037,7 +10272,8 @@ fn decode_alter_object_schema_stmt(buf []u8) (AlterObjectSchemaStmt, int) {
 	return r, off
 }
 
-fn decode_alter_owner_stmt(buf []u8) (AlterOwnerStmt, int) {
+fn decode_alter_owner_stmt(buf []u8, depth int) (AlterOwnerStmt, int) {
+	if depth <= 0 { return AlterOwnerStmt{}, 0 }
 	mut r := AlterOwnerStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -10051,19 +10287,19 @@ fn decode_alter_owner_stmt(buf []u8) (AlterOwnerStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.relation = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.object = val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_role_spec(data)
+				val, _ := decode_role_spec(data, depth - 1)
 				r.newowner = val
 				off += c2
 			}
@@ -10075,7 +10311,8 @@ fn decode_alter_owner_stmt(buf []u8) (AlterOwnerStmt, int) {
 	return r, off
 }
 
-fn decode_rule_stmt(buf []u8) (RuleStmt, int) {
+fn decode_rule_stmt(buf []u8, depth int) (RuleStmt, int) {
+	if depth <= 0 { return RuleStmt{}, 0 }
 	mut r := RuleStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -10084,7 +10321,7 @@ fn decode_rule_stmt(buf []u8) (RuleStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.relation = val
 				off += c2
 			}
@@ -10095,7 +10332,7 @@ fn decode_rule_stmt(buf []u8) (RuleStmt, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.where_clause = val
 				off += c2
 			}
@@ -10111,7 +10348,7 @@ fn decode_rule_stmt(buf []u8) (RuleStmt, int) {
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.actions << val
 				off += c2
 			}
@@ -10128,7 +10365,8 @@ fn decode_rule_stmt(buf []u8) (RuleStmt, int) {
 	return r, off
 }
 
-fn decode_composite_type_stmt(buf []u8) (CompositeTypeStmt, int) {
+fn decode_composite_type_stmt(buf []u8, depth int) (CompositeTypeStmt, int) {
+	if depth <= 0 { return CompositeTypeStmt{}, 0 }
 	mut r := CompositeTypeStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -10137,13 +10375,13 @@ fn decode_composite_type_stmt(buf []u8) (CompositeTypeStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.typevar = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.coldeflist << val
 				off += c2
 			}
@@ -10155,7 +10393,8 @@ fn decode_composite_type_stmt(buf []u8) (CompositeTypeStmt, int) {
 	return r, off
 }
 
-fn decode_view_stmt(buf []u8) (ViewStmt, int) {
+fn decode_view_stmt(buf []u8, depth int) (ViewStmt, int) {
+	if depth <= 0 { return ViewStmt{}, 0 }
 	mut r := ViewStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -10164,19 +10403,19 @@ fn decode_view_stmt(buf []u8) (ViewStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.view = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.aliases << val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.query = val
 				off += c2
 			}
@@ -10187,7 +10426,7 @@ fn decode_view_stmt(buf []u8) (ViewStmt, int) {
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -10204,7 +10443,8 @@ fn decode_view_stmt(buf []u8) (ViewStmt, int) {
 	return r, off
 }
 
-fn decode_cluster_stmt(buf []u8) (ClusterStmt, int) {
+fn decode_cluster_stmt(buf []u8, depth int) (ClusterStmt, int) {
+	if depth <= 0 { return ClusterStmt{}, 0 }
 	mut r := ClusterStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -10213,7 +10453,7 @@ fn decode_cluster_stmt(buf []u8) (ClusterStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.relation = val
 				off += c2
 			}
@@ -10224,7 +10464,7 @@ fn decode_cluster_stmt(buf []u8) (ClusterStmt, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.params << val
 				off += c2
 			}
@@ -10236,7 +10476,8 @@ fn decode_cluster_stmt(buf []u8) (ClusterStmt, int) {
 	return r, off
 }
 
-fn decode_vacuum_relation(buf []u8) (VacuumRelation, int) {
+fn decode_vacuum_relation(buf []u8, depth int) (VacuumRelation, int) {
+	if depth <= 0 { return VacuumRelation{}, 0 }
 	mut r := VacuumRelation{}
 	mut off := 0
 	for off < buf.len {
@@ -10245,7 +10486,7 @@ fn decode_vacuum_relation(buf []u8) (VacuumRelation, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.relation = val
 				off += c2
 			}
@@ -10256,7 +10497,7 @@ fn decode_vacuum_relation(buf []u8) (VacuumRelation, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.va_cols << val
 				off += c2
 			}
@@ -10268,7 +10509,8 @@ fn decode_vacuum_relation(buf []u8) (VacuumRelation, int) {
 	return r, off
 }
 
-fn decode_refresh_mat_view_stmt(buf []u8) (RefreshMatViewStmt, int) {
+fn decode_refresh_mat_view_stmt(buf []u8, depth int) (RefreshMatViewStmt, int) {
+	if depth <= 0 { return RefreshMatViewStmt{}, 0 }
 	mut r := RefreshMatViewStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -10287,7 +10529,7 @@ fn decode_refresh_mat_view_stmt(buf []u8) (RefreshMatViewStmt, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.relation = val
 				off += c2
 			}
@@ -10299,7 +10541,8 @@ fn decode_refresh_mat_view_stmt(buf []u8) (RefreshMatViewStmt, int) {
 	return r, off
 }
 
-fn decode_reindex_stmt(buf []u8) (ReindexStmt, int) {
+fn decode_reindex_stmt(buf []u8, depth int) (ReindexStmt, int) {
+	if depth <= 0 { return ReindexStmt{}, 0 }
 	mut r := ReindexStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -10313,7 +10556,7 @@ fn decode_reindex_stmt(buf []u8) (ReindexStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.relation = val
 				off += c2
 			}
@@ -10324,7 +10567,7 @@ fn decode_reindex_stmt(buf []u8) (ReindexStmt, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.params << val
 				off += c2
 			}
@@ -10336,7 +10579,8 @@ fn decode_reindex_stmt(buf []u8) (ReindexStmt, int) {
 	return r, off
 }
 
-fn decode_publication_table(buf []u8) (PublicationTable, int) {
+fn decode_publication_table(buf []u8, depth int) (PublicationTable, int) {
+	if depth <= 0 { return PublicationTable{}, 0 }
 	mut r := PublicationTable{}
 	mut off := 0
 	for off < buf.len {
@@ -10345,19 +10589,19 @@ fn decode_publication_table(buf []u8) (PublicationTable, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.relation = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.where_clause = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.columns << val
 				off += c2
 			}
@@ -10369,7 +10613,8 @@ fn decode_publication_table(buf []u8) (PublicationTable, int) {
 	return r, off
 }
 
-fn decode_json_constructor_expr(buf []u8) (JsonConstructorExpr, int) {
+fn decode_json_constructor_expr(buf []u8, depth int) (JsonConstructorExpr, int) {
+	if depth <= 0 { return JsonConstructorExpr{}, 0 }
 	mut r := JsonConstructorExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -10378,7 +10623,7 @@ fn decode_json_constructor_expr(buf []u8) (JsonConstructorExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -10389,25 +10634,25 @@ fn decode_json_constructor_expr(buf []u8) (JsonConstructorExpr, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.args << val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.func = val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.coercion = val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_returning(data)
+				val, _ := decode_json_returning(data, depth - 1)
 				r.returning = val
 				off += c2
 			}
@@ -10434,7 +10679,8 @@ fn decode_json_constructor_expr(buf []u8) (JsonConstructorExpr, int) {
 	return r, off
 }
 
-fn decode_json_expr(buf []u8) (JsonExpr, int) {
+fn decode_json_expr(buf []u8, depth int) (JsonExpr, int) {
+	if depth <= 0 { return JsonExpr{}, 0 }
 	mut r := JsonExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -10443,7 +10689,7 @@ fn decode_json_expr(buf []u8) (JsonExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.xpr = val
 				off += c2
 			}
@@ -10459,49 +10705,49 @@ fn decode_json_expr(buf []u8) (JsonExpr, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.formatted_expr = val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_format(data)
+				val, _ := decode_json_format(data, depth - 1)
 				r.format = val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.path_spec = val
 				off += c2
 			}
 			7 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_returning(data)
+				val, _ := decode_json_returning(data, depth - 1)
 				r.returning = val
 				off += c2
 			}
 			8 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.passing_names << val
 				off += c2
 			}
 			9 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.passing_values << val
 				off += c2
 			}
 			10 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_behavior(data)
+				val, _ := decode_json_behavior(data, depth - 1)
 				r.on_empty = val
 				off += c2
 			}
 			11 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_behavior(data)
+				val, _ := decode_json_behavior(data, depth - 1)
 				r.on_error = val
 				off += c2
 			}
@@ -10543,7 +10789,8 @@ fn decode_json_expr(buf []u8) (JsonExpr, int) {
 	return r, off
 }
 
-fn decode_json_output(buf []u8) (JsonOutput, int) {
+fn decode_json_output(buf []u8, depth int) (JsonOutput, int) {
+	if depth <= 0 { return JsonOutput{}, 0 }
 	mut r := JsonOutput{}
 	mut off := 0
 	for off < buf.len {
@@ -10552,13 +10799,13 @@ fn decode_json_output(buf []u8) (JsonOutput, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_type_name(data)
+				val, _ := decode_type_name(data, depth - 1)
 				r.type_name = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_returning(data)
+				val, _ := decode_json_returning(data, depth - 1)
 				r.returning = val
 				off += c2
 			}
@@ -10570,7 +10817,8 @@ fn decode_json_output(buf []u8) (JsonOutput, int) {
 	return r, off
 }
 
-fn decode_json_argument(buf []u8) (JsonArgument, int) {
+fn decode_json_argument(buf []u8, depth int) (JsonArgument, int) {
+	if depth <= 0 { return JsonArgument{}, 0 }
 	mut r := JsonArgument{}
 	mut off := 0
 	for off < buf.len {
@@ -10579,7 +10827,7 @@ fn decode_json_argument(buf []u8) (JsonArgument, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_value_expr(data)
+				val, _ := decode_json_value_expr(data, depth - 1)
 				r.val = val
 				off += c2
 			}
@@ -10596,7 +10844,8 @@ fn decode_json_argument(buf []u8) (JsonArgument, int) {
 	return r, off
 }
 
-fn decode_json_table(buf []u8) (JsonTable, int) {
+fn decode_json_table(buf []u8, depth int) (JsonTable, int) {
+	if depth <= 0 { return JsonTable{}, 0 }
 	mut r := JsonTable{}
 	mut off := 0
 	for off < buf.len {
@@ -10605,37 +10854,37 @@ fn decode_json_table(buf []u8) (JsonTable, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_value_expr(data)
+				val, _ := decode_json_value_expr(data, depth - 1)
 				r.context_item = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_table_path_spec(data)
+				val, _ := decode_json_table_path_spec(data, depth - 1)
 				r.pathspec = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.passing << val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.columns << val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_behavior(data)
+				val, _ := decode_json_behavior(data, depth - 1)
 				r.on_error = val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_alias(data)
+				val, _ := decode_alias(data, depth - 1)
 				r.alias = val
 				off += c2
 			}
@@ -10657,7 +10906,8 @@ fn decode_json_table(buf []u8) (JsonTable, int) {
 	return r, off
 }
 
-fn decode_json_key_value(buf []u8) (JsonKeyValue, int) {
+fn decode_json_key_value(buf []u8, depth int) (JsonKeyValue, int) {
+	if depth <= 0 { return JsonKeyValue{}, 0 }
 	mut r := JsonKeyValue{}
 	mut off := 0
 	for off < buf.len {
@@ -10666,13 +10916,13 @@ fn decode_json_key_value(buf []u8) (JsonKeyValue, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.key = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_value_expr(data)
+				val, _ := decode_json_value_expr(data, depth - 1)
 				r.value = val
 				off += c2
 			}
@@ -10684,7 +10934,8 @@ fn decode_json_key_value(buf []u8) (JsonKeyValue, int) {
 	return r, off
 }
 
-fn decode_range_tbl_entry(buf []u8) (RangeTblEntry, int) {
+fn decode_range_tbl_entry(buf []u8, depth int) (RangeTblEntry, int) {
+	if depth <= 0 { return RangeTblEntry{}, 0 }
 	mut r := RangeTblEntry{}
 	mut off := 0
 	for off < buf.len {
@@ -10693,13 +10944,13 @@ fn decode_range_tbl_entry(buf []u8) (RangeTblEntry, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_alias(data)
+				val, _ := decode_alias(data, depth - 1)
 				r.alias = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_alias(data)
+				val, _ := decode_alias(data, depth - 1)
 				r.eref = val
 				off += c2
 			}
@@ -10735,13 +10986,13 @@ fn decode_range_tbl_entry(buf []u8) (RangeTblEntry, int) {
 			}
 			9 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_table_sample_clause(data)
+				val, _ := decode_table_sample_clause(data, depth - 1)
 				r.tablesample = val
 				off += c2
 			}
 			10 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_query(data)
+				val, _ := decode_query(data, depth - 1)
 				r.subquery = val
 				off += c2
 			}
@@ -10762,31 +11013,31 @@ fn decode_range_tbl_entry(buf []u8) (RangeTblEntry, int) {
 			}
 			14 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.joinaliasvars << val
 				off += c2
 			}
 			15 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.joinleftcols << val
 				off += c2
 			}
 			16 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.joinrightcols << val
 				off += c2
 			}
 			17 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_alias(data)
+				val, _ := decode_alias(data, depth - 1)
 				r.join_using_alias = val
 				off += c2
 			}
 			18 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.functions << val
 				off += c2
 			}
@@ -10797,13 +11048,13 @@ fn decode_range_tbl_entry(buf []u8) (RangeTblEntry, int) {
 			}
 			20 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_table_func(data)
+				val, _ := decode_table_func(data, depth - 1)
 				r.tablefunc = val
 				off += c2
 			}
 			21 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.values_lists << val
 				off += c2
 			}
@@ -10824,19 +11075,19 @@ fn decode_range_tbl_entry(buf []u8) (RangeTblEntry, int) {
 			}
 			25 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.coltypes << val
 				off += c2
 			}
 			26 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.coltypmods << val
 				off += c2
 			}
 			27 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.colcollations << val
 				off += c2
 			}
@@ -10862,7 +11113,7 @@ fn decode_range_tbl_entry(buf []u8) (RangeTblEntry, int) {
 			}
 			32 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.security_quals << val
 				off += c2
 			}
@@ -10874,7 +11125,8 @@ fn decode_range_tbl_entry(buf []u8) (RangeTblEntry, int) {
 	return r, off
 }
 
-fn decode_alter_default_privileges_stmt(buf []u8) (AlterDefaultPrivilegesStmt, int) {
+fn decode_alter_default_privileges_stmt(buf []u8, depth int) (AlterDefaultPrivilegesStmt, int) {
+	if depth <= 0 { return AlterDefaultPrivilegesStmt{}, 0 }
 	mut r := AlterDefaultPrivilegesStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -10883,13 +11135,13 @@ fn decode_alter_default_privileges_stmt(buf []u8) (AlterDefaultPrivilegesStmt, i
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_grant_stmt(data)
+				val, _ := decode_grant_stmt(data, depth - 1)
 				r.action = val
 				off += c2
 			}
@@ -10901,7 +11153,8 @@ fn decode_alter_default_privileges_stmt(buf []u8) (AlterDefaultPrivilegesStmt, i
 	return r, off
 }
 
-fn decode_call_stmt(buf []u8) (CallStmt, int) {
+fn decode_call_stmt(buf []u8, depth int) (CallStmt, int) {
+	if depth <= 0 { return CallStmt{}, 0 }
 	mut r := CallStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -10910,19 +11163,19 @@ fn decode_call_stmt(buf []u8) (CallStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_func_call(data)
+				val, _ := decode_func_call(data, depth - 1)
 				r.funccall = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_func_expr(data)
+				val, _ := decode_func_expr(data, depth - 1)
 				r.funcexpr = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.outargs << val
 				off += c2
 			}
@@ -10934,7 +11187,8 @@ fn decode_call_stmt(buf []u8) (CallStmt, int) {
 	return r, off
 }
 
-fn decode_insert_stmt(buf []u8) (InsertStmt, int) {
+fn decode_insert_stmt(buf []u8, depth int) (InsertStmt, int) {
+	if depth <= 0 { return InsertStmt{}, 0 }
 	mut r := InsertStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -10943,37 +11197,37 @@ fn decode_insert_stmt(buf []u8) (InsertStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_range_var(data)
+				val, _ := decode_range_var(data, depth - 1)
 				r.relation = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.cols << val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.select_stmt = val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_on_conflict_clause(data)
+				val, _ := decode_on_conflict_clause(data, depth - 1)
 				r.on_conflict_clause = val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.returning_list << val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_with_clause(data)
+				val, _ := decode_with_clause(data, depth - 1)
 				r.with_clause = val
 				off += c2
 			}
@@ -10990,7 +11244,11 @@ fn decode_insert_stmt(buf []u8) (InsertStmt, int) {
 	return r, off
 }
 
-fn decode_select_stmt(buf []u8) (SelectStmt, int) {
+fn decode_select_stmt(buf []u8, depth int) (SelectStmt, int) {
+	if depth <= 0 { return SelectStmt{
+		larg: unsafe { nil }
+		rarg: unsafe { nil }
+	}, 0 }
 	mut r := SelectStmt{
 		larg: unsafe { nil }
 		rarg: unsafe { nil }
@@ -11002,37 +11260,37 @@ fn decode_select_stmt(buf []u8) (SelectStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.distinct_clause << val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_into_clause(data)
+				val, _ := decode_into_clause(data, depth - 1)
 				r.into_clause = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.target_list << val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.from_clause << val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.where_clause = val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.group_clause << val
 				off += c2
 			}
@@ -11043,37 +11301,37 @@ fn decode_select_stmt(buf []u8) (SelectStmt, int) {
 			}
 			8 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.having_clause = val
 				off += c2
 			}
 			9 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.window_clause << val
 				off += c2
 			}
 			10 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.values_lists << val
 				off += c2
 			}
 			11 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.sort_clause << val
 				off += c2
 			}
 			12 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.limit_offset = val
 				off += c2
 			}
 			13 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.limit_count = val
 				off += c2
 			}
@@ -11084,13 +11342,13 @@ fn decode_select_stmt(buf []u8) (SelectStmt, int) {
 			}
 			15 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.locking_clause << val
 				off += c2
 			}
 			16 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_with_clause(data)
+				val, _ := decode_with_clause(data, depth - 1)
 				r.with_clause = val
 				off += c2
 			}
@@ -11106,13 +11364,13 @@ fn decode_select_stmt(buf []u8) (SelectStmt, int) {
 			}
 			19 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_select_stmt(data)
+				val, _ := decode_select_stmt(data, depth - 1)
 				r.larg = unsafe { &val }
 				off += c2
 			}
 			20 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_select_stmt(data)
+				val, _ := decode_select_stmt(data, depth - 1)
 				r.rarg = unsafe { &val }
 				off += c2
 			}
@@ -11124,7 +11382,8 @@ fn decode_select_stmt(buf []u8) (SelectStmt, int) {
 	return r, off
 }
 
-fn decode_create_table_as_stmt(buf []u8) (CreateTableAsStmt, int) {
+fn decode_create_table_as_stmt(buf []u8, depth int) (CreateTableAsStmt, int) {
+	if depth <= 0 { return CreateTableAsStmt{}, 0 }
 	mut r := CreateTableAsStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -11133,13 +11392,13 @@ fn decode_create_table_as_stmt(buf []u8) (CreateTableAsStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.query = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_into_clause(data)
+				val, _ := decode_into_clause(data, depth - 1)
 				r.into = val
 				off += c2
 			}
@@ -11166,7 +11425,8 @@ fn decode_create_table_as_stmt(buf []u8) (CreateTableAsStmt, int) {
 	return r, off
 }
 
-fn decode_create_foreign_table_stmt(buf []u8) (CreateForeignTableStmt, int) {
+fn decode_create_foreign_table_stmt(buf []u8, depth int) (CreateForeignTableStmt, int) {
+	if depth <= 0 { return CreateForeignTableStmt{}, 0 }
 	mut r := CreateForeignTableStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -11175,7 +11435,7 @@ fn decode_create_foreign_table_stmt(buf []u8) (CreateForeignTableStmt, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_create_stmt(data)
+				val, _ := decode_create_stmt(data, depth - 1)
 				r.base_stmt = val
 				off += c2
 			}
@@ -11186,7 +11446,7 @@ fn decode_create_foreign_table_stmt(buf []u8) (CreateForeignTableStmt, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.options << val
 				off += c2
 			}
@@ -11198,7 +11458,8 @@ fn decode_create_foreign_table_stmt(buf []u8) (CreateForeignTableStmt, int) {
 	return r, off
 }
 
-fn decode_publication_obj_spec(buf []u8) (PublicationObjSpec, int) {
+fn decode_publication_obj_spec(buf []u8, depth int) (PublicationObjSpec, int) {
+	if depth <= 0 { return PublicationObjSpec{}, 0 }
 	mut r := PublicationObjSpec{}
 	mut off := 0
 	for off < buf.len {
@@ -11217,7 +11478,7 @@ fn decode_publication_obj_spec(buf []u8) (PublicationObjSpec, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_publication_table(data)
+				val, _ := decode_publication_table(data, depth - 1)
 				r.pubtable = val
 				off += c2
 			}
@@ -11234,7 +11495,8 @@ fn decode_publication_obj_spec(buf []u8) (PublicationObjSpec, int) {
 	return r, off
 }
 
-fn decode_json_func_expr(buf []u8) (JsonFuncExpr, int) {
+fn decode_json_func_expr(buf []u8, depth int) (JsonFuncExpr, int) {
+	if depth <= 0 { return JsonFuncExpr{}, 0 }
 	mut r := JsonFuncExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -11253,37 +11515,37 @@ fn decode_json_func_expr(buf []u8) (JsonFuncExpr, int) {
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_value_expr(data)
+				val, _ := decode_json_value_expr(data, depth - 1)
 				r.context_item = val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.pathspec = val
 				off += c2
 			}
 			5 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.passing << val
 				off += c2
 			}
 			6 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_output(data)
+				val, _ := decode_json_output(data, depth - 1)
 				r.output = val
 				off += c2
 			}
 			7 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_behavior(data)
+				val, _ := decode_json_behavior(data, depth - 1)
 				r.on_empty = val
 				off += c2
 			}
 			8 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_behavior(data)
+				val, _ := decode_json_behavior(data, depth - 1)
 				r.on_error = val
 				off += c2
 			}
@@ -11310,7 +11572,8 @@ fn decode_json_func_expr(buf []u8) (JsonFuncExpr, int) {
 	return r, off
 }
 
-fn decode_json_parse_expr(buf []u8) (JsonParseExpr, int) {
+fn decode_json_parse_expr(buf []u8, depth int) (JsonParseExpr, int) {
+	if depth <= 0 { return JsonParseExpr{}, 0 }
 	mut r := JsonParseExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -11319,13 +11582,13 @@ fn decode_json_parse_expr(buf []u8) (JsonParseExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_value_expr(data)
+				val, _ := decode_json_value_expr(data, depth - 1)
 				r.expr = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_output(data)
+				val, _ := decode_json_output(data, depth - 1)
 				r.output = val
 				off += c2
 			}
@@ -11347,7 +11610,8 @@ fn decode_json_parse_expr(buf []u8) (JsonParseExpr, int) {
 	return r, off
 }
 
-fn decode_json_scalar_expr(buf []u8) (JsonScalarExpr, int) {
+fn decode_json_scalar_expr(buf []u8, depth int) (JsonScalarExpr, int) {
+	if depth <= 0 { return JsonScalarExpr{}, 0 }
 	mut r := JsonScalarExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -11356,13 +11620,13 @@ fn decode_json_scalar_expr(buf []u8) (JsonScalarExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.expr = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_output(data)
+				val, _ := decode_json_output(data, depth - 1)
 				r.output = val
 				off += c2
 			}
@@ -11379,7 +11643,8 @@ fn decode_json_scalar_expr(buf []u8) (JsonScalarExpr, int) {
 	return r, off
 }
 
-fn decode_json_serialize_expr(buf []u8) (JsonSerializeExpr, int) {
+fn decode_json_serialize_expr(buf []u8, depth int) (JsonSerializeExpr, int) {
+	if depth <= 0 { return JsonSerializeExpr{}, 0 }
 	mut r := JsonSerializeExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -11388,13 +11653,13 @@ fn decode_json_serialize_expr(buf []u8) (JsonSerializeExpr, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_value_expr(data)
+				val, _ := decode_json_value_expr(data, depth - 1)
 				r.expr = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_output(data)
+				val, _ := decode_json_output(data, depth - 1)
 				r.output = val
 				off += c2
 			}
@@ -11411,7 +11676,8 @@ fn decode_json_serialize_expr(buf []u8) (JsonSerializeExpr, int) {
 	return r, off
 }
 
-fn decode_json_object_constructor(buf []u8) (JsonObjectConstructor, int) {
+fn decode_json_object_constructor(buf []u8, depth int) (JsonObjectConstructor, int) {
+	if depth <= 0 { return JsonObjectConstructor{}, 0 }
 	mut r := JsonObjectConstructor{}
 	mut off := 0
 	for off < buf.len {
@@ -11420,13 +11686,13 @@ fn decode_json_object_constructor(buf []u8) (JsonObjectConstructor, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.exprs << val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_output(data)
+				val, _ := decode_json_output(data, depth - 1)
 				r.output = val
 				off += c2
 			}
@@ -11453,7 +11719,8 @@ fn decode_json_object_constructor(buf []u8) (JsonObjectConstructor, int) {
 	return r, off
 }
 
-fn decode_json_array_constructor(buf []u8) (JsonArrayConstructor, int) {
+fn decode_json_array_constructor(buf []u8, depth int) (JsonArrayConstructor, int) {
+	if depth <= 0 { return JsonArrayConstructor{}, 0 }
 	mut r := JsonArrayConstructor{}
 	mut off := 0
 	for off < buf.len {
@@ -11462,13 +11729,13 @@ fn decode_json_array_constructor(buf []u8) (JsonArrayConstructor, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.exprs << val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_output(data)
+				val, _ := decode_json_output(data, depth - 1)
 				r.output = val
 				off += c2
 			}
@@ -11490,7 +11757,8 @@ fn decode_json_array_constructor(buf []u8) (JsonArrayConstructor, int) {
 	return r, off
 }
 
-fn decode_json_array_query_constructor(buf []u8) (JsonArrayQueryConstructor, int) {
+fn decode_json_array_query_constructor(buf []u8, depth int) (JsonArrayQueryConstructor, int) {
+	if depth <= 0 { return JsonArrayQueryConstructor{}, 0 }
 	mut r := JsonArrayQueryConstructor{}
 	mut off := 0
 	for off < buf.len {
@@ -11499,19 +11767,19 @@ fn decode_json_array_query_constructor(buf []u8) (JsonArrayQueryConstructor, int
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.query = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_output(data)
+				val, _ := decode_json_output(data, depth - 1)
 				r.output = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_format(data)
+				val, _ := decode_json_format(data, depth - 1)
 				r.format = val
 				off += c2
 			}
@@ -11533,7 +11801,8 @@ fn decode_json_array_query_constructor(buf []u8) (JsonArrayQueryConstructor, int
 	return r, off
 }
 
-fn decode_json_agg_constructor(buf []u8) (JsonAggConstructor, int) {
+fn decode_json_agg_constructor(buf []u8, depth int) (JsonAggConstructor, int) {
+	if depth <= 0 { return JsonAggConstructor{}, 0 }
 	mut r := JsonAggConstructor{}
 	mut off := 0
 	for off < buf.len {
@@ -11542,25 +11811,25 @@ fn decode_json_agg_constructor(buf []u8) (JsonAggConstructor, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_output(data)
+				val, _ := decode_json_output(data, depth - 1)
 				r.output = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.agg_filter = val
 				off += c2
 			}
 			3 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.agg_order << val
 				off += c2
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_window_def(data)
+				val, _ := decode_window_def(data, depth - 1)
 				r.over = val
 				off += c2
 			}
@@ -11577,9 +11846,15 @@ fn decode_json_agg_constructor(buf []u8) (JsonAggConstructor, int) {
 	return r, off
 }
 
-fn decode_p_l_assign_stmt(buf []u8) (PLAssignStmt, int) {
-	mut r := PLAssignStmt{
+fn decode_p_l_assign_stmt(buf []u8, depth int) (PLAssignStmt, int) {
+	if depth <= 0 { return PLAssignStmt{
 		val: SelectStmt{
+			larg: unsafe { nil }
+			rarg: unsafe { nil }
+		}
+	}, 0 }
+	mut r := PLAssignStmt{
+			val: SelectStmt{
 			larg: unsafe { nil }
 			rarg: unsafe { nil }
 		}
@@ -11596,7 +11871,7 @@ fn decode_p_l_assign_stmt(buf []u8) (PLAssignStmt, int) {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_node(data)
+				val, _ := decode_node(data, depth - 1)
 				r.indirection << val
 				off += c2
 			}
@@ -11607,7 +11882,7 @@ fn decode_p_l_assign_stmt(buf []u8) (PLAssignStmt, int) {
 			}
 			4 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_select_stmt(data)
+				val, _ := decode_select_stmt(data, depth - 1)
 				r.val = val
 				off += c2
 			}
@@ -11624,7 +11899,8 @@ fn decode_p_l_assign_stmt(buf []u8) (PLAssignStmt, int) {
 	return r, off
 }
 
-fn decode_json_object_agg(buf []u8) (JsonObjectAgg, int) {
+fn decode_json_object_agg(buf []u8, depth int) (JsonObjectAgg, int) {
+	if depth <= 0 { return JsonObjectAgg{}, 0 }
 	mut r := JsonObjectAgg{}
 	mut off := 0
 	for off < buf.len {
@@ -11633,13 +11909,13 @@ fn decode_json_object_agg(buf []u8) (JsonObjectAgg, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_agg_constructor(data)
+				val, _ := decode_json_agg_constructor(data, depth - 1)
 				r.constructor = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_key_value(data)
+				val, _ := decode_json_key_value(data, depth - 1)
 				r.arg = val
 				off += c2
 			}
@@ -11661,7 +11937,8 @@ fn decode_json_object_agg(buf []u8) (JsonObjectAgg, int) {
 	return r, off
 }
 
-fn decode_json_array_agg(buf []u8) (JsonArrayAgg, int) {
+fn decode_json_array_agg(buf []u8, depth int) (JsonArrayAgg, int) {
+	if depth <= 0 { return JsonArrayAgg{}, 0 }
 	mut r := JsonArrayAgg{}
 	mut off := 0
 	for off < buf.len {
@@ -11670,13 +11947,13 @@ fn decode_json_array_agg(buf []u8) (JsonArrayAgg, int) {
 		match field_num {
 			1 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_agg_constructor(data)
+				val, _ := decode_json_agg_constructor(data, depth - 1)
 				r.constructor = val
 				off += c2
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				val, _ := decode_json_value_expr(data)
+				val, _ := decode_json_value_expr(data, depth - 1)
 				r.arg = val
 				off += c2
 			}
@@ -11693,1086 +11970,1087 @@ fn decode_json_array_agg(buf []u8) (JsonArrayAgg, int) {
 	return r, off
 }
 
-fn decode_node(buf []u8) (Node, int) {
-	if buf.len == 0 { return Alias{}, 0 }
+fn decode_node(buf []u8, depth int) (Node, int) {
+	if depth <= 0 { return Alias{}, 0 }
+	if buf.len == 0 { return UnrecognizedNode{}, 0 }
 	field_num, _, c := read_tag(buf, 0)
 	data, c2 := read_submessage(buf, c)
 	consumed := c + c2
 	match field_num {
 		1 {
-			val, _ := decode_alias(data)
+			val, _ := decode_alias(data, depth - 1)
 			return Alias(val), consumed
 		}
 		2 {
-			val, _ := decode_range_var(data)
+			val, _ := decode_range_var(data, depth - 1)
 			return RangeVar(val), consumed
 		}
 		3 {
-			val, _ := decode_table_func(data)
+			val, _ := decode_table_func(data, depth - 1)
 			return TableFunc(val), consumed
 		}
 		4 {
-			val, _ := decode_into_clause(data)
+			val, _ := decode_into_clause(data, depth - 1)
 			return IntoClause(val), consumed
 		}
 		5 {
-			val, _ := decode_var(data)
+			val, _ := decode_var(data, depth - 1)
 			return Var(val), consumed
 		}
 		6 {
-			val, _ := decode_param(data)
+			val, _ := decode_param(data, depth - 1)
 			return Param(val), consumed
 		}
 		7 {
-			val, _ := decode_aggref(data)
+			val, _ := decode_aggref(data, depth - 1)
 			return Aggref(val), consumed
 		}
 		8 {
-			val, _ := decode_grouping_func(data)
+			val, _ := decode_grouping_func(data, depth - 1)
 			return GroupingFunc(val), consumed
 		}
 		9 {
-			val, _ := decode_window_func(data)
+			val, _ := decode_window_func(data, depth - 1)
 			return WindowFunc(val), consumed
 		}
 		10 {
-			val, _ := decode_window_func_run_condition(data)
+			val, _ := decode_window_func_run_condition(data, depth - 1)
 			return WindowFuncRunCondition(val), consumed
 		}
 		11 {
-			val, _ := decode_merge_support_func(data)
+			val, _ := decode_merge_support_func(data, depth - 1)
 			return MergeSupportFunc(val), consumed
 		}
 		12 {
-			val, _ := decode_subscripting_ref(data)
+			val, _ := decode_subscripting_ref(data, depth - 1)
 			return SubscriptingRef(val), consumed
 		}
 		13 {
-			val, _ := decode_func_expr(data)
+			val, _ := decode_func_expr(data, depth - 1)
 			return FuncExpr(val), consumed
 		}
 		14 {
-			val, _ := decode_named_arg_expr(data)
+			val, _ := decode_named_arg_expr(data, depth - 1)
 			return NamedArgExpr(val), consumed
 		}
 		15 {
-			val, _ := decode_op_expr(data)
+			val, _ := decode_op_expr(data, depth - 1)
 			return OpExpr(val), consumed
 		}
 		16 {
-			val, _ := decode_distinct_expr(data)
+			val, _ := decode_distinct_expr(data, depth - 1)
 			return DistinctExpr(val), consumed
 		}
 		17 {
-			val, _ := decode_null_if_expr(data)
+			val, _ := decode_null_if_expr(data, depth - 1)
 			return NullIfExpr(val), consumed
 		}
 		18 {
-			val, _ := decode_scalar_array_op_expr(data)
+			val, _ := decode_scalar_array_op_expr(data, depth - 1)
 			return ScalarArrayOpExpr(val), consumed
 		}
 		19 {
-			val, _ := decode_bool_expr(data)
+			val, _ := decode_bool_expr(data, depth - 1)
 			return BoolExpr(val), consumed
 		}
 		20 {
-			val, _ := decode_sub_link(data)
+			val, _ := decode_sub_link(data, depth - 1)
 			return SubLink(val), consumed
 		}
 		21 {
-			val, _ := decode_sub_plan(data)
+			val, _ := decode_sub_plan(data, depth - 1)
 			return SubPlan(val), consumed
 		}
 		22 {
-			val, _ := decode_alternative_sub_plan(data)
+			val, _ := decode_alternative_sub_plan(data, depth - 1)
 			return AlternativeSubPlan(val), consumed
 		}
 		23 {
-			val, _ := decode_field_select(data)
+			val, _ := decode_field_select(data, depth - 1)
 			return FieldSelect(val), consumed
 		}
 		24 {
-			val, _ := decode_field_store(data)
+			val, _ := decode_field_store(data, depth - 1)
 			return FieldStore(val), consumed
 		}
 		25 {
-			val, _ := decode_relabel_type(data)
+			val, _ := decode_relabel_type(data, depth - 1)
 			return RelabelType(val), consumed
 		}
 		26 {
-			val, _ := decode_coerce_via_i_o(data)
+			val, _ := decode_coerce_via_i_o(data, depth - 1)
 			return CoerceViaIO(val), consumed
 		}
 		27 {
-			val, _ := decode_array_coerce_expr(data)
+			val, _ := decode_array_coerce_expr(data, depth - 1)
 			return ArrayCoerceExpr(val), consumed
 		}
 		28 {
-			val, _ := decode_convert_rowtype_expr(data)
+			val, _ := decode_convert_rowtype_expr(data, depth - 1)
 			return ConvertRowtypeExpr(val), consumed
 		}
 		29 {
-			val, _ := decode_collate_expr(data)
+			val, _ := decode_collate_expr(data, depth - 1)
 			return CollateExpr(val), consumed
 		}
 		30 {
-			val, _ := decode_case_expr(data)
+			val, _ := decode_case_expr(data, depth - 1)
 			return CaseExpr(val), consumed
 		}
 		31 {
-			val, _ := decode_case_when(data)
+			val, _ := decode_case_when(data, depth - 1)
 			return CaseWhen(val), consumed
 		}
 		32 {
-			val, _ := decode_case_test_expr(data)
+			val, _ := decode_case_test_expr(data, depth - 1)
 			return CaseTestExpr(val), consumed
 		}
 		33 {
-			val, _ := decode_array_expr(data)
+			val, _ := decode_array_expr(data, depth - 1)
 			return ArrayExpr(val), consumed
 		}
 		34 {
-			val, _ := decode_row_expr(data)
+			val, _ := decode_row_expr(data, depth - 1)
 			return RowExpr(val), consumed
 		}
 		35 {
-			val, _ := decode_row_compare_expr(data)
+			val, _ := decode_row_compare_expr(data, depth - 1)
 			return RowCompareExpr(val), consumed
 		}
 		36 {
-			val, _ := decode_coalesce_expr(data)
+			val, _ := decode_coalesce_expr(data, depth - 1)
 			return CoalesceExpr(val), consumed
 		}
 		37 {
-			val, _ := decode_min_max_expr(data)
+			val, _ := decode_min_max_expr(data, depth - 1)
 			return MinMaxExpr(val), consumed
 		}
 		38 {
-			val, _ := decode_s_q_l_value_function(data)
+			val, _ := decode_s_q_l_value_function(data, depth - 1)
 			return SQLValueFunction(val), consumed
 		}
 		39 {
-			val, _ := decode_xml_expr(data)
+			val, _ := decode_xml_expr(data, depth - 1)
 			return XmlExpr(val), consumed
 		}
 		40 {
-			val, _ := decode_json_format(data)
+			val, _ := decode_json_format(data, depth - 1)
 			return JsonFormat(val), consumed
 		}
 		41 {
-			val, _ := decode_json_returning(data)
+			val, _ := decode_json_returning(data, depth - 1)
 			return JsonReturning(val), consumed
 		}
 		42 {
-			val, _ := decode_json_value_expr(data)
+			val, _ := decode_json_value_expr(data, depth - 1)
 			return JsonValueExpr(val), consumed
 		}
 		43 {
-			val, _ := decode_json_constructor_expr(data)
+			val, _ := decode_json_constructor_expr(data, depth - 1)
 			return JsonConstructorExpr(val), consumed
 		}
 		44 {
-			val, _ := decode_json_is_predicate(data)
+			val, _ := decode_json_is_predicate(data, depth - 1)
 			return JsonIsPredicate(val), consumed
 		}
 		45 {
-			val, _ := decode_json_behavior(data)
+			val, _ := decode_json_behavior(data, depth - 1)
 			return JsonBehavior(val), consumed
 		}
 		46 {
-			val, _ := decode_json_expr(data)
+			val, _ := decode_json_expr(data, depth - 1)
 			return JsonExpr(val), consumed
 		}
 		47 {
-			val, _ := decode_json_table_path(data)
+			val, _ := decode_json_table_path(data, depth - 1)
 			return JsonTablePath(val), consumed
 		}
 		48 {
-			val, _ := decode_json_table_path_scan(data)
+			val, _ := decode_json_table_path_scan(data, depth - 1)
 			return JsonTablePathScan(val), consumed
 		}
 		49 {
-			val, _ := decode_json_table_sibling_join(data)
+			val, _ := decode_json_table_sibling_join(data, depth - 1)
 			return JsonTableSiblingJoin(val), consumed
 		}
 		50 {
-			val, _ := decode_null_test(data)
+			val, _ := decode_null_test(data, depth - 1)
 			return NullTest(val), consumed
 		}
 		51 {
-			val, _ := decode_boolean_test(data)
+			val, _ := decode_boolean_test(data, depth - 1)
 			return BooleanTest(val), consumed
 		}
 		52 {
-			val, _ := decode_merge_action(data)
+			val, _ := decode_merge_action(data, depth - 1)
 			return MergeAction(val), consumed
 		}
 		53 {
-			val, _ := decode_coerce_to_domain(data)
+			val, _ := decode_coerce_to_domain(data, depth - 1)
 			return CoerceToDomain(val), consumed
 		}
 		54 {
-			val, _ := decode_coerce_to_domain_value(data)
+			val, _ := decode_coerce_to_domain_value(data, depth - 1)
 			return CoerceToDomainValue(val), consumed
 		}
 		55 {
-			val, _ := decode_set_to_default(data)
+			val, _ := decode_set_to_default(data, depth - 1)
 			return SetToDefault(val), consumed
 		}
 		56 {
-			val, _ := decode_current_of_expr(data)
+			val, _ := decode_current_of_expr(data, depth - 1)
 			return CurrentOfExpr(val), consumed
 		}
 		57 {
-			val, _ := decode_next_value_expr(data)
+			val, _ := decode_next_value_expr(data, depth - 1)
 			return NextValueExpr(val), consumed
 		}
 		58 {
-			val, _ := decode_inference_elem(data)
+			val, _ := decode_inference_elem(data, depth - 1)
 			return InferenceElem(val), consumed
 		}
 		59 {
-			val, _ := decode_target_entry(data)
+			val, _ := decode_target_entry(data, depth - 1)
 			return TargetEntry(val), consumed
 		}
 		60 {
-			val, _ := decode_range_tbl_ref(data)
+			val, _ := decode_range_tbl_ref(data, depth - 1)
 			return RangeTblRef(val), consumed
 		}
 		61 {
-			val, _ := decode_join_expr(data)
+			val, _ := decode_join_expr(data, depth - 1)
 			return JoinExpr(val), consumed
 		}
 		62 {
-			val, _ := decode_from_expr(data)
+			val, _ := decode_from_expr(data, depth - 1)
 			return FromExpr(val), consumed
 		}
 		63 {
-			val, _ := decode_on_conflict_expr(data)
+			val, _ := decode_on_conflict_expr(data, depth - 1)
 			return OnConflictExpr(val), consumed
 		}
 		64 {
-			val, _ := decode_query(data)
+			val, _ := decode_query(data, depth - 1)
 			return Query(val), consumed
 		}
 		65 {
-			val, _ := decode_type_name(data)
+			val, _ := decode_type_name(data, depth - 1)
 			return TypeName(val), consumed
 		}
 		66 {
-			val, _ := decode_column_ref(data)
+			val, _ := decode_column_ref(data, depth - 1)
 			return ColumnRef(val), consumed
 		}
 		67 {
-			val, _ := decode_param_ref(data)
+			val, _ := decode_param_ref(data, depth - 1)
 			return ParamRef(val), consumed
 		}
 		68 {
-			val, _ := decode_a_expr(data)
+			val, _ := decode_a_expr(data, depth - 1)
 			return AExpr(val), consumed
 		}
 		69 {
-			val, _ := decode_type_cast(data)
+			val, _ := decode_type_cast(data, depth - 1)
 			return TypeCast(val), consumed
 		}
 		70 {
-			val, _ := decode_collate_clause(data)
+			val, _ := decode_collate_clause(data, depth - 1)
 			return CollateClause(val), consumed
 		}
 		71 {
-			val, _ := decode_role_spec(data)
+			val, _ := decode_role_spec(data, depth - 1)
 			return RoleSpec(val), consumed
 		}
 		72 {
-			val, _ := decode_func_call(data)
+			val, _ := decode_func_call(data, depth - 1)
 			return FuncCall(val), consumed
 		}
 		73 {
-			val, _ := decode_a_star(data)
+			val, _ := decode_a_star(data, depth - 1)
 			return AStar(val), consumed
 		}
 		74 {
-			val, _ := decode_a_indices(data)
+			val, _ := decode_a_indices(data, depth - 1)
 			return AIndices(val), consumed
 		}
 		75 {
-			val, _ := decode_a_indirection(data)
+			val, _ := decode_a_indirection(data, depth - 1)
 			return AIndirection(val), consumed
 		}
 		76 {
-			val, _ := decode_a_array_expr(data)
+			val, _ := decode_a_array_expr(data, depth - 1)
 			return AArrayExpr(val), consumed
 		}
 		77 {
-			val, _ := decode_res_target(data)
+			val, _ := decode_res_target(data, depth - 1)
 			return ResTarget(val), consumed
 		}
 		78 {
-			val, _ := decode_multi_assign_ref(data)
+			val, _ := decode_multi_assign_ref(data, depth - 1)
 			return MultiAssignRef(val), consumed
 		}
 		79 {
-			val, _ := decode_sort_by(data)
+			val, _ := decode_sort_by(data, depth - 1)
 			return SortBy(val), consumed
 		}
 		80 {
-			val, _ := decode_window_def(data)
+			val, _ := decode_window_def(data, depth - 1)
 			return WindowDef(val), consumed
 		}
 		81 {
-			val, _ := decode_range_subselect(data)
+			val, _ := decode_range_subselect(data, depth - 1)
 			return RangeSubselect(val), consumed
 		}
 		82 {
-			val, _ := decode_range_function(data)
+			val, _ := decode_range_function(data, depth - 1)
 			return RangeFunction(val), consumed
 		}
 		83 {
-			val, _ := decode_range_table_func(data)
+			val, _ := decode_range_table_func(data, depth - 1)
 			return RangeTableFunc(val), consumed
 		}
 		84 {
-			val, _ := decode_range_table_func_col(data)
+			val, _ := decode_range_table_func_col(data, depth - 1)
 			return RangeTableFuncCol(val), consumed
 		}
 		85 {
-			val, _ := decode_range_table_sample(data)
+			val, _ := decode_range_table_sample(data, depth - 1)
 			return RangeTableSample(val), consumed
 		}
 		86 {
-			val, _ := decode_column_def(data)
+			val, _ := decode_column_def(data, depth - 1)
 			return ColumnDef(val), consumed
 		}
 		87 {
-			val, _ := decode_table_like_clause(data)
+			val, _ := decode_table_like_clause(data, depth - 1)
 			return TableLikeClause(val), consumed
 		}
 		88 {
-			val, _ := decode_index_elem(data)
+			val, _ := decode_index_elem(data, depth - 1)
 			return IndexElem(val), consumed
 		}
 		89 {
-			val, _ := decode_def_elem(data)
+			val, _ := decode_def_elem(data, depth - 1)
 			return DefElem(val), consumed
 		}
 		90 {
-			val, _ := decode_locking_clause(data)
+			val, _ := decode_locking_clause(data, depth - 1)
 			return LockingClause(val), consumed
 		}
 		91 {
-			val, _ := decode_xml_serialize(data)
+			val, _ := decode_xml_serialize(data, depth - 1)
 			return XmlSerialize(val), consumed
 		}
 		92 {
-			val, _ := decode_partition_elem(data)
+			val, _ := decode_partition_elem(data, depth - 1)
 			return PartitionElem(val), consumed
 		}
 		93 {
-			val, _ := decode_partition_spec(data)
+			val, _ := decode_partition_spec(data, depth - 1)
 			return PartitionSpec(val), consumed
 		}
 		94 {
-			val, _ := decode_partition_bound_spec(data)
+			val, _ := decode_partition_bound_spec(data, depth - 1)
 			return PartitionBoundSpec(val), consumed
 		}
 		95 {
-			val, _ := decode_partition_range_datum(data)
+			val, _ := decode_partition_range_datum(data, depth - 1)
 			return PartitionRangeDatum(val), consumed
 		}
 		96 {
-			val, _ := decode_single_partition_spec(data)
+			val, _ := decode_single_partition_spec(data, depth - 1)
 			return SinglePartitionSpec(val), consumed
 		}
 		97 {
-			val, _ := decode_partition_cmd(data)
+			val, _ := decode_partition_cmd(data, depth - 1)
 			return PartitionCmd(val), consumed
 		}
 		98 {
-			val, _ := decode_range_tbl_entry(data)
+			val, _ := decode_range_tbl_entry(data, depth - 1)
 			return RangeTblEntry(val), consumed
 		}
 		99 {
-			val, _ := decode_r_t_e_permission_info(data)
+			val, _ := decode_r_t_e_permission_info(data, depth - 1)
 			return RTEPermissionInfo(val), consumed
 		}
 		100 {
-			val, _ := decode_range_tbl_function(data)
+			val, _ := decode_range_tbl_function(data, depth - 1)
 			return RangeTblFunction(val), consumed
 		}
 		101 {
-			val, _ := decode_table_sample_clause(data)
+			val, _ := decode_table_sample_clause(data, depth - 1)
 			return TableSampleClause(val), consumed
 		}
 		102 {
-			val, _ := decode_with_check_option(data)
+			val, _ := decode_with_check_option(data, depth - 1)
 			return WithCheckOption(val), consumed
 		}
 		103 {
-			val, _ := decode_sort_group_clause(data)
+			val, _ := decode_sort_group_clause(data, depth - 1)
 			return SortGroupClause(val), consumed
 		}
 		104 {
-			val, _ := decode_grouping_set(data)
+			val, _ := decode_grouping_set(data, depth - 1)
 			return GroupingSet(val), consumed
 		}
 		105 {
-			val, _ := decode_window_clause(data)
+			val, _ := decode_window_clause(data, depth - 1)
 			return WindowClause(val), consumed
 		}
 		106 {
-			val, _ := decode_row_mark_clause(data)
+			val, _ := decode_row_mark_clause(data, depth - 1)
 			return RowMarkClause(val), consumed
 		}
 		107 {
-			val, _ := decode_with_clause(data)
+			val, _ := decode_with_clause(data, depth - 1)
 			return WithClause(val), consumed
 		}
 		108 {
-			val, _ := decode_infer_clause(data)
+			val, _ := decode_infer_clause(data, depth - 1)
 			return InferClause(val), consumed
 		}
 		109 {
-			val, _ := decode_on_conflict_clause(data)
+			val, _ := decode_on_conflict_clause(data, depth - 1)
 			return OnConflictClause(val), consumed
 		}
 		110 {
-			val, _ := decode_c_t_e_search_clause(data)
+			val, _ := decode_c_t_e_search_clause(data, depth - 1)
 			return CTESearchClause(val), consumed
 		}
 		111 {
-			val, _ := decode_c_t_e_cycle_clause(data)
+			val, _ := decode_c_t_e_cycle_clause(data, depth - 1)
 			return CTECycleClause(val), consumed
 		}
 		112 {
-			val, _ := decode_common_table_expr(data)
+			val, _ := decode_common_table_expr(data, depth - 1)
 			return CommonTableExpr(val), consumed
 		}
 		113 {
-			val, _ := decode_merge_when_clause(data)
+			val, _ := decode_merge_when_clause(data, depth - 1)
 			return MergeWhenClause(val), consumed
 		}
 		114 {
-			val, _ := decode_trigger_transition(data)
+			val, _ := decode_trigger_transition(data, depth - 1)
 			return TriggerTransition(val), consumed
 		}
 		115 {
-			val, _ := decode_json_output(data)
+			val, _ := decode_json_output(data, depth - 1)
 			return JsonOutput(val), consumed
 		}
 		116 {
-			val, _ := decode_json_argument(data)
+			val, _ := decode_json_argument(data, depth - 1)
 			return JsonArgument(val), consumed
 		}
 		117 {
-			val, _ := decode_json_func_expr(data)
+			val, _ := decode_json_func_expr(data, depth - 1)
 			return JsonFuncExpr(val), consumed
 		}
 		118 {
-			val, _ := decode_json_table_path_spec(data)
+			val, _ := decode_json_table_path_spec(data, depth - 1)
 			return JsonTablePathSpec(val), consumed
 		}
 		119 {
-			val, _ := decode_json_table(data)
+			val, _ := decode_json_table(data, depth - 1)
 			return JsonTable(val), consumed
 		}
 		120 {
-			val, _ := decode_json_table_column(data)
+			val, _ := decode_json_table_column(data, depth - 1)
 			return JsonTableColumn(val), consumed
 		}
 		121 {
-			val, _ := decode_json_key_value(data)
+			val, _ := decode_json_key_value(data, depth - 1)
 			return JsonKeyValue(val), consumed
 		}
 		122 {
-			val, _ := decode_json_parse_expr(data)
+			val, _ := decode_json_parse_expr(data, depth - 1)
 			return JsonParseExpr(val), consumed
 		}
 		123 {
-			val, _ := decode_json_scalar_expr(data)
+			val, _ := decode_json_scalar_expr(data, depth - 1)
 			return JsonScalarExpr(val), consumed
 		}
 		124 {
-			val, _ := decode_json_serialize_expr(data)
+			val, _ := decode_json_serialize_expr(data, depth - 1)
 			return JsonSerializeExpr(val), consumed
 		}
 		125 {
-			val, _ := decode_json_object_constructor(data)
+			val, _ := decode_json_object_constructor(data, depth - 1)
 			return JsonObjectConstructor(val), consumed
 		}
 		126 {
-			val, _ := decode_json_array_constructor(data)
+			val, _ := decode_json_array_constructor(data, depth - 1)
 			return JsonArrayConstructor(val), consumed
 		}
 		127 {
-			val, _ := decode_json_array_query_constructor(data)
+			val, _ := decode_json_array_query_constructor(data, depth - 1)
 			return JsonArrayQueryConstructor(val), consumed
 		}
 		128 {
-			val, _ := decode_json_agg_constructor(data)
+			val, _ := decode_json_agg_constructor(data, depth - 1)
 			return JsonAggConstructor(val), consumed
 		}
 		129 {
-			val, _ := decode_json_object_agg(data)
+			val, _ := decode_json_object_agg(data, depth - 1)
 			return JsonObjectAgg(val), consumed
 		}
 		130 {
-			val, _ := decode_json_array_agg(data)
+			val, _ := decode_json_array_agg(data, depth - 1)
 			return JsonArrayAgg(val), consumed
 		}
 		131 {
-			val, _ := decode_raw_stmt(data)
+			val, _ := decode_raw_stmt(data, depth - 1)
 			return RawStmt(val), consumed
 		}
 		132 {
-			val, _ := decode_insert_stmt(data)
+			val, _ := decode_insert_stmt(data, depth - 1)
 			return InsertStmt(val), consumed
 		}
 		133 {
-			val, _ := decode_delete_stmt(data)
+			val, _ := decode_delete_stmt(data, depth - 1)
 			return DeleteStmt(val), consumed
 		}
 		134 {
-			val, _ := decode_update_stmt(data)
+			val, _ := decode_update_stmt(data, depth - 1)
 			return UpdateStmt(val), consumed
 		}
 		135 {
-			val, _ := decode_merge_stmt(data)
+			val, _ := decode_merge_stmt(data, depth - 1)
 			return MergeStmt(val), consumed
 		}
 		136 {
-			val, _ := decode_select_stmt(data)
+			val, _ := decode_select_stmt(data, depth - 1)
 			return SelectStmt(val), consumed
 		}
 		137 {
-			val, _ := decode_set_operation_stmt(data)
+			val, _ := decode_set_operation_stmt(data, depth - 1)
 			return SetOperationStmt(val), consumed
 		}
 		138 {
-			val, _ := decode_return_stmt(data)
+			val, _ := decode_return_stmt(data, depth - 1)
 			return ReturnStmt(val), consumed
 		}
 		139 {
-			val, _ := decode_p_l_assign_stmt(data)
+			val, _ := decode_p_l_assign_stmt(data, depth - 1)
 			return PLAssignStmt(val), consumed
 		}
 		140 {
-			val, _ := decode_create_schema_stmt(data)
+			val, _ := decode_create_schema_stmt(data, depth - 1)
 			return CreateSchemaStmt(val), consumed
 		}
 		141 {
-			val, _ := decode_alter_table_stmt(data)
+			val, _ := decode_alter_table_stmt(data, depth - 1)
 			return AlterTableStmt(val), consumed
 		}
 		142 {
-			val, _ := decode_replica_identity_stmt(data)
+			val, _ := decode_replica_identity_stmt(data, depth - 1)
 			return ReplicaIdentityStmt(val), consumed
 		}
 		143 {
-			val, _ := decode_alter_table_cmd(data)
+			val, _ := decode_alter_table_cmd(data, depth - 1)
 			return AlterTableCmd(val), consumed
 		}
 		144 {
-			val, _ := decode_alter_collation_stmt(data)
+			val, _ := decode_alter_collation_stmt(data, depth - 1)
 			return AlterCollationStmt(val), consumed
 		}
 		145 {
-			val, _ := decode_alter_domain_stmt(data)
+			val, _ := decode_alter_domain_stmt(data, depth - 1)
 			return AlterDomainStmt(val), consumed
 		}
 		146 {
-			val, _ := decode_grant_stmt(data)
+			val, _ := decode_grant_stmt(data, depth - 1)
 			return GrantStmt(val), consumed
 		}
 		147 {
-			val, _ := decode_object_with_args(data)
+			val, _ := decode_object_with_args(data, depth - 1)
 			return ObjectWithArgs(val), consumed
 		}
 		148 {
-			val, _ := decode_access_priv(data)
+			val, _ := decode_access_priv(data, depth - 1)
 			return AccessPriv(val), consumed
 		}
 		149 {
-			val, _ := decode_grant_role_stmt(data)
+			val, _ := decode_grant_role_stmt(data, depth - 1)
 			return GrantRoleStmt(val), consumed
 		}
 		150 {
-			val, _ := decode_alter_default_privileges_stmt(data)
+			val, _ := decode_alter_default_privileges_stmt(data, depth - 1)
 			return AlterDefaultPrivilegesStmt(val), consumed
 		}
 		151 {
-			val, _ := decode_copy_stmt(data)
+			val, _ := decode_copy_stmt(data, depth - 1)
 			return CopyStmt(val), consumed
 		}
 		152 {
-			val, _ := decode_variable_set_stmt(data)
+			val, _ := decode_variable_set_stmt(data, depth - 1)
 			return VariableSetStmt(val), consumed
 		}
 		153 {
-			val, _ := decode_variable_show_stmt(data)
+			val, _ := decode_variable_show_stmt(data, depth - 1)
 			return VariableShowStmt(val), consumed
 		}
 		154 {
-			val, _ := decode_create_stmt(data)
+			val, _ := decode_create_stmt(data, depth - 1)
 			return CreateStmt(val), consumed
 		}
 		155 {
-			val, _ := decode_constraint(data)
+			val, _ := decode_constraint(data, depth - 1)
 			return Constraint(val), consumed
 		}
 		156 {
-			val, _ := decode_create_table_space_stmt(data)
+			val, _ := decode_create_table_space_stmt(data, depth - 1)
 			return CreateTableSpaceStmt(val), consumed
 		}
 		157 {
-			val, _ := decode_drop_table_space_stmt(data)
+			val, _ := decode_drop_table_space_stmt(data, depth - 1)
 			return DropTableSpaceStmt(val), consumed
 		}
 		158 {
-			val, _ := decode_alter_table_space_options_stmt(data)
+			val, _ := decode_alter_table_space_options_stmt(data, depth - 1)
 			return AlterTableSpaceOptionsStmt(val), consumed
 		}
 		159 {
-			val, _ := decode_alter_table_move_all_stmt(data)
+			val, _ := decode_alter_table_move_all_stmt(data, depth - 1)
 			return AlterTableMoveAllStmt(val), consumed
 		}
 		160 {
-			val, _ := decode_create_extension_stmt(data)
+			val, _ := decode_create_extension_stmt(data, depth - 1)
 			return CreateExtensionStmt(val), consumed
 		}
 		161 {
-			val, _ := decode_alter_extension_stmt(data)
+			val, _ := decode_alter_extension_stmt(data, depth - 1)
 			return AlterExtensionStmt(val), consumed
 		}
 		162 {
-			val, _ := decode_alter_extension_contents_stmt(data)
+			val, _ := decode_alter_extension_contents_stmt(data, depth - 1)
 			return AlterExtensionContentsStmt(val), consumed
 		}
 		163 {
-			val, _ := decode_create_fdw_stmt(data)
+			val, _ := decode_create_fdw_stmt(data, depth - 1)
 			return CreateFdwStmt(val), consumed
 		}
 		164 {
-			val, _ := decode_alter_fdw_stmt(data)
+			val, _ := decode_alter_fdw_stmt(data, depth - 1)
 			return AlterFdwStmt(val), consumed
 		}
 		165 {
-			val, _ := decode_create_foreign_server_stmt(data)
+			val, _ := decode_create_foreign_server_stmt(data, depth - 1)
 			return CreateForeignServerStmt(val), consumed
 		}
 		166 {
-			val, _ := decode_alter_foreign_server_stmt(data)
+			val, _ := decode_alter_foreign_server_stmt(data, depth - 1)
 			return AlterForeignServerStmt(val), consumed
 		}
 		167 {
-			val, _ := decode_create_foreign_table_stmt(data)
+			val, _ := decode_create_foreign_table_stmt(data, depth - 1)
 			return CreateForeignTableStmt(val), consumed
 		}
 		168 {
-			val, _ := decode_create_user_mapping_stmt(data)
+			val, _ := decode_create_user_mapping_stmt(data, depth - 1)
 			return CreateUserMappingStmt(val), consumed
 		}
 		169 {
-			val, _ := decode_alter_user_mapping_stmt(data)
+			val, _ := decode_alter_user_mapping_stmt(data, depth - 1)
 			return AlterUserMappingStmt(val), consumed
 		}
 		170 {
-			val, _ := decode_drop_user_mapping_stmt(data)
+			val, _ := decode_drop_user_mapping_stmt(data, depth - 1)
 			return DropUserMappingStmt(val), consumed
 		}
 		171 {
-			val, _ := decode_import_foreign_schema_stmt(data)
+			val, _ := decode_import_foreign_schema_stmt(data, depth - 1)
 			return ImportForeignSchemaStmt(val), consumed
 		}
 		172 {
-			val, _ := decode_create_policy_stmt(data)
+			val, _ := decode_create_policy_stmt(data, depth - 1)
 			return CreatePolicyStmt(val), consumed
 		}
 		173 {
-			val, _ := decode_alter_policy_stmt(data)
+			val, _ := decode_alter_policy_stmt(data, depth - 1)
 			return AlterPolicyStmt(val), consumed
 		}
 		174 {
-			val, _ := decode_create_am_stmt(data)
+			val, _ := decode_create_am_stmt(data, depth - 1)
 			return CreateAmStmt(val), consumed
 		}
 		175 {
-			val, _ := decode_create_trig_stmt(data)
+			val, _ := decode_create_trig_stmt(data, depth - 1)
 			return CreateTrigStmt(val), consumed
 		}
 		176 {
-			val, _ := decode_create_event_trig_stmt(data)
+			val, _ := decode_create_event_trig_stmt(data, depth - 1)
 			return CreateEventTrigStmt(val), consumed
 		}
 		177 {
-			val, _ := decode_alter_event_trig_stmt(data)
+			val, _ := decode_alter_event_trig_stmt(data, depth - 1)
 			return AlterEventTrigStmt(val), consumed
 		}
 		178 {
-			val, _ := decode_create_p_lang_stmt(data)
+			val, _ := decode_create_p_lang_stmt(data, depth - 1)
 			return CreatePLangStmt(val), consumed
 		}
 		179 {
-			val, _ := decode_create_role_stmt(data)
+			val, _ := decode_create_role_stmt(data, depth - 1)
 			return CreateRoleStmt(val), consumed
 		}
 		180 {
-			val, _ := decode_alter_role_stmt(data)
+			val, _ := decode_alter_role_stmt(data, depth - 1)
 			return AlterRoleStmt(val), consumed
 		}
 		181 {
-			val, _ := decode_alter_role_set_stmt(data)
+			val, _ := decode_alter_role_set_stmt(data, depth - 1)
 			return AlterRoleSetStmt(val), consumed
 		}
 		182 {
-			val, _ := decode_drop_role_stmt(data)
+			val, _ := decode_drop_role_stmt(data, depth - 1)
 			return DropRoleStmt(val), consumed
 		}
 		183 {
-			val, _ := decode_create_seq_stmt(data)
+			val, _ := decode_create_seq_stmt(data, depth - 1)
 			return CreateSeqStmt(val), consumed
 		}
 		184 {
-			val, _ := decode_alter_seq_stmt(data)
+			val, _ := decode_alter_seq_stmt(data, depth - 1)
 			return AlterSeqStmt(val), consumed
 		}
 		185 {
-			val, _ := decode_define_stmt(data)
+			val, _ := decode_define_stmt(data, depth - 1)
 			return DefineStmt(val), consumed
 		}
 		186 {
-			val, _ := decode_create_domain_stmt(data)
+			val, _ := decode_create_domain_stmt(data, depth - 1)
 			return CreateDomainStmt(val), consumed
 		}
 		187 {
-			val, _ := decode_create_op_class_stmt(data)
+			val, _ := decode_create_op_class_stmt(data, depth - 1)
 			return CreateOpClassStmt(val), consumed
 		}
 		188 {
-			val, _ := decode_create_op_class_item(data)
+			val, _ := decode_create_op_class_item(data, depth - 1)
 			return CreateOpClassItem(val), consumed
 		}
 		189 {
-			val, _ := decode_create_op_family_stmt(data)
+			val, _ := decode_create_op_family_stmt(data, depth - 1)
 			return CreateOpFamilyStmt(val), consumed
 		}
 		190 {
-			val, _ := decode_alter_op_family_stmt(data)
+			val, _ := decode_alter_op_family_stmt(data, depth - 1)
 			return AlterOpFamilyStmt(val), consumed
 		}
 		191 {
-			val, _ := decode_drop_stmt(data)
+			val, _ := decode_drop_stmt(data, depth - 1)
 			return DropStmt(val), consumed
 		}
 		192 {
-			val, _ := decode_truncate_stmt(data)
+			val, _ := decode_truncate_stmt(data, depth - 1)
 			return TruncateStmt(val), consumed
 		}
 		193 {
-			val, _ := decode_comment_stmt(data)
+			val, _ := decode_comment_stmt(data, depth - 1)
 			return CommentStmt(val), consumed
 		}
 		194 {
-			val, _ := decode_sec_label_stmt(data)
+			val, _ := decode_sec_label_stmt(data, depth - 1)
 			return SecLabelStmt(val), consumed
 		}
 		195 {
-			val, _ := decode_declare_cursor_stmt(data)
+			val, _ := decode_declare_cursor_stmt(data, depth - 1)
 			return DeclareCursorStmt(val), consumed
 		}
 		196 {
-			val, _ := decode_close_portal_stmt(data)
+			val, _ := decode_close_portal_stmt(data, depth - 1)
 			return ClosePortalStmt(val), consumed
 		}
 		197 {
-			val, _ := decode_fetch_stmt(data)
+			val, _ := decode_fetch_stmt(data, depth - 1)
 			return FetchStmt(val), consumed
 		}
 		198 {
-			val, _ := decode_index_stmt(data)
+			val, _ := decode_index_stmt(data, depth - 1)
 			return IndexStmt(val), consumed
 		}
 		199 {
-			val, _ := decode_create_stats_stmt(data)
+			val, _ := decode_create_stats_stmt(data, depth - 1)
 			return CreateStatsStmt(val), consumed
 		}
 		200 {
-			val, _ := decode_stats_elem(data)
+			val, _ := decode_stats_elem(data, depth - 1)
 			return StatsElem(val), consumed
 		}
 		201 {
-			val, _ := decode_alter_stats_stmt(data)
+			val, _ := decode_alter_stats_stmt(data, depth - 1)
 			return AlterStatsStmt(val), consumed
 		}
 		202 {
-			val, _ := decode_create_function_stmt(data)
+			val, _ := decode_create_function_stmt(data, depth - 1)
 			return CreateFunctionStmt(val), consumed
 		}
 		203 {
-			val, _ := decode_function_parameter(data)
+			val, _ := decode_function_parameter(data, depth - 1)
 			return FunctionParameter(val), consumed
 		}
 		204 {
-			val, _ := decode_alter_function_stmt(data)
+			val, _ := decode_alter_function_stmt(data, depth - 1)
 			return AlterFunctionStmt(val), consumed
 		}
 		205 {
-			val, _ := decode_do_stmt(data)
+			val, _ := decode_do_stmt(data, depth - 1)
 			return DoStmt(val), consumed
 		}
 		206 {
-			val, _ := decode_inline_code_block(data)
+			val, _ := decode_inline_code_block(data, depth - 1)
 			return InlineCodeBlock(val), consumed
 		}
 		207 {
-			val, _ := decode_call_stmt(data)
+			val, _ := decode_call_stmt(data, depth - 1)
 			return CallStmt(val), consumed
 		}
 		208 {
-			val, _ := decode_call_context(data)
+			val, _ := decode_call_context(data, depth - 1)
 			return CallContext(val), consumed
 		}
 		209 {
-			val, _ := decode_rename_stmt(data)
+			val, _ := decode_rename_stmt(data, depth - 1)
 			return RenameStmt(val), consumed
 		}
 		210 {
-			val, _ := decode_alter_object_depends_stmt(data)
+			val, _ := decode_alter_object_depends_stmt(data, depth - 1)
 			return AlterObjectDependsStmt(val), consumed
 		}
 		211 {
-			val, _ := decode_alter_object_schema_stmt(data)
+			val, _ := decode_alter_object_schema_stmt(data, depth - 1)
 			return AlterObjectSchemaStmt(val), consumed
 		}
 		212 {
-			val, _ := decode_alter_owner_stmt(data)
+			val, _ := decode_alter_owner_stmt(data, depth - 1)
 			return AlterOwnerStmt(val), consumed
 		}
 		213 {
-			val, _ := decode_alter_operator_stmt(data)
+			val, _ := decode_alter_operator_stmt(data, depth - 1)
 			return AlterOperatorStmt(val), consumed
 		}
 		214 {
-			val, _ := decode_alter_type_stmt(data)
+			val, _ := decode_alter_type_stmt(data, depth - 1)
 			return AlterTypeStmt(val), consumed
 		}
 		215 {
-			val, _ := decode_rule_stmt(data)
+			val, _ := decode_rule_stmt(data, depth - 1)
 			return RuleStmt(val), consumed
 		}
 		216 {
-			val, _ := decode_notify_stmt(data)
+			val, _ := decode_notify_stmt(data, depth - 1)
 			return NotifyStmt(val), consumed
 		}
 		217 {
-			val, _ := decode_listen_stmt(data)
+			val, _ := decode_listen_stmt(data, depth - 1)
 			return ListenStmt(val), consumed
 		}
 		218 {
-			val, _ := decode_unlisten_stmt(data)
+			val, _ := decode_unlisten_stmt(data, depth - 1)
 			return UnlistenStmt(val), consumed
 		}
 		219 {
-			val, _ := decode_transaction_stmt(data)
+			val, _ := decode_transaction_stmt(data, depth - 1)
 			return TransactionStmt(val), consumed
 		}
 		220 {
-			val, _ := decode_composite_type_stmt(data)
+			val, _ := decode_composite_type_stmt(data, depth - 1)
 			return CompositeTypeStmt(val), consumed
 		}
 		221 {
-			val, _ := decode_create_enum_stmt(data)
+			val, _ := decode_create_enum_stmt(data, depth - 1)
 			return CreateEnumStmt(val), consumed
 		}
 		222 {
-			val, _ := decode_create_range_stmt(data)
+			val, _ := decode_create_range_stmt(data, depth - 1)
 			return CreateRangeStmt(val), consumed
 		}
 		223 {
-			val, _ := decode_alter_enum_stmt(data)
+			val, _ := decode_alter_enum_stmt(data, depth - 1)
 			return AlterEnumStmt(val), consumed
 		}
 		224 {
-			val, _ := decode_view_stmt(data)
+			val, _ := decode_view_stmt(data, depth - 1)
 			return ViewStmt(val), consumed
 		}
 		225 {
-			val, _ := decode_load_stmt(data)
+			val, _ := decode_load_stmt(data, depth - 1)
 			return LoadStmt(val), consumed
 		}
 		226 {
-			val, _ := decode_createdb_stmt(data)
+			val, _ := decode_createdb_stmt(data, depth - 1)
 			return CreatedbStmt(val), consumed
 		}
 		227 {
-			val, _ := decode_alter_database_stmt(data)
+			val, _ := decode_alter_database_stmt(data, depth - 1)
 			return AlterDatabaseStmt(val), consumed
 		}
 		228 {
-			val, _ := decode_alter_database_refresh_coll_stmt(data)
+			val, _ := decode_alter_database_refresh_coll_stmt(data, depth - 1)
 			return AlterDatabaseRefreshCollStmt(val), consumed
 		}
 		229 {
-			val, _ := decode_alter_database_set_stmt(data)
+			val, _ := decode_alter_database_set_stmt(data, depth - 1)
 			return AlterDatabaseSetStmt(val), consumed
 		}
 		230 {
-			val, _ := decode_dropdb_stmt(data)
+			val, _ := decode_dropdb_stmt(data, depth - 1)
 			return DropdbStmt(val), consumed
 		}
 		231 {
-			val, _ := decode_alter_system_stmt(data)
+			val, _ := decode_alter_system_stmt(data, depth - 1)
 			return AlterSystemStmt(val), consumed
 		}
 		232 {
-			val, _ := decode_cluster_stmt(data)
+			val, _ := decode_cluster_stmt(data, depth - 1)
 			return ClusterStmt(val), consumed
 		}
 		233 {
-			val, _ := decode_vacuum_stmt(data)
+			val, _ := decode_vacuum_stmt(data, depth - 1)
 			return VacuumStmt(val), consumed
 		}
 		234 {
-			val, _ := decode_vacuum_relation(data)
+			val, _ := decode_vacuum_relation(data, depth - 1)
 			return VacuumRelation(val), consumed
 		}
 		235 {
-			val, _ := decode_explain_stmt(data)
+			val, _ := decode_explain_stmt(data, depth - 1)
 			return ExplainStmt(val), consumed
 		}
 		236 {
-			val, _ := decode_create_table_as_stmt(data)
+			val, _ := decode_create_table_as_stmt(data, depth - 1)
 			return CreateTableAsStmt(val), consumed
 		}
 		237 {
-			val, _ := decode_refresh_mat_view_stmt(data)
+			val, _ := decode_refresh_mat_view_stmt(data, depth - 1)
 			return RefreshMatViewStmt(val), consumed
 		}
 		238 {
-			val, _ := decode_check_point_stmt(data)
+			val, _ := decode_check_point_stmt(data, depth - 1)
 			return CheckPointStmt(val), consumed
 		}
 		239 {
-			val, _ := decode_discard_stmt(data)
+			val, _ := decode_discard_stmt(data, depth - 1)
 			return DiscardStmt(val), consumed
 		}
 		240 {
-			val, _ := decode_lock_stmt(data)
+			val, _ := decode_lock_stmt(data, depth - 1)
 			return LockStmt(val), consumed
 		}
 		241 {
-			val, _ := decode_constraints_set_stmt(data)
+			val, _ := decode_constraints_set_stmt(data, depth - 1)
 			return ConstraintsSetStmt(val), consumed
 		}
 		242 {
-			val, _ := decode_reindex_stmt(data)
+			val, _ := decode_reindex_stmt(data, depth - 1)
 			return ReindexStmt(val), consumed
 		}
 		243 {
-			val, _ := decode_create_conversion_stmt(data)
+			val, _ := decode_create_conversion_stmt(data, depth - 1)
 			return CreateConversionStmt(val), consumed
 		}
 		244 {
-			val, _ := decode_create_cast_stmt(data)
+			val, _ := decode_create_cast_stmt(data, depth - 1)
 			return CreateCastStmt(val), consumed
 		}
 		245 {
-			val, _ := decode_create_transform_stmt(data)
+			val, _ := decode_create_transform_stmt(data, depth - 1)
 			return CreateTransformStmt(val), consumed
 		}
 		246 {
-			val, _ := decode_prepare_stmt(data)
+			val, _ := decode_prepare_stmt(data, depth - 1)
 			return PrepareStmt(val), consumed
 		}
 		247 {
-			val, _ := decode_execute_stmt(data)
+			val, _ := decode_execute_stmt(data, depth - 1)
 			return ExecuteStmt(val), consumed
 		}
 		248 {
-			val, _ := decode_deallocate_stmt(data)
+			val, _ := decode_deallocate_stmt(data, depth - 1)
 			return DeallocateStmt(val), consumed
 		}
 		249 {
-			val, _ := decode_drop_owned_stmt(data)
+			val, _ := decode_drop_owned_stmt(data, depth - 1)
 			return DropOwnedStmt(val), consumed
 		}
 		250 {
-			val, _ := decode_reassign_owned_stmt(data)
+			val, _ := decode_reassign_owned_stmt(data, depth - 1)
 			return ReassignOwnedStmt(val), consumed
 		}
 		251 {
-			val, _ := decode_alter_t_s_dictionary_stmt(data)
+			val, _ := decode_alter_t_s_dictionary_stmt(data, depth - 1)
 			return AlterTSDictionaryStmt(val), consumed
 		}
 		252 {
-			val, _ := decode_alter_t_s_configuration_stmt(data)
+			val, _ := decode_alter_t_s_configuration_stmt(data, depth - 1)
 			return AlterTSConfigurationStmt(val), consumed
 		}
 		253 {
-			val, _ := decode_publication_table(data)
+			val, _ := decode_publication_table(data, depth - 1)
 			return PublicationTable(val), consumed
 		}
 		254 {
-			val, _ := decode_publication_obj_spec(data)
+			val, _ := decode_publication_obj_spec(data, depth - 1)
 			return PublicationObjSpec(val), consumed
 		}
 		255 {
-			val, _ := decode_create_publication_stmt(data)
+			val, _ := decode_create_publication_stmt(data, depth - 1)
 			return CreatePublicationStmt(val), consumed
 		}
 		256 {
-			val, _ := decode_alter_publication_stmt(data)
+			val, _ := decode_alter_publication_stmt(data, depth - 1)
 			return AlterPublicationStmt(val), consumed
 		}
 		257 {
-			val, _ := decode_create_subscription_stmt(data)
+			val, _ := decode_create_subscription_stmt(data, depth - 1)
 			return CreateSubscriptionStmt(val), consumed
 		}
 		258 {
-			val, _ := decode_alter_subscription_stmt(data)
+			val, _ := decode_alter_subscription_stmt(data, depth - 1)
 			return AlterSubscriptionStmt(val), consumed
 		}
 		259 {
-			val, _ := decode_drop_subscription_stmt(data)
+			val, _ := decode_drop_subscription_stmt(data, depth - 1)
 			return DropSubscriptionStmt(val), consumed
 		}
 		260 {
-			val, _ := decode_integer(data)
+			val, _ := decode_integer(data, depth - 1)
 			return Integer(val), consumed
 		}
 		261 {
-			val, _ := decode_float(data)
+			val, _ := decode_float(data, depth - 1)
 			return Float(val), consumed
 		}
 		262 {
-			val, _ := decode_boolean(data)
+			val, _ := decode_boolean(data, depth - 1)
 			return Boolean(val), consumed
 		}
 		263 {
-			val, _ := decode_string(data)
+			val, _ := decode_string(data, depth - 1)
 			return String(val), consumed
 		}
 		264 {
-			val, _ := decode_bit_string(data)
+			val, _ := decode_bit_string(data, depth - 1)
 			return BitString(val), consumed
 		}
 		265 {
-			val, _ := decode_list(data)
+			val, _ := decode_list(data, depth - 1)
 			return List(val), consumed
 		}
 		266 {
-			val, _ := decode_int_list(data)
+			val, _ := decode_int_list(data, depth - 1)
 			return IntList(val), consumed
 		}
 		267 {
-			val, _ := decode_oid_list(data)
+			val, _ := decode_oid_list(data, depth - 1)
 			return OidList(val), consumed
 		}
 		268 {
-			val, _ := decode_a_const(data)
+			val, _ := decode_a_const(data, depth - 1)
 			return AConst(val), consumed
 		}
 		else {
-			return Alias{}, consumed
+			return UnrecognizedNode{field_num, data}, consumed
 		}
 	}
 }
@@ -12792,7 +13070,7 @@ pub fn decode_parse_result(buf []u8) ParseAstResult {
 			}
 			2 {
 				data, c2 := read_submessage(buf, off)
-				rs, _ := decode_raw_stmt(data)
+				rs, _ := decode_raw_stmt(data, max_decode_depth)
 				stmts << AstRawStmt{
 					stmt_location: rs.stmt_location
 					stmt_len: rs.stmt_len

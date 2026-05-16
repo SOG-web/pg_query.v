@@ -31,20 +31,14 @@ CI covers macOS + Linux. The C library supports Windows via `Makefile.msvc` (MSV
 
 ## V-Native Protobuf Decoder Limitations
 
-### 10. Truncated buffer: `read_length_buf` returns partial data
-`read_length_buf` in `pg_query_protobuf.v` returns a truncated slice when the remaining buffer is shorter than the declared length. For example, if a length-delimited field claims 100 bytes but only 20 remain, it returns the 20 bytes plus a zero consumed count. Downstream decoders then decode from this partial data, producing garbage field values rather than signalling an error.
+### 10. Truncated buffer: `read_length_buf` returns partial data — ✅ Fixed
+`read_length_buf` in `pg_query_protobuf.v` now returns an empty slice and a zero consumed count when the remaining buffer is shorter than the declared length. Callers treat an empty submessage / string / bytes as a zero value.
 
-**Fix needed:** Return an empty slice and a zero consumed count on bounds failure, and have callers treat an empty submessage / string / bytes as a zero value.
+### 11. No recursion depth limit — ✅ Fixed
+All `decode_*` functions now accept a `depth int` parameter. `decode_parse_result` passes `max_decode_depth` (64) to the top-level call, and each recursive invocation passes `depth - 1`. When `depth <= 0`, the function immediately returns zero values. Structs with reference fields use proper `unsafe { nil }` initialization in the depth-zero return.
 
-### 11. No recursion depth limit
-The decoder uses recursive function calls for nested submessages. A deeply crafted protobuf input could cause stack overflow. The Postgres AST is typically 5–15 levels deep, but an attacker or bug in the C parser could produce deeper nesting.
-
-**Fix needed:** Add a `depth` parameter to all `decode_*` functions, capped at a reasonable maximum (e.g. 64). Return zero values when the limit is exceeded.
-
-### 12. Unknown Node variants silently discarded
-`decode_node()` dispatches on the oneof field number. If the field number doesn't match any known variant, it returns the first variant type (e.g. `Alias{}`) with no error or warning. This means an unrecognized node type from a future version of the proto silently becomes an empty `Alias`.
-
-**Fix needed:** Return a typed `Node` variant that represents an "unknown" node, or include a bail-out mechanism. Since `Node` is a sum type defined by the oneof, adding an `Unknown` variant requires changing the generated `Node` sum type.
+### 12. Unknown Node variants silently discarded — ✅ Fixed
+`decode_node()` returns `UnrecognizedNode{field_num, data}` for unknown field numbers instead of silently returning the first variant. `UnrecognizedNode` is a new struct added to the `Node` sum type, preserving the raw field number and submessage data for forward-compat.
 
 ### 13. Enum values not validated
 All integer-to-enum casts in the generated decoder use `unsafe { EnumType(int(v)) }`. If the protobuf wire contains an integer that doesn't correspond to any enum variant, it's silently cast to an invalid enum value. Downstream code comparing against named variants will silently miss.

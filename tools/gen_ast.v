@@ -2937,17 +2937,25 @@ fn generate_v_protobuf_decode(pf ProtoFile, node_oneof_fields []ProtoField) {
 		needs_unsafe_init := has_ref_fields || transitive_init.len > 0
 		has_regular_fields := m.fields.len > 0
 		out += 'fn decode_${dfn}(buf []u8, depth int) (${vname}, int) {\n'
-		out += '\tif depth <= 0 { return ${vname}{}, 0 }\n'
 		if needs_unsafe_init {
+			out += '\tif depth <= 0 { return ${vname}{\n'
+			for rfn in ref_field_names {
+				out += '\t\t${rfn}: unsafe { nil }\n'
+			}
+			for ti in transitive_init {
+				out += '\t\t' + ti.trim_left('\t') + '\n'
+			}
+			out += '\t}, 0 }\n'
 			out += '\tmut r := ${vname}{\n'
 			for rfn in ref_field_names {
 				out += '\t\t${rfn}: unsafe { nil }\n'
 			}
 			for ti in transitive_init {
-				out += ti + '\n'
+				out += '\t' + ti + '\n'
 			}
 			out += '\t}\n'
 		} else {
+			out += '\tif depth <= 0 { return ${vname}{}, 0 }\n'
 			out += '\tmut r := ${vname}{}\n'
 		}
 		if !has_regular_fields {
@@ -2978,8 +2986,9 @@ fn generate_v_protobuf_decode(pf ProtoFile, node_oneof_fields []ProtoField) {
 
 	// Generate decode_Node dispatcher
 	first_vtype := proto_field_to_v_type(node_oneof_fields[0].typ)
-	out += 'fn decode_node(buf []u8) (Node, int) {\n'
-	out += '\tif buf.len == 0 { return ${first_vtype}{}, 0 }\n'
+	out += 'fn decode_node(buf []u8, depth int) (Node, int) {\n'
+	out += '\tif depth <= 0 { return ${first_vtype}{}, 0 }\n'
+	out += '\tif buf.len == 0 { return UnrecognizedNode{}, 0 }\n'
 	out += '\tfield_num, _, c := read_tag(buf, 0)\n'
 	out += '\tdata, c2 := read_submessage(buf, c)\n'
 	out += '\tconsumed := c + c2\n'
@@ -2988,12 +2997,12 @@ fn generate_v_protobuf_decode(pf ProtoFile, node_oneof_fields []ProtoField) {
 		vname := proto_field_to_v_type(f.typ)
 		dfn := snake_case(vname)
 		out += '\t\t${f.field_num} {\n'
-		out += '\t\t\tval, _ := decode_${dfn}(data)\n'
+		out += '\t\t\tval, _ := decode_${dfn}(data, depth - 1)\n'
 		out += '\t\t\treturn ${vname}(val), consumed\n'
 		out += '\t\t}\n'
 	}
 	out += '\t\telse {\n'
-	out += '\t\t\treturn ${first_vtype}{}, consumed\n'
+	out += '\t\t\treturn UnrecognizedNode{field_num, data}, consumed\n'
 	out += '\t\t}\n'
 	out += '\t}\n'
 	out += '}\n\n'
@@ -3014,7 +3023,7 @@ fn generate_v_protobuf_decode(pf ProtoFile, node_oneof_fields []ProtoField) {
 	out += '\t\t\t}\n'
 	out += '\t\t\t2 {\n'
 	out += '\t\t\t\tdata, c2 := read_submessage(buf, off)\n'
-	out += '\t\t\t\trs, _ := decode_raw_stmt(data)\n'
+	out += '\t\t\t\trs, _ := decode_raw_stmt(data, max_decode_depth)\n'
 	out += '\t\t\t\tstmts << AstRawStmt{\n'
 	out += '\t\t\t\t\tstmt_location: rs.stmt_location\n'
 	out += '\t\t\t\t\tstmt_len: rs.stmt_len\n'
@@ -3056,7 +3065,7 @@ fn proto_decode_field_case(f ProtoField, vname string, msg_name string, pf Proto
 		out += '\t\t\t\toff += c2\n'
 	} else if f.typ == 'Node' {
 		out += '\t\t\t\tdata, c2 := read_submessage(buf, off)\n'
-		out += '\t\t\t\tval, _ := decode_node(data)\n'
+		out += '\t\t\t\tval, _ := decode_node(data, depth - 1)\n'
 		out += '\t\t\t\tr.${vfname} = val\n'
 		out += '\t\t\t\toff += c2\n'
 	} else if f.typ == 'Context' {
@@ -3073,14 +3082,14 @@ fn proto_decode_field_case(f ProtoField, vname string, msg_name string, pf Proto
 	} else if f.typ == msg_name {
 		self_dfn := snake_case(vname)
 		out += '\t\t\t\tdata, c2 := read_submessage(buf, off)\n'
-		out += '\t\t\t\tval, _ := decode_${self_dfn}(data)\n'
+		out += '\t\t\t\tval, _ := decode_${self_dfn}(data, depth - 1)\n'
 		out += '\t\t\t\tr.${vfname} = unsafe { &val }\n'
 		out += '\t\t\t\toff += c2\n'
 	} else {
 		subtype := proto_field_to_v_type(f.typ)
 		sub_dfn := snake_case(subtype)
 		out += '\t\t\t\tdata, c2 := read_submessage(buf, off)\n'
-		out += '\t\t\t\tval, _ := decode_${sub_dfn}(data)\n'
+		out += '\t\t\t\tval, _ := decode_${sub_dfn}(data, depth - 1)\n'
 		out += '\t\t\t\tr.${vfname} = val\n'
 		out += '\t\t\t\toff += c2\n'
 	}
@@ -3100,7 +3109,7 @@ fn proto_decode_repeated_field(f ProtoField, vfname string, pf ProtoFile) string
 		out += '\t\t\t\toff += c2\n'
 	} else if f.typ == 'Node' {
 		out += '\t\t\t\tdata, c2 := read_submessage(buf, off)\n'
-		out += '\t\t\t\tval, _ := decode_node(data)\n'
+		out += '\t\t\t\tval, _ := decode_node(data, depth - 1)\n'
 		out += '\t\t\t\tr.${vfname} << val\n'
 		out += '\t\t\t\toff += c2\n'
 	} else if f.typ == 'Context' {
@@ -3249,7 +3258,7 @@ fn proto_decode_repeated_field(f ProtoField, vfname string, pf ProtoFile) string
 		subtype := proto_field_to_v_type(f.typ)
 		sub_dfn := snake_case(subtype)
 		out += '\t\t\t\tdata, c2 := read_submessage(buf, off)\n'
-		out += '\t\t\t\tval, _ := decode_${sub_dfn}(data)\n'
+		out += '\t\t\t\tval, _ := decode_${sub_dfn}(data, depth - 1)\n'
 		out += '\t\t\t\tr.${vfname} << val\n'
 		out += '\t\t\t\toff += c2\n'
 	}
@@ -3339,7 +3348,7 @@ fn proto_decode_oneof_field_case(f ProtoField, vname string, pf ProtoFile) strin
 		out += '\t\t\t\toff += c2\n'
 	} else if f.typ == 'Node' {
 		out += '\t\t\t\tdata, c2 := read_submessage(buf, off)\n'
-		out += '\t\t\t\tval, _ := decode_node(data)\n'
+		out += '\t\t\t\tval, _ := decode_node(data, depth - 1)\n'
 		out += '\t\t\t\tr.${vfname} = val\n'
 		out += '\t\t\t\toff += c2\n'
 	} else if is_primitive_proto(f.typ) {
@@ -3357,7 +3366,7 @@ fn proto_decode_oneof_field_case(f ProtoField, vname string, pf ProtoFile) strin
 		subtype := proto_field_to_v_type(f.typ)
 		sub_dfn := snake_case(subtype)
 		out += '\t\t\t\tdata, c2 := read_submessage(buf, off)\n'
-		out += '\t\t\t\tval, _ := decode_${sub_dfn}(data)\n'
+		out += '\t\t\t\tval, _ := decode_${sub_dfn}(data, depth - 1)\n'
 		out += '\t\t\t\tr.${vfname} = val\n'
 		out += '\t\t\t\toff += c2\n'
 	}
