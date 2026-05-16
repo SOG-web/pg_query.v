@@ -309,6 +309,19 @@ fn is_enum_type(pf ProtoFile, type_name string) bool {
 	return false
 }
 
+fn enum_values(pf ProtoFile, type_name string) []int {
+	for e in pf.enums {
+		if e.name == type_name {
+			mut vals := []int{}
+			for ev in e.values {
+				vals << ev.value
+			}
+			return vals
+		}
+	}
+	return []
+}
+
 // Convert proto type name to C prototype name (PgQuery__Xxx)
 // Convert proto message name to protobuf-c __init function suffix (snake_case)
 // Matches protobuf-c's naming: insert '_' only at lowercase→uppercase transitions
@@ -3070,12 +3083,13 @@ fn proto_decode_field_case(f ProtoField, vname string, msg_name string, pf Proto
 		out += '\t\t\t\toff += c2\n'
 	} else if f.typ == 'Context' {
 		out += '\t\t\t\tv, c2 := read_varint(buf, off)\n'
-		out += '\t\t\t\tr.${vfname} = unsafe { SummaryContext(int(v)) }\n'
+		out += '\t\t\t\tr.${vfname} = unsafe { SummaryContext(valid_enum_int([1, 2, 3], v)) }\n'
 		out += '\t\t\t\toff += c2\n'
 	} else if is_enum_type(pf, f.typ) {
 		etype := proto_field_to_v_type(f.typ)
+		vals := enum_values(pf, f.typ)
 		out += '\t\t\t\tv, c2 := read_varint(buf, off)\n'
-		out += '\t\t\t\tr.${vfname} = unsafe { ${etype}(int(v)) }\n'
+		out += '\t\t\t\tr.${vfname} = unsafe { ${etype}(valid_enum_int(${vals}, v)) }\n'
 		out += '\t\t\t\toff += c2\n'
 	} else if is_primitive_proto(f.typ) {
 		out += proto_decode_primitive_singular(f, vfname)
@@ -3117,29 +3131,30 @@ fn proto_decode_repeated_field(f ProtoField, vfname string, pf ProtoFile) string
 		out += '\t\t\t\t\twt_len {\n'
 		out += '\t\t\t\t\t\tvals, c2 := read_packed_varints(buf, off)\n'
 		out += '\t\t\t\t\t\tfor v in vals {\n'
-		out += '\t\t\t\t\t\t\tr.${vfname} << unsafe { SummaryContext(int(v)) }\n'
+		out += '\t\t\t\t\t\t\tr.${vfname} << unsafe { SummaryContext(valid_enum_int([1, 2, 3], v)) }\n'
 		out += '\t\t\t\t\t\t}\n'
 		out += '\t\t\t\t\t\toff += c2\n'
 		out += '\t\t\t\t\t}\n'
 		out += '\t\t\t\t\telse {\n'
 		out += '\t\t\t\t\t\tv, c2 := read_varint(buf, off)\n'
-		out += '\t\t\t\t\t\tr.${vfname} << unsafe { SummaryContext(int(v)) }\n'
+		out += '\t\t\t\t\t\tr.${vfname} << unsafe { SummaryContext(valid_enum_int([1, 2, 3], v)) }\n'
 		out += '\t\t\t\t\t\toff += c2\n'
 		out += '\t\t\t\t\t}\n'
 		out += '\t\t\t\t}\n'
 	} else if is_enum_type(pf, f.typ) {
 		etype := proto_field_to_v_type(f.typ)
+		vals := enum_values(pf, f.typ)
 		out += '\t\t\t\tmatch wire_type {\n'
 		out += '\t\t\t\t\twt_len {\n'
 		out += '\t\t\t\t\t\tvals, c2 := read_packed_varints(buf, off)\n'
 		out += '\t\t\t\t\t\tfor v in vals {\n'
-		out += '\t\t\t\t\t\t\tr.${vfname} << unsafe { ${etype}(int(v)) }\n'
+		out += '\t\t\t\t\t\t\tr.${vfname} << unsafe { ${etype}(valid_enum_int(${vals}, v)) }\n'
 		out += '\t\t\t\t\t\t}\n'
 		out += '\t\t\t\t\t\toff += c2\n'
 		out += '\t\t\t\t\t}\n'
 		out += '\t\t\t\t\telse {\n'
 		out += '\t\t\t\t\t\tv, c2 := read_varint(buf, off)\n'
-		out += '\t\t\t\t\t\tr.${vfname} << unsafe { ${etype}(int(v)) }\n'
+		out += '\t\t\t\t\t\tr.${vfname} << unsafe { ${etype}(valid_enum_int(${vals}, v)) }\n'
 		out += '\t\t\t\t\t\toff += c2\n'
 		out += '\t\t\t\t\t}\n'
 		out += '\t\t\t\t}\n'
@@ -3355,12 +3370,13 @@ fn proto_decode_oneof_field_case(f ProtoField, vname string, pf ProtoFile) strin
 		out += proto_decode_primitive_singular(f, vfname)
 	} else if is_enum_type(pf, f.typ) {
 		etype := proto_field_to_v_type(f.typ)
+		vals := enum_values(pf, f.typ)
 		out += '\t\t\t\tv, c2 := read_varint(buf, off)\n'
-		out += '\t\t\t\tr.${vfname} = unsafe { ${etype}(int(v)) }\n'
+		out += '\t\t\t\tr.${vfname} = unsafe { ${etype}(valid_enum_int(${vals}, v)) }\n'
 		out += '\t\t\t\toff += c2\n'
 	} else if f.typ == 'Context' {
 		out += '\t\t\t\tv, c2 := read_varint(buf, off)\n'
-		out += '\t\t\t\tr.${vfname} = unsafe { SummaryContext(int(v)) }\n'
+		out += '\t\t\t\tr.${vfname} = unsafe { SummaryContext(valid_enum_int([1, 2, 3], v)) }\n'
 		out += '\t\t\t\toff += c2\n'
 	} else {
 		subtype := proto_field_to_v_type(f.typ)

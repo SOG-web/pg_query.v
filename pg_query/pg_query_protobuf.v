@@ -4,6 +4,19 @@ module pg_query
 // Postgres AST is typically 5–15 levels deep; 64 is generous.
 pub const max_decode_depth = 64
 
+// valid_enum_int returns v cast to int if it is one of the valid_values,
+// or 0 if it is out of range. This prevents silently accepting invalid
+// enum values from malformed protobuf input.
+pub fn valid_enum_int(valid_values []int, v u64) int {
+	iv := int(v)
+	for vv in valid_values {
+		if iv == vv {
+			return iv
+		}
+	}
+	return 0
+}
+
 // ---------------------------------------------------------------------------
 // Protobuf wire format helpers (used by generated pg_query_decode.v)
 // ---------------------------------------------------------------------------

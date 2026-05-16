@@ -266,7 +266,7 @@ fn decode_table_func(buf []u8, depth int) (TableFunc, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.functype = unsafe { TableFuncType(int(v)) }
+				r.functype = unsafe { TableFuncType(valid_enum_int([0, 1, 2], v)) }
 				off += c2
 			}
 			2 {
@@ -470,7 +470,7 @@ fn decode_param(buf []u8, depth int) (Param, int) {
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.paramkind = unsafe { ParamKind(int(v)) }
+				r.paramkind = unsafe { ParamKind(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			3 {
@@ -598,7 +598,7 @@ fn decode_aggref(buf []u8, depth int) (Aggref, int) {
 			}
 			16 {
 				v, c2 := read_varint(buf, off)
-				r.aggsplit = unsafe { AggSplit(int(v)) }
+				r.aggsplit = unsafe { AggSplit(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			17 {
@@ -935,7 +935,7 @@ fn decode_func_expr(buf []u8, depth int) (FuncExpr, int) {
 			}
 			6 {
 				v, c2 := read_varint(buf, off)
-				r.funcformat = unsafe { CoercionForm(int(v)) }
+				r.funcformat = unsafe { CoercionForm(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			7 {
@@ -1248,7 +1248,7 @@ fn decode_bool_expr(buf []u8, depth int) (BoolExpr, int) {
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.boolop = unsafe { BoolExprType(int(v)) }
+				r.boolop = unsafe { BoolExprType(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			3 {
@@ -1286,7 +1286,7 @@ fn decode_sub_link(buf []u8, depth int) (SubLink, int) {
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.sub_link_type = unsafe { SubLinkType(int(v)) }
+				r.sub_link_type = unsafe { SubLinkType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8], v)) }
 				off += c2
 			}
 			3 {
@@ -1341,7 +1341,7 @@ fn decode_sub_plan(buf []u8, depth int) (SubPlan, int) {
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.sub_link_type = unsafe { SubLinkType(int(v)) }
+				r.sub_link_type = unsafe { SubLinkType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8], v)) }
 				off += c2
 			}
 			3 {
@@ -1590,7 +1590,7 @@ fn decode_relabel_type(buf []u8, depth int) (RelabelType, int) {
 			}
 			6 {
 				v, c2 := read_varint(buf, off)
-				r.relabelformat = unsafe { CoercionForm(int(v)) }
+				r.relabelformat = unsafe { CoercionForm(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			7 {
@@ -1638,7 +1638,7 @@ fn decode_coerce_via_i_o(buf []u8, depth int) (CoerceViaIO, int) {
 			}
 			5 {
 				v, c2 := read_varint(buf, off)
-				r.coerceformat = unsafe { CoercionForm(int(v)) }
+				r.coerceformat = unsafe { CoercionForm(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			6 {
@@ -1697,7 +1697,7 @@ fn decode_array_coerce_expr(buf []u8, depth int) (ArrayCoerceExpr, int) {
 			}
 			7 {
 				v, c2 := read_varint(buf, off)
-				r.coerceformat = unsafe { CoercionForm(int(v)) }
+				r.coerceformat = unsafe { CoercionForm(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			8 {
@@ -1740,7 +1740,7 @@ fn decode_convert_rowtype_expr(buf []u8, depth int) (ConvertRowtypeExpr, int) {
 			}
 			4 {
 				v, c2 := read_varint(buf, off)
-				r.convertformat = unsafe { CoercionForm(int(v)) }
+				r.convertformat = unsafe { CoercionForm(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			5 {
@@ -2005,7 +2005,7 @@ fn decode_row_expr(buf []u8, depth int) (RowExpr, int) {
 			}
 			4 {
 				v, c2 := read_varint(buf, off)
-				r.row_format = unsafe { CoercionForm(int(v)) }
+				r.row_format = unsafe { CoercionForm(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			5 {
@@ -2043,7 +2043,7 @@ fn decode_row_compare_expr(buf []u8, depth int) (RowCompareExpr, int) {
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.rctype = unsafe { RowCompareType(int(v)) }
+				r.rctype = unsafe { RowCompareType(valid_enum_int([0, 1, 2, 3, 4, 5, 6], v)) }
 				off += c2
 			}
 			3 {
@@ -2158,7 +2158,7 @@ fn decode_min_max_expr(buf []u8, depth int) (MinMaxExpr, int) {
 			}
 			5 {
 				v, c2 := read_varint(buf, off)
-				r.op = unsafe { MinMaxOp(int(v)) }
+				r.op = unsafe { MinMaxOp(valid_enum_int([0, 1, 2], v)) }
 				off += c2
 			}
 			6 {
@@ -2196,7 +2196,7 @@ fn decode_s_q_l_value_function(buf []u8, depth int) (SQLValueFunction, int) {
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.op = unsafe { SQLValueFunctionOp(int(v)) }
+				r.op = unsafe { SQLValueFunctionOp(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], v)) }
 				off += c2
 			}
 			3 {
@@ -2238,7 +2238,7 @@ fn decode_xml_expr(buf []u8, depth int) (XmlExpr, int) {
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.op = unsafe { XmlExprOp(int(v)) }
+				r.op = unsafe { XmlExprOp(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8], v)) }
 				off += c2
 			}
 			3 {
@@ -2266,7 +2266,7 @@ fn decode_xml_expr(buf []u8, depth int) (XmlExpr, int) {
 			}
 			7 {
 				v, c2 := read_varint(buf, off)
-				r.xmloption = unsafe { XmlOptionType(int(v)) }
+				r.xmloption = unsafe { XmlOptionType(valid_enum_int([0, 1, 2], v)) }
 				off += c2
 			}
 			8 {
@@ -2307,12 +2307,12 @@ fn decode_json_format(buf []u8, depth int) (JsonFormat, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.format_type = unsafe { JsonFormatType(int(v)) }
+				r.format_type = unsafe { JsonFormatType(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.encoding = unsafe { JsonEncoding(int(v)) }
+				r.encoding = unsafe { JsonEncoding(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			3 {
@@ -2338,7 +2338,7 @@ fn decode_json_behavior(buf []u8, depth int) (JsonBehavior, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.btype = unsafe { JsonBehaviorType(int(v)) }
+				r.btype = unsafe { JsonBehaviorType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], v)) }
 				off += c2
 			}
 			2 {
@@ -2442,7 +2442,7 @@ fn decode_null_test(buf []u8, depth int) (NullTest, int) {
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.nulltesttype = unsafe { NullTestType(int(v)) }
+				r.nulltesttype = unsafe { NullTestType(valid_enum_int([0, 1, 2], v)) }
 				off += c2
 			}
 			4 {
@@ -2485,7 +2485,7 @@ fn decode_boolean_test(buf []u8, depth int) (BooleanTest, int) {
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.booltesttype = unsafe { BoolTestType(int(v)) }
+				r.booltesttype = unsafe { BoolTestType(valid_enum_int([0, 1, 2, 3, 4, 5, 6], v)) }
 				off += c2
 			}
 			4 {
@@ -2511,17 +2511,17 @@ fn decode_merge_action(buf []u8, depth int) (MergeAction, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.match_kind = unsafe { MergeMatchKind(int(v)) }
+				r.match_kind = unsafe { MergeMatchKind(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.command_type = unsafe { CmdType(int(v)) }
+				r.command_type = unsafe { CmdType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8], v)) }
 				off += c2
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.override = unsafe { OverridingKind(int(v)) }
+				r.override = unsafe { OverridingKind(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			4 {
@@ -2587,7 +2587,7 @@ fn decode_coerce_to_domain(buf []u8, depth int) (CoerceToDomain, int) {
 			}
 			6 {
 				v, c2 := read_varint(buf, off)
-				r.coercionformat = unsafe { CoercionForm(int(v)) }
+				r.coercionformat = unsafe { CoercionForm(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			7 {
@@ -2911,7 +2911,7 @@ fn decode_on_conflict_expr(buf []u8, depth int) (OnConflictExpr, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.action = unsafe { OnConflictAction(int(v)) }
+				r.action = unsafe { OnConflictAction(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			2 {
@@ -3084,7 +3084,7 @@ fn decode_a_expr(buf []u8, depth int) (AExpr, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.kind = unsafe { AExprKind(int(v)) }
+				r.kind = unsafe { AExprKind(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], v)) }
 				off += c2
 			}
 			2 {
@@ -3161,7 +3161,7 @@ fn decode_role_spec(buf []u8, depth int) (RoleSpec, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.roletype = unsafe { RoleSpecType(int(v)) }
+				r.roletype = unsafe { RoleSpecType(valid_enum_int([0, 1, 2, 3, 4, 5], v)) }
 				off += c2
 			}
 			2 {
@@ -3362,12 +3362,12 @@ fn decode_sort_by(buf []u8, depth int) (SortBy, int) {
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.sortby_dir = unsafe { SortByDir(int(v)) }
+				r.sortby_dir = unsafe { SortByDir(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.sortby_nulls = unsafe { SortByNulls(int(v)) }
+				r.sortby_nulls = unsafe { SortByNulls(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			4 {
@@ -3538,12 +3538,12 @@ fn decode_index_elem(buf []u8, depth int) (IndexElem, int) {
 			}
 			7 {
 				v, c2 := read_varint(buf, off)
-				r.ordering = unsafe { SortByDir(int(v)) }
+				r.ordering = unsafe { SortByDir(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			8 {
 				v, c2 := read_varint(buf, off)
-				r.nulls_ordering = unsafe { SortByNulls(int(v)) }
+				r.nulls_ordering = unsafe { SortByNulls(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			else {
@@ -3580,7 +3580,7 @@ fn decode_def_elem(buf []u8, depth int) (DefElem, int) {
 			}
 			4 {
 				v, c2 := read_varint(buf, off)
-				r.defaction = unsafe { DefElemAction(int(v)) }
+				r.defaction = unsafe { DefElemAction(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			5 {
@@ -3612,12 +3612,12 @@ fn decode_locking_clause(buf []u8, depth int) (LockingClause, int) {
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.strength = unsafe { LockClauseStrength(int(v)) }
+				r.strength = unsafe { LockClauseStrength(valid_enum_int([0, 1, 2, 3, 4, 5], v)) }
 				off += c2
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.wait_policy = unsafe { LockWaitPolicy(int(v)) }
+				r.wait_policy = unsafe { LockWaitPolicy(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			else {
@@ -3682,7 +3682,7 @@ fn decode_partition_spec(buf []u8, depth int) (PartitionSpec, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.strategy = unsafe { PartitionStrategy(int(v)) }
+				r.strategy = unsafe { PartitionStrategy(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			2 {
@@ -3773,7 +3773,7 @@ fn decode_partition_range_datum(buf []u8, depth int) (PartitionRangeDatum, int) 
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.kind = unsafe { PartitionRangeDatumKind(int(v)) }
+				r.kind = unsafe { PartitionRangeDatumKind(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			2 {
@@ -3995,7 +3995,7 @@ fn decode_with_check_option(buf []u8, depth int) (WithCheckOption, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.kind = unsafe { WCOKind(int(v)) }
+				r.kind = unsafe { WCOKind(valid_enum_int([0, 1, 2, 3, 4, 5, 6], v)) }
 				off += c2
 			}
 			2 {
@@ -4078,7 +4078,7 @@ fn decode_grouping_set(buf []u8, depth int) (GroupingSet, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.kind = unsafe { GroupingSetKind(int(v)) }
+				r.kind = unsafe { GroupingSetKind(valid_enum_int([0, 1, 2, 3, 4, 5], v)) }
 				off += c2
 			}
 			2 {
@@ -4205,12 +4205,12 @@ fn decode_row_mark_clause(buf []u8, depth int) (RowMarkClause, int) {
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.strength = unsafe { LockClauseStrength(int(v)) }
+				r.strength = unsafe { LockClauseStrength(valid_enum_int([0, 1, 2, 3, 4, 5], v)) }
 				off += c2
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.wait_policy = unsafe { LockWaitPolicy(int(v)) }
+				r.wait_policy = unsafe { LockWaitPolicy(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			4 {
@@ -4412,17 +4412,17 @@ fn decode_merge_when_clause(buf []u8, depth int) (MergeWhenClause, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.match_kind = unsafe { MergeMatchKind(int(v)) }
+				r.match_kind = unsafe { MergeMatchKind(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.command_type = unsafe { CmdType(int(v)) }
+				r.command_type = unsafe { CmdType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8], v)) }
 				off += c2
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.override = unsafe { OverridingKind(int(v)) }
+				r.override = unsafe { OverridingKind(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			4 {
@@ -4561,7 +4561,7 @@ fn decode_set_operation_stmt(buf []u8, depth int) (SetOperationStmt, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.op = unsafe { SetOperation(int(v)) }
+				r.op = unsafe { SetOperation(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			2 {
@@ -4715,7 +4715,7 @@ fn decode_alter_domain_stmt(buf []u8, depth int) (AlterDomainStmt, int) {
 			}
 			5 {
 				v, c2 := read_varint(buf, off)
-				r.behavior = unsafe { DropBehavior(int(v)) }
+				r.behavior = unsafe { DropBehavior(valid_enum_int([0, 1, 2], v)) }
 				off += c2
 			}
 			6 {
@@ -4807,7 +4807,7 @@ fn decode_variable_set_stmt(buf []u8, depth int) (VariableSetStmt, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.kind = unsafe { VariableSetKind(int(v)) }
+				r.kind = unsafe { VariableSetKind(valid_enum_int([0, 1, 2, 3, 4, 5, 6], v)) }
 				off += c2
 			}
 			2 {
@@ -4928,7 +4928,7 @@ fn decode_alter_table_move_all_stmt(buf []u8, depth int) (AlterTableMoveAllStmt,
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.objtype = unsafe { ObjectType(int(v)) }
+				r.objtype = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
 				off += c2
 			}
 			3 {
@@ -5034,7 +5034,7 @@ fn decode_alter_extension_contents_stmt(buf []u8, depth int) (AlterExtensionCont
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.objtype = unsafe { ObjectType(int(v)) }
+				r.objtype = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
 				off += c2
 			}
 			4 {
@@ -5226,7 +5226,7 @@ fn decode_import_foreign_schema_stmt(buf []u8, depth int) (ImportForeignSchemaSt
 			}
 			4 {
 				v, c2 := read_varint(buf, off)
-				r.list_type = unsafe { ImportForeignSchemaType(int(v)) }
+				r.list_type = unsafe { ImportForeignSchemaType(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			5 {
@@ -5404,7 +5404,7 @@ fn decode_create_role_stmt(buf []u8, depth int) (CreateRoleStmt, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.stmt_type = unsafe { RoleStmtType(int(v)) }
+				r.stmt_type = unsafe { RoleStmtType(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			2 {
@@ -5463,7 +5463,7 @@ fn decode_define_stmt(buf []u8, depth int) (DefineStmt, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.kind = unsafe { ObjectType(int(v)) }
+				r.kind = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
 				off += c2
 			}
 			2 {
@@ -5588,12 +5588,12 @@ fn decode_drop_stmt(buf []u8, depth int) (DropStmt, int) {
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.remove_type = unsafe { ObjectType(int(v)) }
+				r.remove_type = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
 				off += c2
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.behavior = unsafe { DropBehavior(int(v)) }
+				r.behavior = unsafe { DropBehavior(valid_enum_int([0, 1, 2], v)) }
 				off += c2
 			}
 			4 {
@@ -5635,7 +5635,7 @@ fn decode_truncate_stmt(buf []u8, depth int) (TruncateStmt, int) {
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.behavior = unsafe { DropBehavior(int(v)) }
+				r.behavior = unsafe { DropBehavior(valid_enum_int([0, 1, 2], v)) }
 				off += c2
 			}
 			else {
@@ -5656,7 +5656,7 @@ fn decode_comment_stmt(buf []u8, depth int) (CommentStmt, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.objtype = unsafe { ObjectType(int(v)) }
+				r.objtype = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
 				off += c2
 			}
 			2 {
@@ -5688,7 +5688,7 @@ fn decode_sec_label_stmt(buf []u8, depth int) (SecLabelStmt, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.objtype = unsafe { ObjectType(int(v)) }
+				r.objtype = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
 				off += c2
 			}
 			2 {
@@ -5778,7 +5778,7 @@ fn decode_fetch_stmt(buf []u8, depth int) (FetchStmt, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.direction = unsafe { FetchDirection(int(v)) }
+				r.direction = unsafe { FetchDirection(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			2 {
@@ -6104,7 +6104,7 @@ fn decode_transaction_stmt(buf []u8, depth int) (TransactionStmt, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.kind = unsafe { TransactionStmtKind(int(v)) }
+				r.kind = unsafe { TransactionStmtKind(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], v)) }
 				off += c2
 			}
 			2 {
@@ -6449,7 +6449,7 @@ fn decode_discard_stmt(buf []u8, depth int) (DiscardStmt, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.target = unsafe { DiscardMode(int(v)) }
+				r.target = unsafe { DiscardMode(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			else {
@@ -6669,7 +6669,7 @@ fn decode_drop_owned_stmt(buf []u8, depth int) (DropOwnedStmt, int) {
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.behavior = unsafe { DropBehavior(int(v)) }
+				r.behavior = unsafe { DropBehavior(valid_enum_int([0, 1, 2], v)) }
 				off += c2
 			}
 			else {
@@ -6718,7 +6718,7 @@ fn decode_alter_t_s_configuration_stmt(buf []u8, depth int) (AlterTSConfiguratio
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.kind = unsafe { AlterTSConfigType(int(v)) }
+				r.kind = unsafe { AlterTSConfigType(valid_enum_int([0, 1, 2, 3, 4, 5], v)) }
 				off += c2
 			}
 			2 {
@@ -6832,7 +6832,7 @@ fn decode_alter_publication_stmt(buf []u8, depth int) (AlterPublicationStmt, int
 			}
 			5 {
 				v, c2 := read_varint(buf, off)
-				r.action = unsafe { AlterPublicationAction(int(v)) }
+				r.action = unsafe { AlterPublicationAction(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			else {
@@ -6891,7 +6891,7 @@ fn decode_alter_subscription_stmt(buf []u8, depth int) (AlterSubscriptionStmt, i
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.kind = unsafe { AlterSubscriptionType(int(v)) }
+				r.kind = unsafe { AlterSubscriptionType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8], v)) }
 				off += c2
 			}
 			2 {
@@ -6944,7 +6944,7 @@ fn decode_drop_subscription_stmt(buf []u8, depth int) (DropSubscriptionStmt, int
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.behavior = unsafe { DropBehavior(int(v)) }
+				r.behavior = unsafe { DropBehavior(valid_enum_int([0, 1, 2], v)) }
 				off += c2
 			}
 			else {
@@ -6975,12 +6975,12 @@ fn decode_scan_token(buf []u8, depth int) (ScanToken, int) {
 			}
 			4 {
 				v, c2 := read_varint(buf, off)
-				r.token = unsafe { Token(int(v)) }
+				r.token = unsafe { Token(valid_enum_int([0, 36, 37, 40, 41, 42, 43, 44, 45, 46, 47, 58, 59, 60, 61, 62, 63, 91, 92, 93, 94, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321, 322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332, 333, 334, 335, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349, 350, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373, 374, 375, 376, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 398, 399, 400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 435, 436, 437, 438, 439, 440, 441, 442, 443, 444, 445, 446, 447, 448, 449, 450, 451, 452, 453, 454, 455, 456, 457, 458, 459, 460, 461, 462, 463, 464, 465, 466, 467, 468, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478, 479, 480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 490, 491, 492, 493, 494, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511, 512, 513, 514, 515, 516, 517, 518, 519, 520, 521, 522, 523, 524, 525, 526, 527, 528, 529, 530, 531, 532, 533, 534, 535, 536, 537, 538, 539, 540, 541, 542, 543, 544, 545, 546, 547, 548, 549, 550, 551, 552, 553, 554, 555, 556, 557, 558, 559, 560, 561, 562, 563, 564, 565, 566, 567, 568, 569, 570, 571, 572, 573, 574, 575, 576, 577, 578, 579, 580, 581, 582, 583, 584, 585, 586, 587, 588, 589, 590, 591, 592, 593, 594, 595, 596, 597, 598, 599, 600, 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654, 655, 656, 657, 658, 659, 660, 661, 662, 663, 664, 665, 666, 667, 668, 669, 670, 671, 672, 673, 674, 675, 676, 677, 678, 679, 680, 681, 682, 683, 684, 685, 686, 687, 688, 689, 690, 691, 692, 693, 694, 695, 696, 697, 698, 699, 700, 701, 702, 703, 704, 705, 706, 707, 708, 709, 710, 711, 712, 713, 714, 715, 716, 717, 718, 719, 720, 721, 722, 723, 724, 725, 726, 727, 728, 729, 730, 731, 732, 733, 734, 735, 736, 737, 738, 739, 740, 741, 742, 743, 744, 745, 746, 747, 748, 749, 750, 751, 752, 753, 754, 755, 756, 757, 758, 759, 760, 761, 762, 763, 764, 765, 766, 767, 768, 769, 770, 771, 772, 773, 774, 775, 776, 777, 778], v)) }
 				off += c2
 			}
 			5 {
 				v, c2 := read_varint(buf, off)
-				r.keyword_kind = unsafe { KeywordKind(int(v)) }
+				r.keyword_kind = unsafe { KeywordKind(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			else {
@@ -7053,7 +7053,7 @@ fn decode_join_expr(buf []u8, depth int) (JoinExpr, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.jointype = unsafe { JoinType(int(v)) }
+				r.jointype = unsafe { JoinType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], v)) }
 				off += c2
 			}
 			2 {
@@ -7336,7 +7336,7 @@ fn decode_json_is_predicate(buf []u8, depth int) (JsonIsPredicate, int) {
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.item_type = unsafe { JsonValueType(int(v)) }
+				r.item_type = unsafe { JsonValueType(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			4 {
@@ -7416,12 +7416,12 @@ fn decode_query(buf []u8, depth int) (Query, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.command_type = unsafe { CmdType(int(v)) }
+				r.command_type = unsafe { CmdType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8], v)) }
 				off += c2
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.query_source = unsafe { QuerySource(int(v)) }
+				r.query_source = unsafe { QuerySource(valid_enum_int([0, 1, 2, 3, 4, 5], v)) }
 				off += c2
 			}
 			3 {
@@ -7539,7 +7539,7 @@ fn decode_query(buf []u8, depth int) (Query, int) {
 			}
 			24 {
 				v, c2 := read_varint(buf, off)
-				r.override = unsafe { OverridingKind(int(v)) }
+				r.override = unsafe { OverridingKind(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			25 {
@@ -7609,7 +7609,7 @@ fn decode_query(buf []u8, depth int) (Query, int) {
 			}
 			36 {
 				v, c2 := read_varint(buf, off)
-				r.limit_option = unsafe { LimitOption(int(v)) }
+				r.limit_option = unsafe { LimitOption(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			37 {
@@ -7751,7 +7751,7 @@ fn decode_xml_serialize(buf []u8, depth int) (XmlSerialize, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.xmloption = unsafe { XmlOptionType(int(v)) }
+				r.xmloption = unsafe { XmlOptionType(valid_enum_int([0, 1, 2], v)) }
 				off += c2
 			}
 			2 {
@@ -7911,7 +7911,7 @@ fn decode_function_parameter(buf []u8, depth int) (FunctionParameter, int) {
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.mode = unsafe { FunctionParameterMode(int(v)) }
+				r.mode = unsafe { FunctionParameterMode(valid_enum_int([0, 1, 2, 3, 4, 5, 6], v)) }
 				off += c2
 			}
 			4 {
@@ -8016,7 +8016,7 @@ fn decode_alter_table_cmd(buf []u8, depth int) (AlterTableCmd, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.subtype = unsafe { AlterTableType(int(v)) }
+				r.subtype = unsafe { AlterTableType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67], v)) }
 				off += c2
 			}
 			2 {
@@ -8043,7 +8043,7 @@ fn decode_alter_table_cmd(buf []u8, depth int) (AlterTableCmd, int) {
 			}
 			6 {
 				v, c2 := read_varint(buf, off)
-				r.behavior = unsafe { DropBehavior(int(v)) }
+				r.behavior = unsafe { DropBehavior(valid_enum_int([0, 1, 2], v)) }
 				off += c2
 			}
 			7 {
@@ -8079,12 +8079,12 @@ fn decode_grant_stmt(buf []u8, depth int) (GrantStmt, int) {
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.targtype = unsafe { GrantTargetType(int(v)) }
+				r.targtype = unsafe { GrantTargetType(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.objtype = unsafe { ObjectType(int(v)) }
+				r.objtype = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
 				off += c2
 			}
 			4 {
@@ -8118,7 +8118,7 @@ fn decode_grant_stmt(buf []u8, depth int) (GrantStmt, int) {
 			}
 			9 {
 				v, c2 := read_varint(buf, off)
-				r.behavior = unsafe { DropBehavior(int(v)) }
+				r.behavior = unsafe { DropBehavior(valid_enum_int([0, 1, 2], v)) }
 				off += c2
 			}
 			else {
@@ -8168,7 +8168,7 @@ fn decode_grant_role_stmt(buf []u8, depth int) (GrantRoleStmt, int) {
 			}
 			6 {
 				v, c2 := read_varint(buf, off)
-				r.behavior = unsafe { DropBehavior(int(v)) }
+				r.behavior = unsafe { DropBehavior(valid_enum_int([0, 1, 2], v)) }
 				off += c2
 			}
 			else {
@@ -8441,7 +8441,7 @@ fn decode_func_call(buf []u8, depth int) (FuncCall, int) {
 			}
 			10 {
 				v, c2 := read_varint(buf, off)
-				r.funcformat = unsafe { CoercionForm(int(v)) }
+				r.funcformat = unsafe { CoercionForm(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			11 {
@@ -8467,7 +8467,7 @@ fn decode_on_conflict_clause(buf []u8, depth int) (OnConflictClause, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.action = unsafe { OnConflictAction(int(v)) }
+				r.action = unsafe { OnConflictAction(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			2 {
@@ -8522,7 +8522,7 @@ fn decode_common_table_expr(buf []u8, depth int) (CommonTableExpr, int) {
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.ctematerialized = unsafe { CTEMaterialize(int(v)) }
+				r.ctematerialized = unsafe { CTEMaterialize(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			4 {
@@ -8600,7 +8600,7 @@ fn decode_json_table_column(buf []u8, depth int) (JsonTableColumn, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.coltype = unsafe { JsonTableColumnType(int(v)) }
+				r.coltype = unsafe { JsonTableColumnType(valid_enum_int([0, 1, 2, 3, 4, 5], v)) }
 				off += c2
 			}
 			2 {
@@ -8628,12 +8628,12 @@ fn decode_json_table_column(buf []u8, depth int) (JsonTableColumn, int) {
 			}
 			6 {
 				v, c2 := read_varint(buf, off)
-				r.wrapper = unsafe { JsonWrapper(int(v)) }
+				r.wrapper = unsafe { JsonWrapper(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			7 {
 				v, c2 := read_varint(buf, off)
-				r.quotes = unsafe { JsonQuotes(int(v)) }
+				r.quotes = unsafe { JsonQuotes(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			8 {
@@ -8727,7 +8727,7 @@ fn decode_alter_function_stmt(buf []u8, depth int) (AlterFunctionStmt, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.objtype = unsafe { ObjectType(int(v)) }
+				r.objtype = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
 				off += c2
 			}
 			2 {
@@ -8806,7 +8806,7 @@ fn decode_create_cast_stmt(buf []u8, depth int) (CreateCastStmt, int) {
 			}
 			4 {
 				v, c2 := read_varint(buf, off)
-				r.context = unsafe { CoercionContext(int(v)) }
+				r.context = unsafe { CoercionContext(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			5 {
@@ -8981,7 +8981,7 @@ fn decode_into_clause(buf []u8, depth int) (IntoClause, int) {
 			}
 			5 {
 				v, c2 := read_varint(buf, off)
-				r.on_commit = unsafe { OnCommitAction(int(v)) }
+				r.on_commit = unsafe { OnCommitAction(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			6 {
@@ -9363,7 +9363,7 @@ fn decode_alter_table_stmt(buf []u8, depth int) (AlterTableStmt, int) {
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.objtype = unsafe { ObjectType(int(v)) }
+				r.objtype = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
 				off += c2
 			}
 			4 {
@@ -9498,7 +9498,7 @@ fn decode_create_stmt(buf []u8, depth int) (CreateStmt, int) {
 			}
 			9 {
 				v, c2 := read_varint(buf, off)
-				r.oncommit = unsafe { OnCommitAction(int(v)) }
+				r.oncommit = unsafe { OnCommitAction(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			10 {
@@ -9534,7 +9534,7 @@ fn decode_constraint(buf []u8, depth int) (Constraint, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.contype = unsafe { ConstrType(int(v)) }
+				r.contype = unsafe { ConstrType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], v)) }
 				off += c2
 			}
 			2 {
@@ -10137,12 +10137,12 @@ fn decode_rename_stmt(buf []u8, depth int) (RenameStmt, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.rename_type = unsafe { ObjectType(int(v)) }
+				r.rename_type = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
 				off += c2
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.relation_type = unsafe { ObjectType(int(v)) }
+				r.relation_type = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
 				off += c2
 			}
 			3 {
@@ -10169,7 +10169,7 @@ fn decode_rename_stmt(buf []u8, depth int) (RenameStmt, int) {
 			}
 			7 {
 				v, c2 := read_varint(buf, off)
-				r.behavior = unsafe { DropBehavior(int(v)) }
+				r.behavior = unsafe { DropBehavior(valid_enum_int([0, 1, 2], v)) }
 				off += c2
 			}
 			8 {
@@ -10195,7 +10195,7 @@ fn decode_alter_object_depends_stmt(buf []u8, depth int) (AlterObjectDependsStmt
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.object_type = unsafe { ObjectType(int(v)) }
+				r.object_type = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
 				off += c2
 			}
 			2 {
@@ -10239,7 +10239,7 @@ fn decode_alter_object_schema_stmt(buf []u8, depth int) (AlterObjectSchemaStmt, 
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.object_type = unsafe { ObjectType(int(v)) }
+				r.object_type = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
 				off += c2
 			}
 			2 {
@@ -10282,7 +10282,7 @@ fn decode_alter_owner_stmt(buf []u8, depth int) (AlterOwnerStmt, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.object_type = unsafe { ObjectType(int(v)) }
+				r.object_type = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
 				off += c2
 			}
 			2 {
@@ -10338,7 +10338,7 @@ fn decode_rule_stmt(buf []u8, depth int) (RuleStmt, int) {
 			}
 			4 {
 				v, c2 := read_varint(buf, off)
-				r.event = unsafe { CmdType(int(v)) }
+				r.event = unsafe { CmdType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8], v)) }
 				off += c2
 			}
 			5 {
@@ -10432,7 +10432,7 @@ fn decode_view_stmt(buf []u8, depth int) (ViewStmt, int) {
 			}
 			6 {
 				v, c2 := read_varint(buf, off)
-				r.with_check_option = unsafe { ViewCheckOption(int(v)) }
+				r.with_check_option = unsafe { ViewCheckOption(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			else {
@@ -10551,7 +10551,7 @@ fn decode_reindex_stmt(buf []u8, depth int) (ReindexStmt, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.kind = unsafe { ReindexObjectType(int(v)) }
+				r.kind = unsafe { ReindexObjectType(valid_enum_int([0, 1, 2, 3, 4, 5], v)) }
 				off += c2
 			}
 			2 {
@@ -10629,7 +10629,7 @@ fn decode_json_constructor_expr(buf []u8, depth int) (JsonConstructorExpr, int) 
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.type = unsafe { JsonConstructorType(int(v)) }
+				r.type = unsafe { JsonConstructorType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7], v)) }
 				off += c2
 			}
 			3 {
@@ -10695,7 +10695,7 @@ fn decode_json_expr(buf []u8, depth int) (JsonExpr, int) {
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.op = unsafe { JsonExprOp(int(v)) }
+				r.op = unsafe { JsonExprOp(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			3 {
@@ -10763,7 +10763,7 @@ fn decode_json_expr(buf []u8, depth int) (JsonExpr, int) {
 			}
 			14 {
 				v, c2 := read_varint(buf, off)
-				r.wrapper = unsafe { JsonWrapper(int(v)) }
+				r.wrapper = unsafe { JsonWrapper(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			15 {
@@ -10956,7 +10956,7 @@ fn decode_range_tbl_entry(buf []u8, depth int) (RangeTblEntry, int) {
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.rtekind = unsafe { RTEKind(int(v)) }
+				r.rtekind = unsafe { RTEKind(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], v)) }
 				off += c2
 			}
 			4 {
@@ -11003,7 +11003,7 @@ fn decode_range_tbl_entry(buf []u8, depth int) (RangeTblEntry, int) {
 			}
 			12 {
 				v, c2 := read_varint(buf, off)
-				r.jointype = unsafe { JoinType(int(v)) }
+				r.jointype = unsafe { JoinType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], v)) }
 				off += c2
 			}
 			13 {
@@ -11233,7 +11233,7 @@ fn decode_insert_stmt(buf []u8, depth int) (InsertStmt, int) {
 			}
 			7 {
 				v, c2 := read_varint(buf, off)
-				r.override = unsafe { OverridingKind(int(v)) }
+				r.override = unsafe { OverridingKind(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			else {
@@ -11337,7 +11337,7 @@ fn decode_select_stmt(buf []u8, depth int) (SelectStmt, int) {
 			}
 			14 {
 				v, c2 := read_varint(buf, off)
-				r.limit_option = unsafe { LimitOption(int(v)) }
+				r.limit_option = unsafe { LimitOption(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			15 {
@@ -11354,7 +11354,7 @@ fn decode_select_stmt(buf []u8, depth int) (SelectStmt, int) {
 			}
 			17 {
 				v, c2 := read_varint(buf, off)
-				r.op = unsafe { SetOperation(int(v)) }
+				r.op = unsafe { SetOperation(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			18 {
@@ -11404,7 +11404,7 @@ fn decode_create_table_as_stmt(buf []u8, depth int) (CreateTableAsStmt, int) {
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.objtype = unsafe { ObjectType(int(v)) }
+				r.objtype = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
 				off += c2
 			}
 			4 {
@@ -11468,7 +11468,7 @@ fn decode_publication_obj_spec(buf []u8, depth int) (PublicationObjSpec, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.pubobjtype = unsafe { PublicationObjSpecType(int(v)) }
+				r.pubobjtype = unsafe { PublicationObjSpecType(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			2 {
@@ -11505,7 +11505,7 @@ fn decode_json_func_expr(buf []u8, depth int) (JsonFuncExpr, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.op = unsafe { JsonExprOp(int(v)) }
+				r.op = unsafe { JsonExprOp(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			2 {
@@ -11551,12 +11551,12 @@ fn decode_json_func_expr(buf []u8, depth int) (JsonFuncExpr, int) {
 			}
 			9 {
 				v, c2 := read_varint(buf, off)
-				r.wrapper = unsafe { JsonWrapper(int(v)) }
+				r.wrapper = unsafe { JsonWrapper(valid_enum_int([0, 1, 2, 3, 4], v)) }
 				off += c2
 			}
 			10 {
 				v, c2 := read_varint(buf, off)
-				r.quotes = unsafe { JsonQuotes(int(v)) }
+				r.quotes = unsafe { JsonQuotes(valid_enum_int([0, 1, 2, 3], v)) }
 				off += c2
 			}
 			11 {
