@@ -1,10 +1,8 @@
 import time
 import pg_query
 
-const (
-	sql_select1 = 'SELECT 1'
-	n_iter      = 10_000
-)
+const sql_select1 = 'SELECT 1'
+const n_iter = 10_000
 
 fn bench(label string, n int, fn_name string) {
 	// Cache JSON parse tree for json_ast paths to avoid measuring C parse twice
