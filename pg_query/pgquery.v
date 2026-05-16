@@ -458,9 +458,7 @@ fn protobuf_to_bytes(cpb C.PgQueryProtobuf) []u8 {
 		return []
 	}
 	mut bytes := []u8{len: int(cpb.len)}
-	for i in 0 .. cpb.len {
-		bytes[i] = u8(unsafe { cpb.data[i] })
-	}
+	unsafe { C.memcpy(bytes.data, voidptr(cpb.data), usize(cpb.len)) }
 	return bytes
 }
 
@@ -472,9 +470,7 @@ fn protobuf_from_c(cpb C.PgQueryProtobuf) Protobuf {
 		}
 	}
 	mut bytes := []u8{len: int(cpb.len)}
-	for i in 0 .. cpb.len {
-		bytes[i] = u8(unsafe { cpb.data[i] })
-	}
+	unsafe { C.memcpy(bytes.data, voidptr(cpb.data), usize(cpb.len)) }
 	return Protobuf{
 		len:  cpb.len
 		data: bytes.bytestr()

@@ -455,19 +455,11 @@ fn enum_values(pf ProtoFile, type_name string) []int {
 fn generate_code(pf ProtoFile) {
 	// Find Node oneof fields
 	mut node_oneof_fields := []ProtoField{}
-	mut aconst_oneof_fields := []ProtoField{}
 	for m in pf.messages {
 		if m.name == 'Node' {
 			for f in m.fields {
 				if f.is_oneof {
 					node_oneof_fields << f
-				}
-			}
-		}
-		if m.name == 'A_Const' {
-			for f in m.fields {
-				if f.is_oneof {
-					aconst_oneof_fields << f
 				}
 			}
 		}
