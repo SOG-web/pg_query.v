@@ -26,5 +26,11 @@ bin/
 # Ignore installed modules through `v install --local`:
 modules/
 
-# Compiled C bridge object
-pg_query/c_bridge.o
+# Compiled C bridge objects
+pg_query/*.o
+pg_query/*.o.tmp
+
+# Compiled example binaries
+examples/bench
+examples/concurrent_parse
+examples/parse_sql
