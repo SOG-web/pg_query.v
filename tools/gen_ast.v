@@ -1461,14 +1461,16 @@ fn generate_v_protobuf_encode(pf ProtoFile, node_oneof_fields []ProtoField) {
 		if vname == 'Alias' {
 			out += '\t\t\tif inner.len == 0 { return []u8{} }\n'
 		}
-		out += '\t\t\tmut buf := write_tag(${f.field_num}, 2)\n'
-		out += '\t\t\tbuf << write_length_delimited(inner)\n'
+		out += '\t\t\tmut buf := []u8{}\n'
+		out += '\t\t\twrite_tag_into(mut buf, ${f.field_num}, 2)\n'
+		out += '\t\t\twrite_length_delimited_into(mut buf, inner)\n'
 		out += '\t\t\treturn buf\n'
 		out += '\t\t}\n'
 	}
 	out += '\t\tUnrecognizedNode {\n'
-	out += '\t\t\tmut buf := write_tag(val_.field_num, 2)\n'
-	out += '\t\t\tbuf << write_length_delimited(val_.data)\n'
+	out += '\t\t\tmut buf := []u8{}\n'
+	out += '\t\t\twrite_tag_into(mut buf, val_.field_num, 2)\n'
+	out += '\t\t\twrite_length_delimited_into(mut buf, val_.data)\n'
 	out += '\t\t\treturn buf\n'
 	out += '\t\t}\n'
 	out += '\t}\n'
@@ -1478,18 +1480,18 @@ fn generate_v_protobuf_encode(pf ProtoFile, node_oneof_fields []ProtoField) {
 	// RawStmt fields: stmt=1 (Node), stmt_location=2 (int32), stmt_len=3 (int32)
 	out += 'pub fn encode_parse_result(val ParseAstResult) []u8 {\n'
 	out += '\tmut buf := []u8{}\n'
-	out += '\tbuf << write_tag(1, 0)\n'
-	out += '\tbuf << write_varint(u64(val.version))\n'
+	out += '\twrite_tag_into(mut buf, 1, 0)\n'
+	out += '\twrite_varint_into(mut buf, u64(val.version))\n'
 	out += '\tfor s in val.stmts {\n'
 	out += '\t\tmut inner := []u8{}\n'
-	out += '\t\tinner << write_tag(1, 2)\n'
-	out += '\t\tinner << write_length_delimited(encode_node(s.stmt))\n'
-	out += '\t\tinner << write_tag(2, 0)\n'
-	out += '\t\tinner << write_varint(u64(s.stmt_location))\n'
-	out += '\t\tinner << write_tag(3, 0)\n'
-	out += '\t\tinner << write_varint(u64(s.stmt_len))\n'
-	out += '\t\tbuf << write_tag(2, 2)\n'
-	out += '\t\tbuf << write_length_delimited(inner)\n'
+	out += '\t\twrite_tag_into(mut inner, 1, 2)\n'
+	out += '\t\twrite_length_delimited_into(mut inner, encode_node(s.stmt))\n'
+	out += '\t\twrite_tag_into(mut inner, 2, 0)\n'
+	out += '\t\twrite_varint_into(mut inner, u64(s.stmt_location))\n'
+	out += '\t\twrite_tag_into(mut inner, 3, 0)\n'
+	out += '\t\twrite_varint_into(mut inner, u64(s.stmt_len))\n'
+	out += '\t\twrite_tag_into(mut buf, 2, 2)\n'
+	out += '\t\twrite_length_delimited_into(mut buf, inner)\n'
 	out += '\t}\n'
 	out += '\treturn buf\n'
 	out += '}\n\n'
@@ -1522,6 +1524,28 @@ fn proto_type_write_expr(typ string, val_expr string) (int, string) {
 	}
 }
 
+// Returns a statement (not expression) that writes val_expr into mut buf_name.
+fn proto_type_write_into(typ string, val_expr string, buf_name string) (int, string) {
+	match typ {
+		'int32' { return 0, 'write_varint_into(mut ${buf_name}, u64(${val_expr}))' }
+		'int64' { return 0, 'write_varint_into(mut ${buf_name}, u64(${val_expr}))' }
+		'uint32' { return 0, 'write_varint_into(mut ${buf_name}, u64(${val_expr}))' }
+		'uint64' { return 0, 'write_varint_into(mut ${buf_name}, ${val_expr})' }
+		'sint32' { return 0, 'write_svarint_into(mut ${buf_name}, i64(${val_expr}))' }
+		'sint64' { return 0, 'write_svarint_into(mut ${buf_name}, ${val_expr})' }
+		'fixed32' { return 5, 'write_fixed32_into(mut ${buf_name}, ${val_expr})' }
+		'sfixed32' { return 5, 'write_fixed32_into(mut ${buf_name}, u32(${val_expr}))' }
+		'fixed64' { return 1, 'write_fixed64_into(mut ${buf_name}, ${val_expr})' }
+		'sfixed64' { return 1, 'write_fixed64_into(mut ${buf_name}, u64(${val_expr}))' }
+		'float' { return 5, 'write_float_into(mut ${buf_name}, ${val_expr})' }
+		'double' { return 1, 'write_double_into(mut ${buf_name}, ${val_expr})' }
+		'bool' { return 0, 'write_bool_into(mut ${buf_name}, ${val_expr})' }
+		'string' { return 2, 'write_string_into(mut ${buf_name}, ${val_expr})' }
+		'bytes' { return 2, 'write_bytes_into(mut ${buf_name}, ${val_expr})' }
+		else { return 2, '' } // messages
+	}
+}
+
 fn is_self_ref(f ProtoField, msg_name string) bool {
 	return !f.is_oneof && f.typ == msg_name
 }
@@ -1532,32 +1556,32 @@ fn proto_encode_singular_field(f ProtoField, vfname string, pf ProtoFile, node_o
 		ni := 'n_${f.name}'
 		out += '\t${ni} := encode_node(val.${vfname})\n'
 		out += '\tif ${ni}.len > 0 {\n'
-		out += '\t\tbuf << write_tag(${f.field_num}, 2)\n'
-		out += '\t\tbuf << write_length_delimited(${ni})\n'
+		out += '\t\twrite_tag_into(mut buf, ${f.field_num}, 2)\n'
+		out += '\t\twrite_length_delimited_into(mut buf, ${ni})\n'
 		out += '\t}\n'
 	} else if is_self_ref(f, msg_name) {
 		sr_inner := 'sr_${f.name}'
 		out += '\tif val.${vfname} != unsafe { nil } {\n'
 		out += '\t\t${sr_inner} := encode_${snake_case(proto_field_to_v_type(f.typ))}(*val.${vfname})\n'
-		out += '\t\tbuf << write_tag(${f.field_num}, 2)\n'
-		out += '\t\tbuf << write_length_delimited(${sr_inner})\n'
+		out += '\t\twrite_tag_into(mut buf, ${f.field_num}, 2)\n'
+		out += '\t\twrite_length_delimited_into(mut buf, ${sr_inner})\n'
 		out += '\t}\n'
 	} else if f.typ == 'Context' {
 		out += '\tif u64(val.${vfname}) != 0 {\n'
-		out += '\t\tbuf << write_tag(${f.field_num}, 0)\n'
-		out += '\t\tbuf << write_varint(u64(val.${vfname}))\n'
+		out += '\t\twrite_tag_into(mut buf, ${f.field_num}, 0)\n'
+		out += '\t\twrite_varint_into(mut buf, u64(val.${vfname}))\n'
 		out += '\t}\n'
 	} else if is_primitive_proto(f.typ) || f.typ == 'string' || f.typ == 'bytes' {
-		wt, write_expr := proto_type_write_expr(f.typ, 'val.${vfname}')
+		wt, into_expr := proto_type_write_into(f.typ, 'val.${vfname}', 'buf')
 		cond := proto_zero_check(f.typ, 'val.${vfname}')
 		out += '\tif ${cond} {\n'
-		out += '\t\tbuf << write_tag(${f.field_num}, ${wt})\n'
-		out += '\t\tbuf << ${write_expr}\n'
+		out += '\t\twrite_tag_into(mut buf, ${f.field_num}, ${wt})\n'
+		out += '\t\t${into_expr}\n'
 		out += '\t}\n'
 	} else if is_enum_type(pf, f.typ) {
 		out += '\tif u64(val.${vfname}) != 0 {\n'
-		out += '\t\tbuf << write_tag(${f.field_num}, 0)\n'
-		out += '\t\tbuf << write_varint(u64(val.${vfname}))\n'
+		out += '\t\twrite_tag_into(mut buf, ${f.field_num}, 0)\n'
+		out += '\t\twrite_varint_into(mut buf, u64(val.${vfname}))\n'
 		out += '\t}\n'
 	} else {
 		subtype := proto_field_to_v_type(f.typ)
@@ -1565,8 +1589,8 @@ fn proto_encode_singular_field(f ProtoField, vfname string, pf ProtoFile, node_o
 		inner_v := 'in_${f.name}'
 		out += '\t${inner_v} := encode_${sub_dfn}(val.${vfname})\n'
 		out += '\tif ${inner_v}.len > 0 {\n'
-		out += '\t\tbuf << write_tag(${f.field_num}, 2)\n'
-		out += '\t\tbuf << write_length_delimited(${inner_v})\n'
+		out += '\t\twrite_tag_into(mut buf, ${f.field_num}, 2)\n'
+		out += '\t\twrite_length_delimited_into(mut buf, ${inner_v})\n'
 		out += '\t}\n'
 	}
 	return out
@@ -1594,35 +1618,36 @@ fn proto_encode_repeated_field(f ProtoField, vfname string, pf ProtoFile, node_o
 		out += '\t\tfor v in val.${vfname} {\n'
 		out += '\t\t\tinner_ := encode_node(v)\n'
 		out += '\t\t\tif inner_.len > 0 {\n'
-		out += '\t\t\t\tbuf << write_tag(${f.field_num}, 2)\n'
-		out += '\t\t\t\tbuf << write_length_delimited(inner_)\n'
+		out += '\t\t\t\twrite_tag_into(mut buf, ${f.field_num}, 2)\n'
+		out += '\t\t\t\twrite_length_delimited_into(mut buf, inner_)\n'
 		out += '\t\t\t}\n'
 		out += '\t\t}\n'
 	} else if f.typ == 'string' || f.typ == 'bytes' {
-		wt, write_expr := proto_type_write_expr(f.typ, 'v')
+		wt, into_expr := proto_type_write_into(f.typ, 'v', 'buf')
 		out += '\t\tfor v in val.${vfname} {\n'
-		out += '\t\t\tbuf << write_tag(${f.field_num}, ${wt})\n'
-		out += '\t\t\tbuf << ${write_expr}\n'
+		out += '\t\t\twrite_tag_into(mut buf, ${f.field_num}, ${wt})\n'
+		out += '\t\t\t${into_expr}\n'
 		out += '\t\t}\n'
 	} else if is_primitive_proto(f.typ) || is_enum_type(pf, f.typ) {
 		// Packed encoding for scalar types and enums
-		_, write_expr := proto_type_write_expr(f.typ, 'v')
-		mut wexpr := write_expr
+		_, into_expr := proto_type_write_into(f.typ, 'v', 'packed_')
+		mut iexpr := into_expr
 		if is_enum_type(pf, f.typ) {
-			wexpr = 'write_varint(u64(v))'
+			iexpr = 'write_varint_into(mut packed_, u64(v))'
 		}
 		out += '\t\tmut packed_ := []u8{}\n'
 		out += '\t\tfor v in val.${vfname} {\n'
-		out += '\t\t\tpacked_ << ${wexpr}\n'
+		out += '\t\t\t${iexpr}\n'
 		out += '\t\t}\n'
-		out += '\t\tbuf << write_tag(${f.field_num}, 2)\n'
-		out += '\t\tbuf << write_length_delimited(packed_)\n'
+		out += '\t\twrite_tag_into(mut buf, ${f.field_num}, 2)\n'
+		out += '\t\twrite_length_delimited_into(mut buf, packed_)\n'
 	} else {
 		subtype := proto_field_to_v_type(f.typ)
 		sub_dfn := snake_case(subtype)
 		out += '\t\tfor v in val.${vfname} {\n'
-		out += '\t\t\tbuf << write_tag(${f.field_num}, 2)\n'
-		out += '\t\t\tbuf << write_length_delimited(encode_${sub_dfn}(v))\n'
+		out += '\t\t\tsub_enc_ := encode_${sub_dfn}(v)\n'
+		out += '\t\t\twrite_tag_into(mut buf, ${f.field_num}, 2)\n'
+		out += '\t\t\twrite_length_delimited_into(mut buf, sub_enc_)\n'
 		out += '\t\t}\n'
 	}
 	out += '\t}\n'
@@ -1633,21 +1658,23 @@ fn proto_encode_oneof_field(f ProtoField, vfname string, pf ProtoFile, node_oneo
 	mut out := ''
 	out += '\tif v := val.${vfname} {\n'
 	if f.typ == 'Node' {
-		out += '\t\tbuf << write_tag(${f.field_num}, 2)\n'
-		out += '\t\tbuf << write_length_delimited(encode_node(v))\n'
+		out += '\t\tn_enc_ := encode_node(v)\n'
+		out += '\t\twrite_tag_into(mut buf, ${f.field_num}, 2)\n'
+		out += '\t\twrite_length_delimited_into(mut buf, n_enc_)\n'
 	} else if is_primitive_proto(f.typ) || f.typ == 'string' || f.typ == 'bytes' {
-		wt, write_expr := proto_type_write_expr(f.typ, 'v')
-		out += '\t\tbuf << write_tag(${f.field_num}, ${wt})\n'
-		out += '\t\tbuf << ${write_expr}\n'
+		wt, into_expr := proto_type_write_into(f.typ, 'v', 'buf')
+		out += '\t\twrite_tag_into(mut buf, ${f.field_num}, ${wt})\n'
+		out += '\t\t${into_expr}\n'
 	} else if is_enum_type(pf, f.typ) {
-		out += '\t\tbuf << write_tag(${f.field_num}, 0)\n'
-		out += '\t\tbuf << write_varint(u64(v))\n'
+		out += '\t\twrite_tag_into(mut buf, ${f.field_num}, 0)\n'
+		out += '\t\twrite_varint_into(mut buf, u64(v))\n'
 	} else {
 		// oneof submessage
 		subtype := proto_field_to_v_type(f.typ)
 		sub_dfn := snake_case(subtype)
-		out += '\t\tbuf << write_tag(${f.field_num}, 2)\n'
-		out += '\t\tbuf << write_length_delimited(encode_${sub_dfn}(v))\n'
+		out += '\t\tsub_enc_ := encode_${sub_dfn}(v)\n'
+		out += '\t\twrite_tag_into(mut buf, ${f.field_num}, 2)\n'
+		out += '\t\twrite_length_delimited_into(mut buf, sub_enc_)\n'
 	}
 	out += '\t}\n'
 	return out
@@ -1657,8 +1684,9 @@ fn proto_encode_map_field(f ProtoField, vfname string) string {
 	mut out := ''
 	out += '\tif val.${vfname}.len > 0 {\n'
 	out += '\t\tfor k, v in val.${vfname} {\n'
-	out += '\t\t\tbuf << write_tag(${f.field_num}, 2)\n'
-	out += '\t\t\tbuf << write_length_delimited(write_map_string_entry(k, v))\n'
+	out += '\t\t\tmap_enc_ := write_map_string_entry(k, v)\n'
+	out += '\t\t\twrite_tag_into(mut buf, ${f.field_num}, 2)\n'
+	out += '\t\t\twrite_length_delimited_into(mut buf, map_enc_)\n'
 	out += '\t\t}\n'
 	out += '\t}\n'
 	return out

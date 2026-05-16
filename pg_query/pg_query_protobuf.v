@@ -260,24 +260,23 @@ fn write_bool(val bool) []u8 {
 
 // write_string encodes a string as length-delimited bytes.
 fn write_string(s string) []u8 {
-	len_bytes := write_varint(u64(s.len))
-	mut buf := len_bytes.clone()
-	buf << s.bytes()
+	mut buf := write_varint(u64(s.len))
+	for c in s {
+		buf << c
+	}
 	return buf
 }
 
 // write_bytes encodes a []u8 as length-delimited bytes.
 fn write_bytes(b []u8) []u8 {
-	len_bytes := write_varint(u64(b.len))
-	mut buf := len_bytes.clone()
+	mut buf := write_varint(u64(b.len))
 	buf << b
 	return buf
 }
 
 // write_length_delimited wraps submessage/bytes with a length prefix.
 fn write_length_delimited(sub []u8) []u8 {
-	len_bytes := write_varint(u64(sub.len))
-	mut buf := len_bytes.clone()
+	mut buf := write_varint(u64(sub.len))
 	buf << sub
 	return buf
 }
@@ -288,8 +287,7 @@ fn write_packed_varints(vals []u64) []u8 {
 	for v in vals {
 		payload << write_varint(v)
 	}
-	len_bytes := write_varint(u64(payload.len))
-	mut buf := len_bytes.clone()
+	mut buf := write_varint(u64(payload.len))
 	buf << payload
 	return buf
 }
@@ -300,8 +298,7 @@ fn write_packed_svarints(vals []i64) []u8 {
 	for v in vals {
 		payload << write_svarint(v)
 	}
-	len_bytes := write_varint(u64(payload.len))
-	mut buf := len_bytes.clone()
+	mut buf := write_varint(u64(payload.len))
 	buf << payload
 	return buf
 }
@@ -313,10 +310,88 @@ fn write_map_string_entry(key string, val string) []u8 {
 	entry << write_string(key)
 	entry << write_tag(2, wt_len)
 	entry << write_string(val)
-	len_bytes := write_varint(u64(entry.len))
-	mut buf := len_bytes.clone()
+	mut buf := write_varint(u64(entry.len))
 	buf << entry
 	return buf
+}
+
+// ---------------------------------------------------------------------------
+// Zero-allocation "_into" write helpers — append directly to caller's buffer.
+// Used by generated pg_query_encode.v to avoid per-field heap allocations.
+// ---------------------------------------------------------------------------
+
+fn write_varint_into(mut buf []u8, v u64) {
+	mut val := v
+	for {
+		mut b := u8(val & 0x7F)
+		val >>= 7
+		if val != 0 {
+			b |= 0x80
+		}
+		buf << b
+		if val == 0 {
+			break
+		}
+	}
+}
+
+fn write_svarint_into(mut buf []u8, v i64) {
+	write_varint_into(mut buf, (u64(v) << 1) ^ u64(v >> 63))
+}
+
+fn write_tag_into(mut buf []u8, field_num int, wire_type int) {
+	write_varint_into(mut buf, (u64(field_num) << 3) | u64(wire_type))
+}
+
+fn write_bool_into(mut buf []u8, val bool) {
+	buf << if val { u8(1) } else { u8(0) }
+}
+
+fn write_string_into(mut buf []u8, s string) {
+	write_varint_into(mut buf, u64(s.len))
+	for c in s {
+		buf << c
+	}
+}
+
+fn write_bytes_into(mut buf []u8, b []u8) {
+	write_varint_into(mut buf, u64(b.len))
+	buf << b
+}
+
+fn write_fixed32_into(mut buf []u8, val u32) {
+	buf << u8(val)
+	buf << u8(val >> 8)
+	buf << u8(val >> 16)
+	buf << u8(val >> 24)
+}
+
+fn write_fixed64_into(mut buf []u8, val u64) {
+	buf << u8(val)
+	buf << u8(val >> 8)
+	buf << u8(val >> 16)
+	buf << u8(val >> 24)
+	buf << u8(val >> 32)
+	buf << u8(val >> 40)
+	buf << u8(val >> 48)
+	buf << u8(val >> 56)
+}
+
+fn write_float_into(mut buf []u8, val f32) {
+	mut bits := u32(0)
+	unsafe { C.memcpy(&bits, &val, 4) }
+	write_fixed32_into(mut buf, bits)
+}
+
+fn write_double_into(mut buf []u8, val f64) {
+	mut bits := u64(0)
+	unsafe { C.memcpy(&bits, &val, 8) }
+	write_fixed64_into(mut buf, bits)
+}
+
+fn write_length_delimited_into(mut buf []u8, sub []u8) {
+	write_varint_into(mut buf, u64(sub.len))
+	buf << sub
 }
 
 // read_map_string_entry decodes a single protobuf map entry submessage

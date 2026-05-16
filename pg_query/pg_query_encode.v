@@ -5,13 +5,14 @@ module pg_query
 pub fn encode_scan_result(val ScanResult) []u8 {
 	mut buf := []u8{}
 	if val.version != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.version))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.version))
 	}
 	if val.tokens.len > 0 {
 		for v in val.tokens {
-			buf << write_tag(2, 2)
-			buf << write_length_delimited(encode_scan_token(v))
+			sub_enc_ := encode_scan_token(v)
+			write_tag_into(mut buf, 2, 2)
+			write_length_delimited_into(mut buf, sub_enc_)
 		}
 	}
 	return buf
@@ -20,8 +21,8 @@ pub fn encode_scan_result(val ScanResult) []u8 {
 pub fn encode_integer(val Integer) []u8 {
 	mut buf := []u8{}
 	if val.ival != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.ival))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.ival))
 	}
 	return buf
 }
@@ -29,8 +30,8 @@ pub fn encode_integer(val Integer) []u8 {
 pub fn encode_float(val Float) []u8 {
 	mut buf := []u8{}
 	if val.fval != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.fval)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.fval)
 	}
 	return buf
 }
@@ -38,8 +39,8 @@ pub fn encode_float(val Float) []u8 {
 pub fn encode_boolean(val Boolean) []u8 {
 	mut buf := []u8{}
 	if val.boolval {
-		buf << write_tag(1, 0)
-		buf << write_bool(val.boolval)
+		write_tag_into(mut buf, 1, 0)
+		write_bool_into(mut buf, val.boolval)
 	}
 	return buf
 }
@@ -47,8 +48,8 @@ pub fn encode_boolean(val Boolean) []u8 {
 pub fn encode_string(val String) []u8 {
 	mut buf := []u8{}
 	if val.sval != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.sval)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.sval)
 	}
 	return buf
 }
@@ -56,8 +57,8 @@ pub fn encode_string(val String) []u8 {
 pub fn encode_bit_string(val BitString) []u8 {
 	mut buf := []u8{}
 	if val.bsval != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.bsval)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.bsval)
 	}
 	return buf
 }
@@ -68,8 +69,8 @@ pub fn encode_list(val List) []u8 {
 		for v in val.items {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -82,8 +83,8 @@ pub fn encode_oid_list(val OidList) []u8 {
 		for v in val.items {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -96,8 +97,8 @@ pub fn encode_int_list(val IntList) []u8 {
 		for v in val.items {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -107,32 +108,37 @@ pub fn encode_int_list(val IntList) []u8 {
 pub fn encode_a_const(val AConst) []u8 {
 	mut buf := []u8{}
 	if v := val.ival {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(encode_integer(v))
+		sub_enc_ := encode_integer(v)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, sub_enc_)
 	}
 	if v := val.fval {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(encode_float(v))
+		sub_enc_ := encode_float(v)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, sub_enc_)
 	}
 	if v := val.boolval {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(encode_boolean(v))
+		sub_enc_ := encode_boolean(v)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, sub_enc_)
 	}
 	if v := val.sval {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(encode_string(v))
+		sub_enc_ := encode_string(v)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, sub_enc_)
 	}
 	if v := val.bsval {
-		buf << write_tag(5, 2)
-		buf << write_length_delimited(encode_bit_string(v))
+		sub_enc_ := encode_bit_string(v)
+		write_tag_into(mut buf, 5, 2)
+		write_length_delimited_into(mut buf, sub_enc_)
 	}
 	if val.isnull {
-		buf << write_tag(10, 0)
-		buf << write_bool(val.isnull)
+		write_tag_into(mut buf, 10, 0)
+		write_bool_into(mut buf, val.isnull)
 	}
 	if val.location != 0 {
-		buf << write_tag(11, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 11, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -140,15 +146,15 @@ pub fn encode_a_const(val AConst) []u8 {
 pub fn encode_alias(val Alias) []u8 {
 	mut buf := []u8{}
 	if val.aliasname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.aliasname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.aliasname)
 	}
 	if val.colnames.len > 0 {
 		for v in val.colnames {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -158,15 +164,15 @@ pub fn encode_alias(val Alias) []u8 {
 pub fn encode_table_func(val TableFunc) []u8 {
 	mut buf := []u8{}
 	if u64(val.functype) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.functype))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.functype))
 	}
 	if val.ns_uris.len > 0 {
 		for v in val.ns_uris {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -174,27 +180,27 @@ pub fn encode_table_func(val TableFunc) []u8 {
 		for v in val.ns_names {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_docexpr := encode_node(val.docexpr)
 	if n_docexpr.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(n_docexpr)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, n_docexpr)
 	}
 	n_rowexpr := encode_node(val.rowexpr)
 	if n_rowexpr.len > 0 {
-		buf << write_tag(5, 2)
-		buf << write_length_delimited(n_rowexpr)
+		write_tag_into(mut buf, 5, 2)
+		write_length_delimited_into(mut buf, n_rowexpr)
 	}
 	if val.colnames.len > 0 {
 		for v in val.colnames {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(6, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 6, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -202,8 +208,8 @@ pub fn encode_table_func(val TableFunc) []u8 {
 		for v in val.coltypes {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(7, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 7, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -211,8 +217,8 @@ pub fn encode_table_func(val TableFunc) []u8 {
 		for v in val.coltypmods {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(8, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 8, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -220,8 +226,8 @@ pub fn encode_table_func(val TableFunc) []u8 {
 		for v in val.colcollations {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(9, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 9, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -229,8 +235,8 @@ pub fn encode_table_func(val TableFunc) []u8 {
 		for v in val.colexprs {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(10, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 10, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -238,8 +244,8 @@ pub fn encode_table_func(val TableFunc) []u8 {
 		for v in val.coldefexprs {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(11, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 11, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -247,8 +253,8 @@ pub fn encode_table_func(val TableFunc) []u8 {
 		for v in val.colvalexprs {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(12, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 12, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -256,31 +262,31 @@ pub fn encode_table_func(val TableFunc) []u8 {
 		for v in val.passingvalexprs {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(13, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 13, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.notnulls.len > 0 {
 		mut packed_ := []u8{}
 		for v in val.notnulls {
-			packed_ << write_varint(v)
+			write_varint_into(mut packed_, v)
 		}
-		buf << write_tag(14, 2)
-		buf << write_length_delimited(packed_)
+		write_tag_into(mut buf, 14, 2)
+		write_length_delimited_into(mut buf, packed_)
 	}
 	n_plan := encode_node(val.plan)
 	if n_plan.len > 0 {
-		buf << write_tag(15, 2)
-		buf << write_length_delimited(n_plan)
+		write_tag_into(mut buf, 15, 2)
+		write_length_delimited_into(mut buf, n_plan)
 	}
 	if val.ordinalitycol != 0 {
-		buf << write_tag(16, 0)
-		buf << write_varint(u64(val.ordinalitycol))
+		write_tag_into(mut buf, 16, 0)
+		write_varint_into(mut buf, u64(val.ordinalitycol))
 	}
 	if val.location != 0 {
-		buf << write_tag(17, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 17, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -289,44 +295,44 @@ pub fn encode_var(val Var) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if val.varno != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.varno))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.varno))
 	}
 	if val.varattno != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.varattno))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.varattno))
 	}
 	if val.vartype != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.vartype))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.vartype))
 	}
 	if val.vartypmod != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.vartypmod))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.vartypmod))
 	}
 	if val.varcollid != 0 {
-		buf << write_tag(6, 0)
-		buf << write_varint(u64(val.varcollid))
+		write_tag_into(mut buf, 6, 0)
+		write_varint_into(mut buf, u64(val.varcollid))
 	}
 	if val.varnullingrels.len > 0 {
 		mut packed_ := []u8{}
 		for v in val.varnullingrels {
-			packed_ << write_varint(v)
+			write_varint_into(mut packed_, v)
 		}
-		buf << write_tag(7, 2)
-		buf << write_length_delimited(packed_)
+		write_tag_into(mut buf, 7, 2)
+		write_length_delimited_into(mut buf, packed_)
 	}
 	if val.varlevelsup != 0 {
-		buf << write_tag(8, 0)
-		buf << write_varint(u64(val.varlevelsup))
+		write_tag_into(mut buf, 8, 0)
+		write_varint_into(mut buf, u64(val.varlevelsup))
 	}
 	if val.location != 0 {
-		buf << write_tag(9, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 9, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -335,32 +341,32 @@ pub fn encode_param(val Param) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if u64(val.paramkind) != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.paramkind))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.paramkind))
 	}
 	if val.paramid != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.paramid))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.paramid))
 	}
 	if val.paramtype != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.paramtype))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.paramtype))
 	}
 	if val.paramtypmod != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.paramtypmod))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.paramtypmod))
 	}
 	if val.paramcollid != 0 {
-		buf << write_tag(6, 0)
-		buf << write_varint(u64(val.paramcollid))
+		write_tag_into(mut buf, 6, 0)
+		write_varint_into(mut buf, u64(val.paramcollid))
 	}
 	if val.location != 0 {
-		buf << write_tag(7, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 7, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -369,31 +375,31 @@ pub fn encode_aggref(val Aggref) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if val.aggfnoid != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.aggfnoid))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.aggfnoid))
 	}
 	if val.aggtype != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.aggtype))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.aggtype))
 	}
 	if val.aggcollid != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.aggcollid))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.aggcollid))
 	}
 	if val.inputcollid != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.inputcollid))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.inputcollid))
 	}
 	if val.aggargtypes.len > 0 {
 		for v in val.aggargtypes {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(6, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 6, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -401,8 +407,8 @@ pub fn encode_aggref(val Aggref) []u8 {
 		for v in val.aggdirectargs {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(7, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 7, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -410,8 +416,8 @@ pub fn encode_aggref(val Aggref) []u8 {
 		for v in val.args {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(8, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 8, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -419,8 +425,8 @@ pub fn encode_aggref(val Aggref) []u8 {
 		for v in val.aggorder {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(9, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 9, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -428,47 +434,47 @@ pub fn encode_aggref(val Aggref) []u8 {
 		for v in val.aggdistinct {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(10, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 10, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_aggfilter := encode_node(val.aggfilter)
 	if n_aggfilter.len > 0 {
-		buf << write_tag(11, 2)
-		buf << write_length_delimited(n_aggfilter)
+		write_tag_into(mut buf, 11, 2)
+		write_length_delimited_into(mut buf, n_aggfilter)
 	}
 	if val.aggstar {
-		buf << write_tag(12, 0)
-		buf << write_bool(val.aggstar)
+		write_tag_into(mut buf, 12, 0)
+		write_bool_into(mut buf, val.aggstar)
 	}
 	if val.aggvariadic {
-		buf << write_tag(13, 0)
-		buf << write_bool(val.aggvariadic)
+		write_tag_into(mut buf, 13, 0)
+		write_bool_into(mut buf, val.aggvariadic)
 	}
 	if val.aggkind != '' {
-		buf << write_tag(14, 2)
-		buf << write_string(val.aggkind)
+		write_tag_into(mut buf, 14, 2)
+		write_string_into(mut buf, val.aggkind)
 	}
 	if val.agglevelsup != 0 {
-		buf << write_tag(15, 0)
-		buf << write_varint(u64(val.agglevelsup))
+		write_tag_into(mut buf, 15, 0)
+		write_varint_into(mut buf, u64(val.agglevelsup))
 	}
 	if u64(val.aggsplit) != 0 {
-		buf << write_tag(16, 0)
-		buf << write_varint(u64(val.aggsplit))
+		write_tag_into(mut buf, 16, 0)
+		write_varint_into(mut buf, u64(val.aggsplit))
 	}
 	if val.aggno != 0 {
-		buf << write_tag(17, 0)
-		buf << write_varint(u64(val.aggno))
+		write_tag_into(mut buf, 17, 0)
+		write_varint_into(mut buf, u64(val.aggno))
 	}
 	if val.aggtransno != 0 {
-		buf << write_tag(18, 0)
-		buf << write_varint(u64(val.aggtransno))
+		write_tag_into(mut buf, 18, 0)
+		write_varint_into(mut buf, u64(val.aggtransno))
 	}
 	if val.location != 0 {
-		buf << write_tag(19, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 19, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -477,15 +483,15 @@ pub fn encode_grouping_func(val GroupingFunc) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if val.args.len > 0 {
 		for v in val.args {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -493,18 +499,18 @@ pub fn encode_grouping_func(val GroupingFunc) []u8 {
 		for v in val.refs {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.agglevelsup != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.agglevelsup))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.agglevelsup))
 	}
 	if val.location != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -513,63 +519,63 @@ pub fn encode_window_func(val WindowFunc) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if val.winfnoid != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.winfnoid))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.winfnoid))
 	}
 	if val.wintype != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.wintype))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.wintype))
 	}
 	if val.wincollid != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.wincollid))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.wincollid))
 	}
 	if val.inputcollid != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.inputcollid))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.inputcollid))
 	}
 	if val.args.len > 0 {
 		for v in val.args {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(6, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 6, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_aggfilter := encode_node(val.aggfilter)
 	if n_aggfilter.len > 0 {
-		buf << write_tag(7, 2)
-		buf << write_length_delimited(n_aggfilter)
+		write_tag_into(mut buf, 7, 2)
+		write_length_delimited_into(mut buf, n_aggfilter)
 	}
 	if val.run_condition.len > 0 {
 		for v in val.run_condition {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(8, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 8, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.winref != 0 {
-		buf << write_tag(9, 0)
-		buf << write_varint(u64(val.winref))
+		write_tag_into(mut buf, 9, 0)
+		write_varint_into(mut buf, u64(val.winref))
 	}
 	if val.winstar {
-		buf << write_tag(10, 0)
-		buf << write_bool(val.winstar)
+		write_tag_into(mut buf, 10, 0)
+		write_bool_into(mut buf, val.winstar)
 	}
 	if val.winagg {
-		buf << write_tag(11, 0)
-		buf << write_bool(val.winagg)
+		write_tag_into(mut buf, 11, 0)
+		write_bool_into(mut buf, val.winagg)
 	}
 	if val.location != 0 {
-		buf << write_tag(12, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 12, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -578,25 +584,25 @@ pub fn encode_window_func_run_condition(val WindowFuncRunCondition) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if val.opno != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.opno))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.opno))
 	}
 	if val.inputcollid != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.inputcollid))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.inputcollid))
 	}
 	if val.wfunc_left {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.wfunc_left)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.wfunc_left)
 	}
 	n_arg := encode_node(val.arg)
 	if n_arg.len > 0 {
-		buf << write_tag(5, 2)
-		buf << write_length_delimited(n_arg)
+		write_tag_into(mut buf, 5, 2)
+		write_length_delimited_into(mut buf, n_arg)
 	}
 	return buf
 }
@@ -605,20 +611,20 @@ pub fn encode_merge_support_func(val MergeSupportFunc) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if val.msftype != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.msftype))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.msftype))
 	}
 	if val.msfcollid != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.msfcollid))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.msfcollid))
 	}
 	if val.location != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -627,35 +633,35 @@ pub fn encode_subscripting_ref(val SubscriptingRef) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if val.refcontainertype != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.refcontainertype))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.refcontainertype))
 	}
 	if val.refelemtype != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.refelemtype))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.refelemtype))
 	}
 	if val.refrestype != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.refrestype))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.refrestype))
 	}
 	if val.reftypmod != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.reftypmod))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.reftypmod))
 	}
 	if val.refcollid != 0 {
-		buf << write_tag(6, 0)
-		buf << write_varint(u64(val.refcollid))
+		write_tag_into(mut buf, 6, 0)
+		write_varint_into(mut buf, u64(val.refcollid))
 	}
 	if val.refupperindexpr.len > 0 {
 		for v in val.refupperindexpr {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(7, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 7, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -663,20 +669,20 @@ pub fn encode_subscripting_ref(val SubscriptingRef) []u8 {
 		for v in val.reflowerindexpr {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(8, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 8, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_refexpr := encode_node(val.refexpr)
 	if n_refexpr.len > 0 {
-		buf << write_tag(9, 2)
-		buf << write_length_delimited(n_refexpr)
+		write_tag_into(mut buf, 9, 2)
+		write_length_delimited_into(mut buf, n_refexpr)
 	}
 	n_refassgnexpr := encode_node(val.refassgnexpr)
 	if n_refassgnexpr.len > 0 {
-		buf << write_tag(10, 2)
-		buf << write_length_delimited(n_refassgnexpr)
+		write_tag_into(mut buf, 10, 2)
+		write_length_delimited_into(mut buf, n_refassgnexpr)
 	}
 	return buf
 }
@@ -685,49 +691,49 @@ pub fn encode_func_expr(val FuncExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if val.funcid != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.funcid))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.funcid))
 	}
 	if val.funcresulttype != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.funcresulttype))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.funcresulttype))
 	}
 	if val.funcretset {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.funcretset)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.funcretset)
 	}
 	if val.funcvariadic {
-		buf << write_tag(5, 0)
-		buf << write_bool(val.funcvariadic)
+		write_tag_into(mut buf, 5, 0)
+		write_bool_into(mut buf, val.funcvariadic)
 	}
 	if u64(val.funcformat) != 0 {
-		buf << write_tag(6, 0)
-		buf << write_varint(u64(val.funcformat))
+		write_tag_into(mut buf, 6, 0)
+		write_varint_into(mut buf, u64(val.funcformat))
 	}
 	if val.funccollid != 0 {
-		buf << write_tag(7, 0)
-		buf << write_varint(u64(val.funccollid))
+		write_tag_into(mut buf, 7, 0)
+		write_varint_into(mut buf, u64(val.funccollid))
 	}
 	if val.inputcollid != 0 {
-		buf << write_tag(8, 0)
-		buf << write_varint(u64(val.inputcollid))
+		write_tag_into(mut buf, 8, 0)
+		write_varint_into(mut buf, u64(val.inputcollid))
 	}
 	if val.args.len > 0 {
 		for v in val.args {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(9, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 9, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.location != 0 {
-		buf << write_tag(10, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 10, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -736,25 +742,25 @@ pub fn encode_named_arg_expr(val NamedArgExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	n_arg := encode_node(val.arg)
 	if n_arg.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_arg)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_arg)
 	}
 	if val.name != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.name)
 	}
 	if val.argnumber != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.argnumber))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.argnumber))
 	}
 	if val.location != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -763,41 +769,41 @@ pub fn encode_op_expr(val OpExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if val.opno != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.opno))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.opno))
 	}
 	if val.opresulttype != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.opresulttype))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.opresulttype))
 	}
 	if val.opretset {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.opretset)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.opretset)
 	}
 	if val.opcollid != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.opcollid))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.opcollid))
 	}
 	if val.inputcollid != 0 {
-		buf << write_tag(6, 0)
-		buf << write_varint(u64(val.inputcollid))
+		write_tag_into(mut buf, 6, 0)
+		write_varint_into(mut buf, u64(val.inputcollid))
 	}
 	if val.args.len > 0 {
 		for v in val.args {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(7, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 7, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.location != 0 {
-		buf << write_tag(8, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 8, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -806,41 +812,41 @@ pub fn encode_distinct_expr(val DistinctExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if val.opno != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.opno))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.opno))
 	}
 	if val.opresulttype != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.opresulttype))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.opresulttype))
 	}
 	if val.opretset {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.opretset)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.opretset)
 	}
 	if val.opcollid != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.opcollid))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.opcollid))
 	}
 	if val.inputcollid != 0 {
-		buf << write_tag(6, 0)
-		buf << write_varint(u64(val.inputcollid))
+		write_tag_into(mut buf, 6, 0)
+		write_varint_into(mut buf, u64(val.inputcollid))
 	}
 	if val.args.len > 0 {
 		for v in val.args {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(7, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 7, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.location != 0 {
-		buf << write_tag(8, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 8, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -849,41 +855,41 @@ pub fn encode_null_if_expr(val NullIfExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if val.opno != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.opno))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.opno))
 	}
 	if val.opresulttype != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.opresulttype))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.opresulttype))
 	}
 	if val.opretset {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.opretset)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.opretset)
 	}
 	if val.opcollid != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.opcollid))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.opcollid))
 	}
 	if val.inputcollid != 0 {
-		buf << write_tag(6, 0)
-		buf << write_varint(u64(val.inputcollid))
+		write_tag_into(mut buf, 6, 0)
+		write_varint_into(mut buf, u64(val.inputcollid))
 	}
 	if val.args.len > 0 {
 		for v in val.args {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(7, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 7, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.location != 0 {
-		buf << write_tag(8, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 8, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -892,33 +898,33 @@ pub fn encode_scalar_array_op_expr(val ScalarArrayOpExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if val.opno != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.opno))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.opno))
 	}
 	if val.use_or {
-		buf << write_tag(3, 0)
-		buf << write_bool(val.use_or)
+		write_tag_into(mut buf, 3, 0)
+		write_bool_into(mut buf, val.use_or)
 	}
 	if val.inputcollid != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.inputcollid))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.inputcollid))
 	}
 	if val.args.len > 0 {
 		for v in val.args {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.location != 0 {
-		buf << write_tag(6, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 6, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -927,25 +933,25 @@ pub fn encode_bool_expr(val BoolExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if u64(val.boolop) != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.boolop))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.boolop))
 	}
 	if val.args.len > 0 {
 		for v in val.args {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.location != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -954,39 +960,39 @@ pub fn encode_sub_link(val SubLink) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if u64(val.sub_link_type) != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.sub_link_type))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.sub_link_type))
 	}
 	if val.sub_link_id != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.sub_link_id))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.sub_link_id))
 	}
 	n_testexpr := encode_node(val.testexpr)
 	if n_testexpr.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(n_testexpr)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, n_testexpr)
 	}
 	if val.oper_name.len > 0 {
 		for v in val.oper_name {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_subselect := encode_node(val.subselect)
 	if n_subselect.len > 0 {
-		buf << write_tag(6, 2)
-		buf << write_length_delimited(n_subselect)
+		write_tag_into(mut buf, 6, 2)
+		write_length_delimited_into(mut buf, n_subselect)
 	}
 	if val.location != 0 {
-		buf << write_tag(7, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 7, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -995,65 +1001,65 @@ pub fn encode_sub_plan(val SubPlan) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if u64(val.sub_link_type) != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.sub_link_type))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.sub_link_type))
 	}
 	n_testexpr := encode_node(val.testexpr)
 	if n_testexpr.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(n_testexpr)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, n_testexpr)
 	}
 	if val.param_ids.len > 0 {
 		for v in val.param_ids {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.plan_id != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.plan_id))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.plan_id))
 	}
 	if val.plan_name != '' {
-		buf << write_tag(6, 2)
-		buf << write_string(val.plan_name)
+		write_tag_into(mut buf, 6, 2)
+		write_string_into(mut buf, val.plan_name)
 	}
 	if val.first_col_type != 0 {
-		buf << write_tag(7, 0)
-		buf << write_varint(u64(val.first_col_type))
+		write_tag_into(mut buf, 7, 0)
+		write_varint_into(mut buf, u64(val.first_col_type))
 	}
 	if val.first_col_typmod != 0 {
-		buf << write_tag(8, 0)
-		buf << write_varint(u64(val.first_col_typmod))
+		write_tag_into(mut buf, 8, 0)
+		write_varint_into(mut buf, u64(val.first_col_typmod))
 	}
 	if val.first_col_collation != 0 {
-		buf << write_tag(9, 0)
-		buf << write_varint(u64(val.first_col_collation))
+		write_tag_into(mut buf, 9, 0)
+		write_varint_into(mut buf, u64(val.first_col_collation))
 	}
 	if val.use_hash_table {
-		buf << write_tag(10, 0)
-		buf << write_bool(val.use_hash_table)
+		write_tag_into(mut buf, 10, 0)
+		write_bool_into(mut buf, val.use_hash_table)
 	}
 	if val.unknown_eq_false {
-		buf << write_tag(11, 0)
-		buf << write_bool(val.unknown_eq_false)
+		write_tag_into(mut buf, 11, 0)
+		write_bool_into(mut buf, val.unknown_eq_false)
 	}
 	if val.parallel_safe {
-		buf << write_tag(12, 0)
-		buf << write_bool(val.parallel_safe)
+		write_tag_into(mut buf, 12, 0)
+		write_bool_into(mut buf, val.parallel_safe)
 	}
 	if val.set_param.len > 0 {
 		for v in val.set_param {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(13, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 13, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -1061,8 +1067,8 @@ pub fn encode_sub_plan(val SubPlan) []u8 {
 		for v in val.par_param {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(14, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 14, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -1070,18 +1076,18 @@ pub fn encode_sub_plan(val SubPlan) []u8 {
 		for v in val.args {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(15, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 15, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.startup_cost != 0.0 {
-		buf << write_tag(16, 1)
-		buf << write_double(val.startup_cost)
+		write_tag_into(mut buf, 16, 1)
+		write_double_into(mut buf, val.startup_cost)
 	}
 	if val.per_call_cost != 0.0 {
-		buf << write_tag(17, 1)
-		buf << write_double(val.per_call_cost)
+		write_tag_into(mut buf, 17, 1)
+		write_double_into(mut buf, val.per_call_cost)
 	}
 	return buf
 }
@@ -1090,15 +1096,15 @@ pub fn encode_alternative_sub_plan(val AlternativeSubPlan) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if val.subplans.len > 0 {
 		for v in val.subplans {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -1109,29 +1115,29 @@ pub fn encode_field_select(val FieldSelect) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	n_arg := encode_node(val.arg)
 	if n_arg.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_arg)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_arg)
 	}
 	if val.fieldnum != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.fieldnum))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.fieldnum))
 	}
 	if val.resulttype != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.resulttype))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.resulttype))
 	}
 	if val.resulttypmod != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.resulttypmod))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.resulttypmod))
 	}
 	if val.resultcollid != 0 {
-		buf << write_tag(6, 0)
-		buf << write_varint(u64(val.resultcollid))
+		write_tag_into(mut buf, 6, 0)
+		write_varint_into(mut buf, u64(val.resultcollid))
 	}
 	return buf
 }
@@ -1140,20 +1146,20 @@ pub fn encode_field_store(val FieldStore) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	n_arg := encode_node(val.arg)
 	if n_arg.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_arg)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_arg)
 	}
 	if val.newvals.len > 0 {
 		for v in val.newvals {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -1161,14 +1167,14 @@ pub fn encode_field_store(val FieldStore) []u8 {
 		for v in val.fieldnums {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.resulttype != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.resulttype))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.resulttype))
 	}
 	return buf
 }
@@ -1177,33 +1183,33 @@ pub fn encode_relabel_type(val RelabelType) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	n_arg := encode_node(val.arg)
 	if n_arg.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_arg)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_arg)
 	}
 	if val.resulttype != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.resulttype))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.resulttype))
 	}
 	if val.resulttypmod != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.resulttypmod))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.resulttypmod))
 	}
 	if val.resultcollid != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.resultcollid))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.resultcollid))
 	}
 	if u64(val.relabelformat) != 0 {
-		buf << write_tag(6, 0)
-		buf << write_varint(u64(val.relabelformat))
+		write_tag_into(mut buf, 6, 0)
+		write_varint_into(mut buf, u64(val.relabelformat))
 	}
 	if val.location != 0 {
-		buf << write_tag(7, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 7, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -1212,29 +1218,29 @@ pub fn encode_coerce_via_i_o(val CoerceViaIO) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	n_arg := encode_node(val.arg)
 	if n_arg.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_arg)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_arg)
 	}
 	if val.resulttype != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.resulttype))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.resulttype))
 	}
 	if val.resultcollid != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.resultcollid))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.resultcollid))
 	}
 	if u64(val.coerceformat) != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.coerceformat))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.coerceformat))
 	}
 	if val.location != 0 {
-		buf << write_tag(6, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 6, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -1243,38 +1249,38 @@ pub fn encode_array_coerce_expr(val ArrayCoerceExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	n_arg := encode_node(val.arg)
 	if n_arg.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_arg)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_arg)
 	}
 	n_elemexpr := encode_node(val.elemexpr)
 	if n_elemexpr.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(n_elemexpr)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, n_elemexpr)
 	}
 	if val.resulttype != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.resulttype))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.resulttype))
 	}
 	if val.resulttypmod != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.resulttypmod))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.resulttypmod))
 	}
 	if val.resultcollid != 0 {
-		buf << write_tag(6, 0)
-		buf << write_varint(u64(val.resultcollid))
+		write_tag_into(mut buf, 6, 0)
+		write_varint_into(mut buf, u64(val.resultcollid))
 	}
 	if u64(val.coerceformat) != 0 {
-		buf << write_tag(7, 0)
-		buf << write_varint(u64(val.coerceformat))
+		write_tag_into(mut buf, 7, 0)
+		write_varint_into(mut buf, u64(val.coerceformat))
 	}
 	if val.location != 0 {
-		buf << write_tag(8, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 8, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -1283,25 +1289,25 @@ pub fn encode_convert_rowtype_expr(val ConvertRowtypeExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	n_arg := encode_node(val.arg)
 	if n_arg.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_arg)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_arg)
 	}
 	if val.resulttype != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.resulttype))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.resulttype))
 	}
 	if u64(val.convertformat) != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.convertformat))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.convertformat))
 	}
 	if val.location != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -1310,21 +1316,21 @@ pub fn encode_collate_expr(val CollateExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	n_arg := encode_node(val.arg)
 	if n_arg.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_arg)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_arg)
 	}
 	if val.coll_oid != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.coll_oid))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.coll_oid))
 	}
 	if val.location != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -1333,39 +1339,39 @@ pub fn encode_case_expr(val CaseExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if val.casetype != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.casetype))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.casetype))
 	}
 	if val.casecollid != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.casecollid))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.casecollid))
 	}
 	n_arg := encode_node(val.arg)
 	if n_arg.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(n_arg)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, n_arg)
 	}
 	if val.args.len > 0 {
 		for v in val.args {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_defresult := encode_node(val.defresult)
 	if n_defresult.len > 0 {
-		buf << write_tag(6, 2)
-		buf << write_length_delimited(n_defresult)
+		write_tag_into(mut buf, 6, 2)
+		write_length_delimited_into(mut buf, n_defresult)
 	}
 	if val.location != 0 {
-		buf << write_tag(7, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 7, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -1374,22 +1380,22 @@ pub fn encode_case_when(val CaseWhen) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	n_expr := encode_node(val.expr)
 	if n_expr.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_expr)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_expr)
 	}
 	n_result := encode_node(val.result)
 	if n_result.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(n_result)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, n_result)
 	}
 	if val.location != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -1398,20 +1404,20 @@ pub fn encode_case_test_expr(val CaseTestExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if val.type_id != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.type_id))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.type_id))
 	}
 	if val.type_mod != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.type_mod))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.type_mod))
 	}
 	if val.collation != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.collation))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.collation))
 	}
 	return buf
 }
@@ -1420,37 +1426,37 @@ pub fn encode_array_expr(val ArrayExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if val.array_typeid != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.array_typeid))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.array_typeid))
 	}
 	if val.array_collid != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.array_collid))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.array_collid))
 	}
 	if val.element_typeid != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.element_typeid))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.element_typeid))
 	}
 	if val.elements.len > 0 {
 		for v in val.elements {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.multidims {
-		buf << write_tag(6, 0)
-		buf << write_bool(val.multidims)
+		write_tag_into(mut buf, 6, 0)
+		write_bool_into(mut buf, val.multidims)
 	}
 	if val.location != 0 {
-		buf << write_tag(7, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 7, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -1459,38 +1465,38 @@ pub fn encode_row_expr(val RowExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if val.args.len > 0 {
 		for v in val.args {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.row_typeid != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.row_typeid))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.row_typeid))
 	}
 	if u64(val.row_format) != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.row_format))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.row_format))
 	}
 	if val.colnames.len > 0 {
 		for v in val.colnames {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.location != 0 {
-		buf << write_tag(6, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 6, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -1499,19 +1505,19 @@ pub fn encode_row_compare_expr(val RowCompareExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if u64(val.rctype) != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.rctype))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.rctype))
 	}
 	if val.opnos.len > 0 {
 		for v in val.opnos {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -1519,8 +1525,8 @@ pub fn encode_row_compare_expr(val RowCompareExpr) []u8 {
 		for v in val.opfamilies {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -1528,8 +1534,8 @@ pub fn encode_row_compare_expr(val RowCompareExpr) []u8 {
 		for v in val.inputcollids {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -1537,8 +1543,8 @@ pub fn encode_row_compare_expr(val RowCompareExpr) []u8 {
 		for v in val.largs {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(6, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 6, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -1546,8 +1552,8 @@ pub fn encode_row_compare_expr(val RowCompareExpr) []u8 {
 		for v in val.rargs {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(7, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 7, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -1558,29 +1564,29 @@ pub fn encode_coalesce_expr(val CoalesceExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if val.coalescetype != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.coalescetype))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.coalescetype))
 	}
 	if val.coalescecollid != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.coalescecollid))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.coalescecollid))
 	}
 	if val.args.len > 0 {
 		for v in val.args {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.location != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -1589,37 +1595,37 @@ pub fn encode_min_max_expr(val MinMaxExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if val.minmaxtype != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.minmaxtype))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.minmaxtype))
 	}
 	if val.minmaxcollid != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.minmaxcollid))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.minmaxcollid))
 	}
 	if val.inputcollid != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.inputcollid))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.inputcollid))
 	}
 	if u64(val.op) != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.op))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.op))
 	}
 	if val.args.len > 0 {
 		for v in val.args {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(6, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 6, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.location != 0 {
-		buf << write_tag(7, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 7, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -1628,24 +1634,24 @@ pub fn encode_s_q_l_value_function(val SQLValueFunction) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if u64(val.op) != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.op))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.op))
 	}
 	if val.type != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.type))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.type))
 	}
 	if val.typmod != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.typmod))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.typmod))
 	}
 	if val.location != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -1654,23 +1660,23 @@ pub fn encode_xml_expr(val XmlExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if u64(val.op) != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.op))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.op))
 	}
 	if val.name != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.name)
 	}
 	if val.named_args.len > 0 {
 		for v in val.named_args {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -1678,8 +1684,8 @@ pub fn encode_xml_expr(val XmlExpr) []u8 {
 		for v in val.arg_names {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -1687,30 +1693,30 @@ pub fn encode_xml_expr(val XmlExpr) []u8 {
 		for v in val.args {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(6, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 6, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if u64(val.xmloption) != 0 {
-		buf << write_tag(7, 0)
-		buf << write_varint(u64(val.xmloption))
+		write_tag_into(mut buf, 7, 0)
+		write_varint_into(mut buf, u64(val.xmloption))
 	}
 	if val.indent {
-		buf << write_tag(8, 0)
-		buf << write_bool(val.indent)
+		write_tag_into(mut buf, 8, 0)
+		write_bool_into(mut buf, val.indent)
 	}
 	if val.type != 0 {
-		buf << write_tag(9, 0)
-		buf << write_varint(u64(val.type))
+		write_tag_into(mut buf, 9, 0)
+		write_varint_into(mut buf, u64(val.type))
 	}
 	if val.typmod != 0 {
-		buf << write_tag(10, 0)
-		buf << write_varint(u64(val.typmod))
+		write_tag_into(mut buf, 10, 0)
+		write_varint_into(mut buf, u64(val.typmod))
 	}
 	if val.location != 0 {
-		buf << write_tag(11, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 11, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -1718,16 +1724,16 @@ pub fn encode_xml_expr(val XmlExpr) []u8 {
 pub fn encode_json_format(val JsonFormat) []u8 {
 	mut buf := []u8{}
 	if u64(val.format_type) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.format_type))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.format_type))
 	}
 	if u64(val.encoding) != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.encoding))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.encoding))
 	}
 	if val.location != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -1735,21 +1741,21 @@ pub fn encode_json_format(val JsonFormat) []u8 {
 pub fn encode_json_behavior(val JsonBehavior) []u8 {
 	mut buf := []u8{}
 	if u64(val.btype) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.btype))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.btype))
 	}
 	n_expr := encode_node(val.expr)
 	if n_expr.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_expr)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_expr)
 	}
 	if val.coerce {
-		buf << write_tag(3, 0)
-		buf << write_bool(val.coerce)
+		write_tag_into(mut buf, 3, 0)
+		write_bool_into(mut buf, val.coerce)
 	}
 	if val.location != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -1757,8 +1763,8 @@ pub fn encode_json_behavior(val JsonBehavior) []u8 {
 pub fn encode_json_table_path(val JsonTablePath) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.name)
 	}
 	return buf
 }
@@ -1767,18 +1773,18 @@ pub fn encode_json_table_sibling_join(val JsonTableSiblingJoin) []u8 {
 	mut buf := []u8{}
 	n_plan := encode_node(val.plan)
 	if n_plan.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_plan)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_plan)
 	}
 	n_lplan := encode_node(val.lplan)
 	if n_lplan.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_lplan)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_lplan)
 	}
 	n_rplan := encode_node(val.rplan)
 	if n_rplan.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(n_rplan)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, n_rplan)
 	}
 	return buf
 }
@@ -1787,25 +1793,25 @@ pub fn encode_null_test(val NullTest) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	n_arg := encode_node(val.arg)
 	if n_arg.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_arg)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_arg)
 	}
 	if u64(val.nulltesttype) != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.nulltesttype))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.nulltesttype))
 	}
 	if val.argisrow {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.argisrow)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.argisrow)
 	}
 	if val.location != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -1814,21 +1820,21 @@ pub fn encode_boolean_test(val BooleanTest) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	n_arg := encode_node(val.arg)
 	if n_arg.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_arg)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_arg)
 	}
 	if u64(val.booltesttype) != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.booltesttype))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.booltesttype))
 	}
 	if val.location != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -1836,28 +1842,28 @@ pub fn encode_boolean_test(val BooleanTest) []u8 {
 pub fn encode_merge_action(val MergeAction) []u8 {
 	mut buf := []u8{}
 	if u64(val.match_kind) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.match_kind))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.match_kind))
 	}
 	if u64(val.command_type) != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.command_type))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.command_type))
 	}
 	if u64(val.override) != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.override))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.override))
 	}
 	n_qual := encode_node(val.qual)
 	if n_qual.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(n_qual)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, n_qual)
 	}
 	if val.target_list.len > 0 {
 		for v in val.target_list {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -1865,8 +1871,8 @@ pub fn encode_merge_action(val MergeAction) []u8 {
 		for v in val.update_colnos {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(6, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 6, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -1877,33 +1883,33 @@ pub fn encode_coerce_to_domain(val CoerceToDomain) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	n_arg := encode_node(val.arg)
 	if n_arg.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_arg)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_arg)
 	}
 	if val.resulttype != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.resulttype))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.resulttype))
 	}
 	if val.resulttypmod != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.resulttypmod))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.resulttypmod))
 	}
 	if val.resultcollid != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.resultcollid))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.resultcollid))
 	}
 	if u64(val.coercionformat) != 0 {
-		buf << write_tag(6, 0)
-		buf << write_varint(u64(val.coercionformat))
+		write_tag_into(mut buf, 6, 0)
+		write_varint_into(mut buf, u64(val.coercionformat))
 	}
 	if val.location != 0 {
-		buf << write_tag(7, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 7, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -1912,24 +1918,24 @@ pub fn encode_coerce_to_domain_value(val CoerceToDomainValue) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if val.type_id != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.type_id))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.type_id))
 	}
 	if val.type_mod != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.type_mod))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.type_mod))
 	}
 	if val.collation != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.collation))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.collation))
 	}
 	if val.location != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -1938,24 +1944,24 @@ pub fn encode_set_to_default(val SetToDefault) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if val.type_id != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.type_id))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.type_id))
 	}
 	if val.type_mod != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.type_mod))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.type_mod))
 	}
 	if val.collation != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.collation))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.collation))
 	}
 	if val.location != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -1964,20 +1970,20 @@ pub fn encode_current_of_expr(val CurrentOfExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if val.cvarno != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.cvarno))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.cvarno))
 	}
 	if val.cursor_name != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.cursor_name)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.cursor_name)
 	}
 	if val.cursor_param != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.cursor_param))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.cursor_param))
 	}
 	return buf
 }
@@ -1986,16 +1992,16 @@ pub fn encode_next_value_expr(val NextValueExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if val.seqid != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.seqid))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.seqid))
 	}
 	if val.type_id != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.type_id))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.type_id))
 	}
 	return buf
 }
@@ -2004,21 +2010,21 @@ pub fn encode_inference_elem(val InferenceElem) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	n_expr := encode_node(val.expr)
 	if n_expr.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_expr)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_expr)
 	}
 	if val.infercollid != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.infercollid))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.infercollid))
 	}
 	if val.inferopclass != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.inferopclass))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.inferopclass))
 	}
 	return buf
 }
@@ -2027,37 +2033,37 @@ pub fn encode_target_entry(val TargetEntry) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	n_expr := encode_node(val.expr)
 	if n_expr.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_expr)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_expr)
 	}
 	if val.resno != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.resno))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.resno))
 	}
 	if val.resname != '' {
-		buf << write_tag(4, 2)
-		buf << write_string(val.resname)
+		write_tag_into(mut buf, 4, 2)
+		write_string_into(mut buf, val.resname)
 	}
 	if val.ressortgroupref != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.ressortgroupref))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.ressortgroupref))
 	}
 	if val.resorigtbl != 0 {
-		buf << write_tag(6, 0)
-		buf << write_varint(u64(val.resorigtbl))
+		write_tag_into(mut buf, 6, 0)
+		write_varint_into(mut buf, u64(val.resorigtbl))
 	}
 	if val.resorigcol != 0 {
-		buf << write_tag(7, 0)
-		buf << write_varint(u64(val.resorigcol))
+		write_tag_into(mut buf, 7, 0)
+		write_varint_into(mut buf, u64(val.resorigcol))
 	}
 	if val.resjunk {
-		buf << write_tag(8, 0)
-		buf << write_bool(val.resjunk)
+		write_tag_into(mut buf, 8, 0)
+		write_bool_into(mut buf, val.resjunk)
 	}
 	return buf
 }
@@ -2065,8 +2071,8 @@ pub fn encode_target_entry(val TargetEntry) []u8 {
 pub fn encode_range_tbl_ref(val RangeTblRef) []u8 {
 	mut buf := []u8{}
 	if val.rtindex != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.rtindex))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.rtindex))
 	}
 	return buf
 }
@@ -2077,15 +2083,15 @@ pub fn encode_from_expr(val FromExpr) []u8 {
 		for v in val.fromlist {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_quals := encode_node(val.quals)
 	if n_quals.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_quals)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_quals)
 	}
 	return buf
 }
@@ -2093,51 +2099,51 @@ pub fn encode_from_expr(val FromExpr) []u8 {
 pub fn encode_on_conflict_expr(val OnConflictExpr) []u8 {
 	mut buf := []u8{}
 	if u64(val.action) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.action))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.action))
 	}
 	if val.arbiter_elems.len > 0 {
 		for v in val.arbiter_elems {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_arbiter_where := encode_node(val.arbiter_where)
 	if n_arbiter_where.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(n_arbiter_where)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, n_arbiter_where)
 	}
 	if val.constraint != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.constraint))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.constraint))
 	}
 	if val.on_conflict_set.len > 0 {
 		for v in val.on_conflict_set {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_on_conflict_where := encode_node(val.on_conflict_where)
 	if n_on_conflict_where.len > 0 {
-		buf << write_tag(6, 2)
-		buf << write_length_delimited(n_on_conflict_where)
+		write_tag_into(mut buf, 6, 2)
+		write_length_delimited_into(mut buf, n_on_conflict_where)
 	}
 	if val.excl_rel_index != 0 {
-		buf << write_tag(7, 0)
-		buf << write_varint(u64(val.excl_rel_index))
+		write_tag_into(mut buf, 7, 0)
+		write_varint_into(mut buf, u64(val.excl_rel_index))
 	}
 	if val.excl_rel_tlist.len > 0 {
 		for v in val.excl_rel_tlist {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(8, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 8, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -2150,48 +2156,48 @@ pub fn encode_type_name(val TypeName) []u8 {
 		for v in val.names {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.type_oid != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.type_oid))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.type_oid))
 	}
 	if val.setof {
-		buf << write_tag(3, 0)
-		buf << write_bool(val.setof)
+		write_tag_into(mut buf, 3, 0)
+		write_bool_into(mut buf, val.setof)
 	}
 	if val.pct_type {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.pct_type)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.pct_type)
 	}
 	if val.typmods.len > 0 {
 		for v in val.typmods {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.typemod != 0 {
-		buf << write_tag(6, 0)
-		buf << write_varint(u64(val.typemod))
+		write_tag_into(mut buf, 6, 0)
+		write_varint_into(mut buf, u64(val.typemod))
 	}
 	if val.array_bounds.len > 0 {
 		for v in val.array_bounds {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(7, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 7, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.location != 0 {
-		buf << write_tag(8, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 8, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -2202,14 +2208,14 @@ pub fn encode_column_ref(val ColumnRef) []u8 {
 		for v in val.fields {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.location != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -2217,12 +2223,12 @@ pub fn encode_column_ref(val ColumnRef) []u8 {
 pub fn encode_param_ref(val ParamRef) []u8 {
 	mut buf := []u8{}
 	if val.number != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.number))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.number))
 	}
 	if val.location != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -2230,31 +2236,31 @@ pub fn encode_param_ref(val ParamRef) []u8 {
 pub fn encode_a_expr(val AExpr) []u8 {
 	mut buf := []u8{}
 	if u64(val.kind) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.kind))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.kind))
 	}
 	if val.name.len > 0 {
 		for v in val.name {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_lexpr := encode_node(val.lexpr)
 	if n_lexpr.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(n_lexpr)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, n_lexpr)
 	}
 	n_rexpr := encode_node(val.rexpr)
 	if n_rexpr.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(n_rexpr)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, n_rexpr)
 	}
 	if val.location != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -2263,21 +2269,21 @@ pub fn encode_collate_clause(val CollateClause) []u8 {
 	mut buf := []u8{}
 	n_arg := encode_node(val.arg)
 	if n_arg.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_arg)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_arg)
 	}
 	if val.collname.len > 0 {
 		for v in val.collname {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.location != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -2285,16 +2291,16 @@ pub fn encode_collate_clause(val CollateClause) []u8 {
 pub fn encode_role_spec(val RoleSpec) []u8 {
 	mut buf := []u8{}
 	if u64(val.roletype) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.roletype))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.roletype))
 	}
 	if val.rolename != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.rolename)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.rolename)
 	}
 	if val.location != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -2307,18 +2313,18 @@ pub fn encode_a_star(val AStar) []u8 {
 pub fn encode_a_indices(val AIndices) []u8 {
 	mut buf := []u8{}
 	if val.is_slice {
-		buf << write_tag(1, 0)
-		buf << write_bool(val.is_slice)
+		write_tag_into(mut buf, 1, 0)
+		write_bool_into(mut buf, val.is_slice)
 	}
 	n_lidx := encode_node(val.lidx)
 	if n_lidx.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_lidx)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_lidx)
 	}
 	n_uidx := encode_node(val.uidx)
 	if n_uidx.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(n_uidx)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, n_uidx)
 	}
 	return buf
 }
@@ -2327,15 +2333,15 @@ pub fn encode_a_indirection(val AIndirection) []u8 {
 	mut buf := []u8{}
 	n_arg := encode_node(val.arg)
 	if n_arg.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_arg)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_arg)
 	}
 	if val.indirection.len > 0 {
 		for v in val.indirection {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -2348,14 +2354,14 @@ pub fn encode_a_array_expr(val AArrayExpr) []u8 {
 		for v in val.elements {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.location != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -2363,26 +2369,26 @@ pub fn encode_a_array_expr(val AArrayExpr) []u8 {
 pub fn encode_res_target(val ResTarget) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.name)
 	}
 	if val.indirection.len > 0 {
 		for v in val.indirection {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_val := encode_node(val.val)
 	if n_val.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(n_val)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, n_val)
 	}
 	if val.location != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -2391,16 +2397,16 @@ pub fn encode_multi_assign_ref(val MultiAssignRef) []u8 {
 	mut buf := []u8{}
 	n_source := encode_node(val.source)
 	if n_source.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_source)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_source)
 	}
 	if val.colno != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.colno))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.colno))
 	}
 	if val.ncolumns != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.ncolumns))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.ncolumns))
 	}
 	return buf
 }
@@ -2409,29 +2415,29 @@ pub fn encode_sort_by(val SortBy) []u8 {
 	mut buf := []u8{}
 	n_node := encode_node(val.node)
 	if n_node.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_node)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_node)
 	}
 	if u64(val.sortby_dir) != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.sortby_dir))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.sortby_dir))
 	}
 	if u64(val.sortby_nulls) != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.sortby_nulls))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.sortby_nulls))
 	}
 	if val.use_op.len > 0 {
 		for v in val.use_op {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.location != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -2439,19 +2445,19 @@ pub fn encode_sort_by(val SortBy) []u8 {
 pub fn encode_window_def(val WindowDef) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.name)
 	}
 	if val.refname != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.refname)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.refname)
 	}
 	if val.partition_clause.len > 0 {
 		for v in val.partition_clause {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -2459,28 +2465,28 @@ pub fn encode_window_def(val WindowDef) []u8 {
 		for v in val.order_clause {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.frame_options != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.frame_options))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.frame_options))
 	}
 	n_start_offset := encode_node(val.start_offset)
 	if n_start_offset.len > 0 {
-		buf << write_tag(6, 2)
-		buf << write_length_delimited(n_start_offset)
+		write_tag_into(mut buf, 6, 2)
+		write_length_delimited_into(mut buf, n_start_offset)
 	}
 	n_end_offset := encode_node(val.end_offset)
 	if n_end_offset.len > 0 {
-		buf << write_tag(7, 2)
-		buf << write_length_delimited(n_end_offset)
+		write_tag_into(mut buf, 7, 2)
+		write_length_delimited_into(mut buf, n_end_offset)
 	}
 	if val.location != 0 {
-		buf << write_tag(8, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 8, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -2489,15 +2495,15 @@ pub fn encode_range_table_sample(val RangeTableSample) []u8 {
 	mut buf := []u8{}
 	n_relation := encode_node(val.relation)
 	if n_relation.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_relation)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_relation)
 	}
 	if val.method.len > 0 {
 		for v in val.method {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -2505,19 +2511,19 @@ pub fn encode_range_table_sample(val RangeTableSample) []u8 {
 		for v in val.args {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_repeatable := encode_node(val.repeatable)
 	if n_repeatable.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(n_repeatable)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, n_repeatable)
 	}
 	if val.location != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -2525,24 +2531,24 @@ pub fn encode_range_table_sample(val RangeTableSample) []u8 {
 pub fn encode_index_elem(val IndexElem) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.name)
 	}
 	n_expr := encode_node(val.expr)
 	if n_expr.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_expr)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_expr)
 	}
 	if val.indexcolname != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.indexcolname)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.indexcolname)
 	}
 	if val.collation.len > 0 {
 		for v in val.collation {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -2550,8 +2556,8 @@ pub fn encode_index_elem(val IndexElem) []u8 {
 		for v in val.opclass {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -2559,18 +2565,18 @@ pub fn encode_index_elem(val IndexElem) []u8 {
 		for v in val.opclassopts {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(6, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 6, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if u64(val.ordering) != 0 {
-		buf << write_tag(7, 0)
-		buf << write_varint(u64(val.ordering))
+		write_tag_into(mut buf, 7, 0)
+		write_varint_into(mut buf, u64(val.ordering))
 	}
 	if u64(val.nulls_ordering) != 0 {
-		buf << write_tag(8, 0)
-		buf << write_varint(u64(val.nulls_ordering))
+		write_tag_into(mut buf, 8, 0)
+		write_varint_into(mut buf, u64(val.nulls_ordering))
 	}
 	return buf
 }
@@ -2578,25 +2584,25 @@ pub fn encode_index_elem(val IndexElem) []u8 {
 pub fn encode_def_elem(val DefElem) []u8 {
 	mut buf := []u8{}
 	if val.defnamespace != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.defnamespace)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.defnamespace)
 	}
 	if val.defname != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.defname)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.defname)
 	}
 	n_arg := encode_node(val.arg)
 	if n_arg.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(n_arg)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, n_arg)
 	}
 	if u64(val.defaction) != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.defaction))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.defaction))
 	}
 	if val.location != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -2607,18 +2613,18 @@ pub fn encode_locking_clause(val LockingClause) []u8 {
 		for v in val.locked_rels {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if u64(val.strength) != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.strength))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.strength))
 	}
 	if u64(val.wait_policy) != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.wait_policy))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.wait_policy))
 	}
 	return buf
 }
@@ -2626,20 +2632,20 @@ pub fn encode_locking_clause(val LockingClause) []u8 {
 pub fn encode_partition_elem(val PartitionElem) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.name)
 	}
 	n_expr := encode_node(val.expr)
 	if n_expr.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_expr)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_expr)
 	}
 	if val.collation.len > 0 {
 		for v in val.collation {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -2647,14 +2653,14 @@ pub fn encode_partition_elem(val PartitionElem) []u8 {
 		for v in val.opclass {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.location != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -2662,21 +2668,21 @@ pub fn encode_partition_elem(val PartitionElem) []u8 {
 pub fn encode_partition_spec(val PartitionSpec) []u8 {
 	mut buf := []u8{}
 	if u64(val.strategy) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.strategy))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.strategy))
 	}
 	if val.part_params.len > 0 {
 		for v in val.part_params {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.location != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -2684,27 +2690,27 @@ pub fn encode_partition_spec(val PartitionSpec) []u8 {
 pub fn encode_partition_bound_spec(val PartitionBoundSpec) []u8 {
 	mut buf := []u8{}
 	if val.strategy != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.strategy)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.strategy)
 	}
 	if val.is_default {
-		buf << write_tag(2, 0)
-		buf << write_bool(val.is_default)
+		write_tag_into(mut buf, 2, 0)
+		write_bool_into(mut buf, val.is_default)
 	}
 	if val.modulus != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.modulus))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.modulus))
 	}
 	if val.remainder != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.remainder))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.remainder))
 	}
 	if val.listdatums.len > 0 {
 		for v in val.listdatums {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -2712,8 +2718,8 @@ pub fn encode_partition_bound_spec(val PartitionBoundSpec) []u8 {
 		for v in val.lowerdatums {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(6, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 6, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -2721,14 +2727,14 @@ pub fn encode_partition_bound_spec(val PartitionBoundSpec) []u8 {
 		for v in val.upperdatums {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(7, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 7, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.location != 0 {
-		buf << write_tag(8, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 8, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -2736,17 +2742,17 @@ pub fn encode_partition_bound_spec(val PartitionBoundSpec) []u8 {
 pub fn encode_partition_range_datum(val PartitionRangeDatum) []u8 {
 	mut buf := []u8{}
 	if u64(val.kind) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.kind))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.kind))
 	}
 	n_value := encode_node(val.value)
 	if n_value.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_value)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_value)
 	}
 	if val.location != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -2759,44 +2765,44 @@ pub fn encode_single_partition_spec(val SinglePartitionSpec) []u8 {
 pub fn encode_r_t_e_permission_info(val RTEPermissionInfo) []u8 {
 	mut buf := []u8{}
 	if val.relid != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.relid))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.relid))
 	}
 	if val.inh {
-		buf << write_tag(2, 0)
-		buf << write_bool(val.inh)
+		write_tag_into(mut buf, 2, 0)
+		write_bool_into(mut buf, val.inh)
 	}
 	if val.required_perms != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(val.required_perms)
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, val.required_perms)
 	}
 	if val.check_as_user != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.check_as_user))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.check_as_user))
 	}
 	if val.selected_cols.len > 0 {
 		mut packed_ := []u8{}
 		for v in val.selected_cols {
-			packed_ << write_varint(v)
+			write_varint_into(mut packed_, v)
 		}
-		buf << write_tag(5, 2)
-		buf << write_length_delimited(packed_)
+		write_tag_into(mut buf, 5, 2)
+		write_length_delimited_into(mut buf, packed_)
 	}
 	if val.inserted_cols.len > 0 {
 		mut packed_ := []u8{}
 		for v in val.inserted_cols {
-			packed_ << write_varint(v)
+			write_varint_into(mut packed_, v)
 		}
-		buf << write_tag(6, 2)
-		buf << write_length_delimited(packed_)
+		write_tag_into(mut buf, 6, 2)
+		write_length_delimited_into(mut buf, packed_)
 	}
 	if val.updated_cols.len > 0 {
 		mut packed_ := []u8{}
 		for v in val.updated_cols {
-			packed_ << write_varint(v)
+			write_varint_into(mut packed_, v)
 		}
-		buf << write_tag(7, 2)
-		buf << write_length_delimited(packed_)
+		write_tag_into(mut buf, 7, 2)
+		write_length_delimited_into(mut buf, packed_)
 	}
 	return buf
 }
@@ -2805,19 +2811,19 @@ pub fn encode_range_tbl_function(val RangeTblFunction) []u8 {
 	mut buf := []u8{}
 	n_funcexpr := encode_node(val.funcexpr)
 	if n_funcexpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_funcexpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_funcexpr)
 	}
 	if val.funccolcount != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.funccolcount))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.funccolcount))
 	}
 	if val.funccolnames.len > 0 {
 		for v in val.funccolnames {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -2825,8 +2831,8 @@ pub fn encode_range_tbl_function(val RangeTblFunction) []u8 {
 		for v in val.funccoltypes {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -2834,8 +2840,8 @@ pub fn encode_range_tbl_function(val RangeTblFunction) []u8 {
 		for v in val.funccoltypmods {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -2843,18 +2849,18 @@ pub fn encode_range_tbl_function(val RangeTblFunction) []u8 {
 		for v in val.funccolcollations {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(6, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 6, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.funcparams.len > 0 {
 		mut packed_ := []u8{}
 		for v in val.funcparams {
-			packed_ << write_varint(v)
+			write_varint_into(mut packed_, v)
 		}
-		buf << write_tag(7, 2)
-		buf << write_length_delimited(packed_)
+		write_tag_into(mut buf, 7, 2)
+		write_length_delimited_into(mut buf, packed_)
 	}
 	return buf
 }
@@ -2862,22 +2868,22 @@ pub fn encode_range_tbl_function(val RangeTblFunction) []u8 {
 pub fn encode_table_sample_clause(val TableSampleClause) []u8 {
 	mut buf := []u8{}
 	if val.tsmhandler != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.tsmhandler))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.tsmhandler))
 	}
 	if val.args.len > 0 {
 		for v in val.args {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_repeatable := encode_node(val.repeatable)
 	if n_repeatable.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(n_repeatable)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, n_repeatable)
 	}
 	return buf
 }
@@ -2885,25 +2891,25 @@ pub fn encode_table_sample_clause(val TableSampleClause) []u8 {
 pub fn encode_with_check_option(val WithCheckOption) []u8 {
 	mut buf := []u8{}
 	if u64(val.kind) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.kind))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.kind))
 	}
 	if val.relname != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.relname)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.relname)
 	}
 	if val.polname != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.polname)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.polname)
 	}
 	n_qual := encode_node(val.qual)
 	if n_qual.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(n_qual)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, n_qual)
 	}
 	if val.cascaded {
-		buf << write_tag(5, 0)
-		buf << write_bool(val.cascaded)
+		write_tag_into(mut buf, 5, 0)
+		write_bool_into(mut buf, val.cascaded)
 	}
 	return buf
 }
@@ -2911,24 +2917,24 @@ pub fn encode_with_check_option(val WithCheckOption) []u8 {
 pub fn encode_sort_group_clause(val SortGroupClause) []u8 {
 	mut buf := []u8{}
 	if val.tle_sort_group_ref != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.tle_sort_group_ref))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.tle_sort_group_ref))
 	}
 	if val.eqop != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.eqop))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.eqop))
 	}
 	if val.sortop != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.sortop))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.sortop))
 	}
 	if val.nulls_first {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.nulls_first)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.nulls_first)
 	}
 	if val.hashable {
-		buf << write_tag(5, 0)
-		buf << write_bool(val.hashable)
+		write_tag_into(mut buf, 5, 0)
+		write_bool_into(mut buf, val.hashable)
 	}
 	return buf
 }
@@ -2936,21 +2942,21 @@ pub fn encode_sort_group_clause(val SortGroupClause) []u8 {
 pub fn encode_grouping_set(val GroupingSet) []u8 {
 	mut buf := []u8{}
 	if u64(val.kind) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.kind))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.kind))
 	}
 	if val.content.len > 0 {
 		for v in val.content {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.location != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -2958,19 +2964,19 @@ pub fn encode_grouping_set(val GroupingSet) []u8 {
 pub fn encode_window_clause(val WindowClause) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.name)
 	}
 	if val.refname != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.refname)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.refname)
 	}
 	if val.partition_clause.len > 0 {
 		for v in val.partition_clause {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -2978,52 +2984,52 @@ pub fn encode_window_clause(val WindowClause) []u8 {
 		for v in val.order_clause {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.frame_options != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.frame_options))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.frame_options))
 	}
 	n_start_offset := encode_node(val.start_offset)
 	if n_start_offset.len > 0 {
-		buf << write_tag(6, 2)
-		buf << write_length_delimited(n_start_offset)
+		write_tag_into(mut buf, 6, 2)
+		write_length_delimited_into(mut buf, n_start_offset)
 	}
 	n_end_offset := encode_node(val.end_offset)
 	if n_end_offset.len > 0 {
-		buf << write_tag(7, 2)
-		buf << write_length_delimited(n_end_offset)
+		write_tag_into(mut buf, 7, 2)
+		write_length_delimited_into(mut buf, n_end_offset)
 	}
 	if val.start_in_range_func != 0 {
-		buf << write_tag(8, 0)
-		buf << write_varint(u64(val.start_in_range_func))
+		write_tag_into(mut buf, 8, 0)
+		write_varint_into(mut buf, u64(val.start_in_range_func))
 	}
 	if val.end_in_range_func != 0 {
-		buf << write_tag(9, 0)
-		buf << write_varint(u64(val.end_in_range_func))
+		write_tag_into(mut buf, 9, 0)
+		write_varint_into(mut buf, u64(val.end_in_range_func))
 	}
 	if val.in_range_coll != 0 {
-		buf << write_tag(10, 0)
-		buf << write_varint(u64(val.in_range_coll))
+		write_tag_into(mut buf, 10, 0)
+		write_varint_into(mut buf, u64(val.in_range_coll))
 	}
 	if val.in_range_asc {
-		buf << write_tag(11, 0)
-		buf << write_bool(val.in_range_asc)
+		write_tag_into(mut buf, 11, 0)
+		write_bool_into(mut buf, val.in_range_asc)
 	}
 	if val.in_range_nulls_first {
-		buf << write_tag(12, 0)
-		buf << write_bool(val.in_range_nulls_first)
+		write_tag_into(mut buf, 12, 0)
+		write_bool_into(mut buf, val.in_range_nulls_first)
 	}
 	if val.winref != 0 {
-		buf << write_tag(13, 0)
-		buf << write_varint(u64(val.winref))
+		write_tag_into(mut buf, 13, 0)
+		write_varint_into(mut buf, u64(val.winref))
 	}
 	if val.copied_order {
-		buf << write_tag(14, 0)
-		buf << write_bool(val.copied_order)
+		write_tag_into(mut buf, 14, 0)
+		write_bool_into(mut buf, val.copied_order)
 	}
 	return buf
 }
@@ -3031,20 +3037,20 @@ pub fn encode_window_clause(val WindowClause) []u8 {
 pub fn encode_row_mark_clause(val RowMarkClause) []u8 {
 	mut buf := []u8{}
 	if val.rti != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.rti))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.rti))
 	}
 	if u64(val.strength) != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.strength))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.strength))
 	}
 	if u64(val.wait_policy) != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.wait_policy))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.wait_policy))
 	}
 	if val.pushed_down {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.pushed_down)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.pushed_down)
 	}
 	return buf
 }
@@ -3055,18 +3061,18 @@ pub fn encode_with_clause(val WithClause) []u8 {
 		for v in val.ctes {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.recursive {
-		buf << write_tag(2, 0)
-		buf << write_bool(val.recursive)
+		write_tag_into(mut buf, 2, 0)
+		write_bool_into(mut buf, val.recursive)
 	}
 	if val.location != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -3077,23 +3083,23 @@ pub fn encode_infer_clause(val InferClause) []u8 {
 		for v in val.index_elems {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_where_clause := encode_node(val.where_clause)
 	if n_where_clause.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_where_clause)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_where_clause)
 	}
 	if val.conname != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.conname)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.conname)
 	}
 	if val.location != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -3104,22 +3110,22 @@ pub fn encode_c_t_e_search_clause(val CTESearchClause) []u8 {
 		for v in val.search_col_list {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.search_breadth_first {
-		buf << write_tag(2, 0)
-		buf << write_bool(val.search_breadth_first)
+		write_tag_into(mut buf, 2, 0)
+		write_bool_into(mut buf, val.search_breadth_first)
 	}
 	if val.search_seq_column != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.search_seq_column)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.search_seq_column)
 	}
 	if val.location != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -3130,48 +3136,48 @@ pub fn encode_c_t_e_cycle_clause(val CTECycleClause) []u8 {
 		for v in val.cycle_col_list {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.cycle_mark_column != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.cycle_mark_column)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.cycle_mark_column)
 	}
 	n_cycle_mark_value := encode_node(val.cycle_mark_value)
 	if n_cycle_mark_value.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(n_cycle_mark_value)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, n_cycle_mark_value)
 	}
 	n_cycle_mark_default := encode_node(val.cycle_mark_default)
 	if n_cycle_mark_default.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(n_cycle_mark_default)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, n_cycle_mark_default)
 	}
 	if val.cycle_path_column != '' {
-		buf << write_tag(5, 2)
-		buf << write_string(val.cycle_path_column)
+		write_tag_into(mut buf, 5, 2)
+		write_string_into(mut buf, val.cycle_path_column)
 	}
 	if val.location != 0 {
-		buf << write_tag(6, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 6, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	if val.cycle_mark_type != 0 {
-		buf << write_tag(7, 0)
-		buf << write_varint(u64(val.cycle_mark_type))
+		write_tag_into(mut buf, 7, 0)
+		write_varint_into(mut buf, u64(val.cycle_mark_type))
 	}
 	if val.cycle_mark_typmod != 0 {
-		buf << write_tag(8, 0)
-		buf << write_varint(u64(val.cycle_mark_typmod))
+		write_tag_into(mut buf, 8, 0)
+		write_varint_into(mut buf, u64(val.cycle_mark_typmod))
 	}
 	if val.cycle_mark_collation != 0 {
-		buf << write_tag(9, 0)
-		buf << write_varint(u64(val.cycle_mark_collation))
+		write_tag_into(mut buf, 9, 0)
+		write_varint_into(mut buf, u64(val.cycle_mark_collation))
 	}
 	if val.cycle_mark_neop != 0 {
-		buf << write_tag(10, 0)
-		buf << write_varint(u64(val.cycle_mark_neop))
+		write_tag_into(mut buf, 10, 0)
+		write_varint_into(mut buf, u64(val.cycle_mark_neop))
 	}
 	return buf
 }
@@ -3179,28 +3185,28 @@ pub fn encode_c_t_e_cycle_clause(val CTECycleClause) []u8 {
 pub fn encode_merge_when_clause(val MergeWhenClause) []u8 {
 	mut buf := []u8{}
 	if u64(val.match_kind) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.match_kind))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.match_kind))
 	}
 	if u64(val.command_type) != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.command_type))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.command_type))
 	}
 	if u64(val.override) != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.override))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.override))
 	}
 	n_condition := encode_node(val.condition)
 	if n_condition.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(n_condition)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, n_condition)
 	}
 	if val.target_list.len > 0 {
 		for v in val.target_list {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3208,8 +3214,8 @@ pub fn encode_merge_when_clause(val MergeWhenClause) []u8 {
 		for v in val.values {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(6, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 6, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3219,16 +3225,16 @@ pub fn encode_merge_when_clause(val MergeWhenClause) []u8 {
 pub fn encode_trigger_transition(val TriggerTransition) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.name)
 	}
 	if val.is_new {
-		buf << write_tag(2, 0)
-		buf << write_bool(val.is_new)
+		write_tag_into(mut buf, 2, 0)
+		write_bool_into(mut buf, val.is_new)
 	}
 	if val.is_table {
-		buf << write_tag(3, 0)
-		buf << write_bool(val.is_table)
+		write_tag_into(mut buf, 3, 0)
+		write_bool_into(mut buf, val.is_table)
 	}
 	return buf
 }
@@ -3237,20 +3243,20 @@ pub fn encode_json_table_path_spec(val JsonTablePathSpec) []u8 {
 	mut buf := []u8{}
 	n_string := encode_node(val.string)
 	if n_string.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_string)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_string)
 	}
 	if val.name != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.name)
 	}
 	if val.name_location != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.name_location))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.name_location))
 	}
 	if val.location != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -3259,16 +3265,16 @@ pub fn encode_raw_stmt(val RawStmt) []u8 {
 	mut buf := []u8{}
 	n_stmt := encode_node(val.stmt)
 	if n_stmt.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_stmt)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_stmt)
 	}
 	if val.stmt_location != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.stmt_location))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.stmt_location))
 	}
 	if val.stmt_len != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.stmt_len))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.stmt_len))
 	}
 	return buf
 }
@@ -3276,29 +3282,29 @@ pub fn encode_raw_stmt(val RawStmt) []u8 {
 pub fn encode_set_operation_stmt(val SetOperationStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.op) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.op))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.op))
 	}
 	if val.all {
-		buf << write_tag(2, 0)
-		buf << write_bool(val.all)
+		write_tag_into(mut buf, 2, 0)
+		write_bool_into(mut buf, val.all)
 	}
 	n_larg := encode_node(val.larg)
 	if n_larg.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(n_larg)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, n_larg)
 	}
 	n_rarg := encode_node(val.rarg)
 	if n_rarg.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(n_rarg)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, n_rarg)
 	}
 	if val.col_types.len > 0 {
 		for v in val.col_types {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3306,8 +3312,8 @@ pub fn encode_set_operation_stmt(val SetOperationStmt) []u8 {
 		for v in val.col_typmods {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(6, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 6, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3315,8 +3321,8 @@ pub fn encode_set_operation_stmt(val SetOperationStmt) []u8 {
 		for v in val.col_collations {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(7, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 7, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3324,8 +3330,8 @@ pub fn encode_set_operation_stmt(val SetOperationStmt) []u8 {
 		for v in val.group_clauses {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(8, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 8, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3336,8 +3342,8 @@ pub fn encode_return_stmt(val ReturnStmt) []u8 {
 	mut buf := []u8{}
 	n_returnval := encode_node(val.returnval)
 	if n_returnval.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_returnval)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_returnval)
 	}
 	return buf
 }
@@ -3345,12 +3351,12 @@ pub fn encode_return_stmt(val ReturnStmt) []u8 {
 pub fn encode_replica_identity_stmt(val ReplicaIdentityStmt) []u8 {
 	mut buf := []u8{}
 	if val.identity_type != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.identity_type)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.identity_type)
 	}
 	if val.name != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.name)
 	}
 	return buf
 }
@@ -3361,8 +3367,8 @@ pub fn encode_alter_collation_stmt(val AlterCollationStmt) []u8 {
 		for v in val.collname {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3372,34 +3378,34 @@ pub fn encode_alter_collation_stmt(val AlterCollationStmt) []u8 {
 pub fn encode_alter_domain_stmt(val AlterDomainStmt) []u8 {
 	mut buf := []u8{}
 	if val.subtype != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.subtype)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.subtype)
 	}
 	if val.type_name.len > 0 {
 		for v in val.type_name {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.name != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.name)
 	}
 	n_def := encode_node(val.def)
 	if n_def.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(n_def)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, n_def)
 	}
 	if u64(val.behavior) != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.behavior))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.behavior))
 	}
 	if val.missing_ok {
-		buf << write_tag(6, 0)
-		buf << write_bool(val.missing_ok)
+		write_tag_into(mut buf, 6, 0)
+		write_bool_into(mut buf, val.missing_ok)
 	}
 	return buf
 }
@@ -3410,8 +3416,8 @@ pub fn encode_object_with_args(val ObjectWithArgs) []u8 {
 		for v in val.objname {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3419,8 +3425,8 @@ pub fn encode_object_with_args(val ObjectWithArgs) []u8 {
 		for v in val.objargs {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3428,14 +3434,14 @@ pub fn encode_object_with_args(val ObjectWithArgs) []u8 {
 		for v in val.objfuncargs {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.args_unspecified {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.args_unspecified)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.args_unspecified)
 	}
 	return buf
 }
@@ -3443,15 +3449,15 @@ pub fn encode_object_with_args(val ObjectWithArgs) []u8 {
 pub fn encode_access_priv(val AccessPriv) []u8 {
 	mut buf := []u8{}
 	if val.priv_name != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.priv_name)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.priv_name)
 	}
 	if val.cols.len > 0 {
 		for v in val.cols {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3461,25 +3467,25 @@ pub fn encode_access_priv(val AccessPriv) []u8 {
 pub fn encode_variable_set_stmt(val VariableSetStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.kind) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.kind))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.kind))
 	}
 	if val.name != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.name)
 	}
 	if val.args.len > 0 {
 		for v in val.args {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.is_local {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.is_local)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.is_local)
 	}
 	return buf
 }
@@ -3487,8 +3493,8 @@ pub fn encode_variable_set_stmt(val VariableSetStmt) []u8 {
 pub fn encode_variable_show_stmt(val VariableShowStmt) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.name)
 	}
 	return buf
 }
@@ -3496,12 +3502,12 @@ pub fn encode_variable_show_stmt(val VariableShowStmt) []u8 {
 pub fn encode_drop_table_space_stmt(val DropTableSpaceStmt) []u8 {
 	mut buf := []u8{}
 	if val.tablespacename != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.tablespacename)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.tablespacename)
 	}
 	if val.missing_ok {
-		buf << write_tag(2, 0)
-		buf << write_bool(val.missing_ok)
+		write_tag_into(mut buf, 2, 0)
+		write_bool_into(mut buf, val.missing_ok)
 	}
 	return buf
 }
@@ -3509,21 +3515,21 @@ pub fn encode_drop_table_space_stmt(val DropTableSpaceStmt) []u8 {
 pub fn encode_alter_table_space_options_stmt(val AlterTableSpaceOptionsStmt) []u8 {
 	mut buf := []u8{}
 	if val.tablespacename != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.tablespacename)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.tablespacename)
 	}
 	if val.options.len > 0 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.is_reset {
-		buf << write_tag(3, 0)
-		buf << write_bool(val.is_reset)
+		write_tag_into(mut buf, 3, 0)
+		write_bool_into(mut buf, val.is_reset)
 	}
 	return buf
 }
@@ -3531,29 +3537,29 @@ pub fn encode_alter_table_space_options_stmt(val AlterTableSpaceOptionsStmt) []u
 pub fn encode_alter_table_move_all_stmt(val AlterTableMoveAllStmt) []u8 {
 	mut buf := []u8{}
 	if val.orig_tablespacename != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.orig_tablespacename)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.orig_tablespacename)
 	}
 	if u64(val.objtype) != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.objtype))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.objtype))
 	}
 	if val.roles.len > 0 {
 		for v in val.roles {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.new_tablespacename != '' {
-		buf << write_tag(4, 2)
-		buf << write_string(val.new_tablespacename)
+		write_tag_into(mut buf, 4, 2)
+		write_string_into(mut buf, val.new_tablespacename)
 	}
 	if val.nowait {
-		buf << write_tag(5, 0)
-		buf << write_bool(val.nowait)
+		write_tag_into(mut buf, 5, 0)
+		write_bool_into(mut buf, val.nowait)
 	}
 	return buf
 }
@@ -3561,19 +3567,19 @@ pub fn encode_alter_table_move_all_stmt(val AlterTableMoveAllStmt) []u8 {
 pub fn encode_create_extension_stmt(val CreateExtensionStmt) []u8 {
 	mut buf := []u8{}
 	if val.extname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.extname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.extname)
 	}
 	if val.if_not_exists {
-		buf << write_tag(2, 0)
-		buf << write_bool(val.if_not_exists)
+		write_tag_into(mut buf, 2, 0)
+		write_bool_into(mut buf, val.if_not_exists)
 	}
 	if val.options.len > 0 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3583,15 +3589,15 @@ pub fn encode_create_extension_stmt(val CreateExtensionStmt) []u8 {
 pub fn encode_alter_extension_stmt(val AlterExtensionStmt) []u8 {
 	mut buf := []u8{}
 	if val.extname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.extname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.extname)
 	}
 	if val.options.len > 0 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3601,21 +3607,21 @@ pub fn encode_alter_extension_stmt(val AlterExtensionStmt) []u8 {
 pub fn encode_alter_extension_contents_stmt(val AlterExtensionContentsStmt) []u8 {
 	mut buf := []u8{}
 	if val.extname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.extname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.extname)
 	}
 	if val.action != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.action))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.action))
 	}
 	if u64(val.objtype) != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.objtype))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.objtype))
 	}
 	n_object := encode_node(val.object)
 	if n_object.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(n_object)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, n_object)
 	}
 	return buf
 }
@@ -3623,15 +3629,15 @@ pub fn encode_alter_extension_contents_stmt(val AlterExtensionContentsStmt) []u8
 pub fn encode_create_fdw_stmt(val CreateFdwStmt) []u8 {
 	mut buf := []u8{}
 	if val.fdwname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.fdwname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.fdwname)
 	}
 	if val.func_options.len > 0 {
 		for v in val.func_options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3639,8 +3645,8 @@ pub fn encode_create_fdw_stmt(val CreateFdwStmt) []u8 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3650,15 +3656,15 @@ pub fn encode_create_fdw_stmt(val CreateFdwStmt) []u8 {
 pub fn encode_alter_fdw_stmt(val AlterFdwStmt) []u8 {
 	mut buf := []u8{}
 	if val.fdwname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.fdwname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.fdwname)
 	}
 	if val.func_options.len > 0 {
 		for v in val.func_options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3666,8 +3672,8 @@ pub fn encode_alter_fdw_stmt(val AlterFdwStmt) []u8 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3677,31 +3683,31 @@ pub fn encode_alter_fdw_stmt(val AlterFdwStmt) []u8 {
 pub fn encode_create_foreign_server_stmt(val CreateForeignServerStmt) []u8 {
 	mut buf := []u8{}
 	if val.servername != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.servername)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.servername)
 	}
 	if val.servertype != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.servertype)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.servertype)
 	}
 	if val.version != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.version)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.version)
 	}
 	if val.fdwname != '' {
-		buf << write_tag(4, 2)
-		buf << write_string(val.fdwname)
+		write_tag_into(mut buf, 4, 2)
+		write_string_into(mut buf, val.fdwname)
 	}
 	if val.if_not_exists {
-		buf << write_tag(5, 0)
-		buf << write_bool(val.if_not_exists)
+		write_tag_into(mut buf, 5, 0)
+		write_bool_into(mut buf, val.if_not_exists)
 	}
 	if val.options.len > 0 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(6, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 6, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3711,25 +3717,25 @@ pub fn encode_create_foreign_server_stmt(val CreateForeignServerStmt) []u8 {
 pub fn encode_alter_foreign_server_stmt(val AlterForeignServerStmt) []u8 {
 	mut buf := []u8{}
 	if val.servername != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.servername)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.servername)
 	}
 	if val.version != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.version)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.version)
 	}
 	if val.options.len > 0 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.has_version {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.has_version)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.has_version)
 	}
 	return buf
 }
@@ -3737,27 +3743,27 @@ pub fn encode_alter_foreign_server_stmt(val AlterForeignServerStmt) []u8 {
 pub fn encode_import_foreign_schema_stmt(val ImportForeignSchemaStmt) []u8 {
 	mut buf := []u8{}
 	if val.server_name != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.server_name)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.server_name)
 	}
 	if val.remote_schema != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.remote_schema)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.remote_schema)
 	}
 	if val.local_schema != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.local_schema)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.local_schema)
 	}
 	if u64(val.list_type) != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.list_type))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.list_type))
 	}
 	if val.table_list.len > 0 {
 		for v in val.table_list {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3765,8 +3771,8 @@ pub fn encode_import_foreign_schema_stmt(val ImportForeignSchemaStmt) []u8 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(6, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 6, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3776,21 +3782,21 @@ pub fn encode_import_foreign_schema_stmt(val ImportForeignSchemaStmt) []u8 {
 pub fn encode_create_am_stmt(val CreateAmStmt) []u8 {
 	mut buf := []u8{}
 	if val.amname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.amname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.amname)
 	}
 	if val.handler_name.len > 0 {
 		for v in val.handler_name {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.amtype != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.amtype)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.amtype)
 	}
 	return buf
 }
@@ -3798,19 +3804,19 @@ pub fn encode_create_am_stmt(val CreateAmStmt) []u8 {
 pub fn encode_create_event_trig_stmt(val CreateEventTrigStmt) []u8 {
 	mut buf := []u8{}
 	if val.trigname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.trigname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.trigname)
 	}
 	if val.eventname != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.eventname)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.eventname)
 	}
 	if val.whenclause.len > 0 {
 		for v in val.whenclause {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3818,8 +3824,8 @@ pub fn encode_create_event_trig_stmt(val CreateEventTrigStmt) []u8 {
 		for v in val.funcname {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3829,12 +3835,12 @@ pub fn encode_create_event_trig_stmt(val CreateEventTrigStmt) []u8 {
 pub fn encode_alter_event_trig_stmt(val AlterEventTrigStmt) []u8 {
 	mut buf := []u8{}
 	if val.trigname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.trigname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.trigname)
 	}
 	if val.tgenabled != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.tgenabled)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.tgenabled)
 	}
 	return buf
 }
@@ -3842,19 +3848,19 @@ pub fn encode_alter_event_trig_stmt(val AlterEventTrigStmt) []u8 {
 pub fn encode_create_p_lang_stmt(val CreatePLangStmt) []u8 {
 	mut buf := []u8{}
 	if val.replace {
-		buf << write_tag(1, 0)
-		buf << write_bool(val.replace)
+		write_tag_into(mut buf, 1, 0)
+		write_bool_into(mut buf, val.replace)
 	}
 	if val.plname != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.plname)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.plname)
 	}
 	if val.plhandler.len > 0 {
 		for v in val.plhandler {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3862,8 +3868,8 @@ pub fn encode_create_p_lang_stmt(val CreatePLangStmt) []u8 {
 		for v in val.plinline {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3871,14 +3877,14 @@ pub fn encode_create_p_lang_stmt(val CreatePLangStmt) []u8 {
 		for v in val.plvalidator {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.pltrusted {
-		buf << write_tag(6, 0)
-		buf << write_bool(val.pltrusted)
+		write_tag_into(mut buf, 6, 0)
+		write_bool_into(mut buf, val.pltrusted)
 	}
 	return buf
 }
@@ -3886,19 +3892,19 @@ pub fn encode_create_p_lang_stmt(val CreatePLangStmt) []u8 {
 pub fn encode_create_role_stmt(val CreateRoleStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.stmt_type) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.stmt_type))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.stmt_type))
 	}
 	if val.role != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.role)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.role)
 	}
 	if val.options.len > 0 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3911,14 +3917,14 @@ pub fn encode_drop_role_stmt(val DropRoleStmt) []u8 {
 		for v in val.roles {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.missing_ok {
-		buf << write_tag(2, 0)
-		buf << write_bool(val.missing_ok)
+		write_tag_into(mut buf, 2, 0)
+		write_bool_into(mut buf, val.missing_ok)
 	}
 	return buf
 }
@@ -3926,19 +3932,19 @@ pub fn encode_drop_role_stmt(val DropRoleStmt) []u8 {
 pub fn encode_define_stmt(val DefineStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.kind) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.kind))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.kind))
 	}
 	if val.oldstyle {
-		buf << write_tag(2, 0)
-		buf << write_bool(val.oldstyle)
+		write_tag_into(mut buf, 2, 0)
+		write_bool_into(mut buf, val.oldstyle)
 	}
 	if val.defnames.len > 0 {
 		for v in val.defnames {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3946,8 +3952,8 @@ pub fn encode_define_stmt(val DefineStmt) []u8 {
 		for v in val.args {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -3955,18 +3961,18 @@ pub fn encode_define_stmt(val DefineStmt) []u8 {
 		for v in val.definition {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.if_not_exists {
-		buf << write_tag(6, 0)
-		buf << write_bool(val.if_not_exists)
+		write_tag_into(mut buf, 6, 0)
+		write_bool_into(mut buf, val.if_not_exists)
 	}
 	if val.replace {
-		buf << write_tag(7, 0)
-		buf << write_bool(val.replace)
+		write_tag_into(mut buf, 7, 0)
+		write_bool_into(mut buf, val.replace)
 	}
 	return buf
 }
@@ -3977,14 +3983,14 @@ pub fn encode_create_op_family_stmt(val CreateOpFamilyStmt) []u8 {
 		for v in val.opfamilyname {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.amname != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.amname)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.amname)
 	}
 	return buf
 }
@@ -3995,25 +4001,25 @@ pub fn encode_alter_op_family_stmt(val AlterOpFamilyStmt) []u8 {
 		for v in val.opfamilyname {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.amname != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.amname)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.amname)
 	}
 	if val.is_drop {
-		buf << write_tag(3, 0)
-		buf << write_bool(val.is_drop)
+		write_tag_into(mut buf, 3, 0)
+		write_bool_into(mut buf, val.is_drop)
 	}
 	if val.items.len > 0 {
 		for v in val.items {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4026,26 +4032,26 @@ pub fn encode_drop_stmt(val DropStmt) []u8 {
 		for v in val.objects {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if u64(val.remove_type) != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.remove_type))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.remove_type))
 	}
 	if u64(val.behavior) != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.behavior))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.behavior))
 	}
 	if val.missing_ok {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.missing_ok)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.missing_ok)
 	}
 	if val.concurrent {
-		buf << write_tag(5, 0)
-		buf << write_bool(val.concurrent)
+		write_tag_into(mut buf, 5, 0)
+		write_bool_into(mut buf, val.concurrent)
 	}
 	return buf
 }
@@ -4056,18 +4062,18 @@ pub fn encode_truncate_stmt(val TruncateStmt) []u8 {
 		for v in val.relations {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.restart_seqs {
-		buf << write_tag(2, 0)
-		buf << write_bool(val.restart_seqs)
+		write_tag_into(mut buf, 2, 0)
+		write_bool_into(mut buf, val.restart_seqs)
 	}
 	if u64(val.behavior) != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.behavior))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.behavior))
 	}
 	return buf
 }
@@ -4075,17 +4081,17 @@ pub fn encode_truncate_stmt(val TruncateStmt) []u8 {
 pub fn encode_comment_stmt(val CommentStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.objtype) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.objtype))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.objtype))
 	}
 	n_object := encode_node(val.object)
 	if n_object.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_object)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_object)
 	}
 	if val.comment != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.comment)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.comment)
 	}
 	return buf
 }
@@ -4093,21 +4099,21 @@ pub fn encode_comment_stmt(val CommentStmt) []u8 {
 pub fn encode_sec_label_stmt(val SecLabelStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.objtype) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.objtype))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.objtype))
 	}
 	n_object := encode_node(val.object)
 	if n_object.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_object)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_object)
 	}
 	if val.provider != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.provider)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.provider)
 	}
 	if val.label != '' {
-		buf << write_tag(4, 2)
-		buf << write_string(val.label)
+		write_tag_into(mut buf, 4, 2)
+		write_string_into(mut buf, val.label)
 	}
 	return buf
 }
@@ -4115,17 +4121,17 @@ pub fn encode_sec_label_stmt(val SecLabelStmt) []u8 {
 pub fn encode_declare_cursor_stmt(val DeclareCursorStmt) []u8 {
 	mut buf := []u8{}
 	if val.portalname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.portalname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.portalname)
 	}
 	if val.options != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.options))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.options))
 	}
 	n_query := encode_node(val.query)
 	if n_query.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(n_query)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, n_query)
 	}
 	return buf
 }
@@ -4133,8 +4139,8 @@ pub fn encode_declare_cursor_stmt(val DeclareCursorStmt) []u8 {
 pub fn encode_close_portal_stmt(val ClosePortalStmt) []u8 {
 	mut buf := []u8{}
 	if val.portalname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.portalname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.portalname)
 	}
 	return buf
 }
@@ -4142,20 +4148,20 @@ pub fn encode_close_portal_stmt(val ClosePortalStmt) []u8 {
 pub fn encode_fetch_stmt(val FetchStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.direction) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.direction))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.direction))
 	}
 	if val.how_many != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.how_many))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.how_many))
 	}
 	if val.portalname != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.portalname)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.portalname)
 	}
 	if val.ismove {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.ismove)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.ismove)
 	}
 	return buf
 }
@@ -4166,8 +4172,8 @@ pub fn encode_create_stats_stmt(val CreateStatsStmt) []u8 {
 		for v in val.defnames {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4175,8 +4181,8 @@ pub fn encode_create_stats_stmt(val CreateStatsStmt) []u8 {
 		for v in val.stat_types {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4184,8 +4190,8 @@ pub fn encode_create_stats_stmt(val CreateStatsStmt) []u8 {
 		for v in val.exprs {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4193,22 +4199,22 @@ pub fn encode_create_stats_stmt(val CreateStatsStmt) []u8 {
 		for v in val.relations {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.stxcomment != '' {
-		buf << write_tag(5, 2)
-		buf << write_string(val.stxcomment)
+		write_tag_into(mut buf, 5, 2)
+		write_string_into(mut buf, val.stxcomment)
 	}
 	if val.transformed {
-		buf << write_tag(6, 0)
-		buf << write_bool(val.transformed)
+		write_tag_into(mut buf, 6, 0)
+		write_bool_into(mut buf, val.transformed)
 	}
 	if val.if_not_exists {
-		buf << write_tag(7, 0)
-		buf << write_bool(val.if_not_exists)
+		write_tag_into(mut buf, 7, 0)
+		write_bool_into(mut buf, val.if_not_exists)
 	}
 	return buf
 }
@@ -4216,13 +4222,13 @@ pub fn encode_create_stats_stmt(val CreateStatsStmt) []u8 {
 pub fn encode_stats_elem(val StatsElem) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.name)
 	}
 	n_expr := encode_node(val.expr)
 	if n_expr.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_expr)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_expr)
 	}
 	return buf
 }
@@ -4233,19 +4239,19 @@ pub fn encode_alter_stats_stmt(val AlterStatsStmt) []u8 {
 		for v in val.defnames {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_stxstattarget := encode_node(val.stxstattarget)
 	if n_stxstattarget.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_stxstattarget)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_stxstattarget)
 	}
 	if val.missing_ok {
-		buf << write_tag(3, 0)
-		buf << write_bool(val.missing_ok)
+		write_tag_into(mut buf, 3, 0)
+		write_bool_into(mut buf, val.missing_ok)
 	}
 	return buf
 }
@@ -4256,8 +4262,8 @@ pub fn encode_do_stmt(val DoStmt) []u8 {
 		for v in val.args {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4267,20 +4273,20 @@ pub fn encode_do_stmt(val DoStmt) []u8 {
 pub fn encode_inline_code_block(val InlineCodeBlock) []u8 {
 	mut buf := []u8{}
 	if val.source_text != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.source_text)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.source_text)
 	}
 	if val.lang_oid != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.lang_oid))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.lang_oid))
 	}
 	if val.lang_is_trusted {
-		buf << write_tag(3, 0)
-		buf << write_bool(val.lang_is_trusted)
+		write_tag_into(mut buf, 3, 0)
+		write_bool_into(mut buf, val.lang_is_trusted)
 	}
 	if val.atomic {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.atomic)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.atomic)
 	}
 	return buf
 }
@@ -4288,8 +4294,8 @@ pub fn encode_inline_code_block(val InlineCodeBlock) []u8 {
 pub fn encode_call_context(val CallContext) []u8 {
 	mut buf := []u8{}
 	if val.atomic {
-		buf << write_tag(1, 0)
-		buf << write_bool(val.atomic)
+		write_tag_into(mut buf, 1, 0)
+		write_bool_into(mut buf, val.atomic)
 	}
 	return buf
 }
@@ -4300,8 +4306,8 @@ pub fn encode_alter_type_stmt(val AlterTypeStmt) []u8 {
 		for v in val.type_name {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4309,8 +4315,8 @@ pub fn encode_alter_type_stmt(val AlterTypeStmt) []u8 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4320,12 +4326,12 @@ pub fn encode_alter_type_stmt(val AlterTypeStmt) []u8 {
 pub fn encode_notify_stmt(val NotifyStmt) []u8 {
 	mut buf := []u8{}
 	if val.conditionname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.conditionname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.conditionname)
 	}
 	if val.payload != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.payload)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.payload)
 	}
 	return buf
 }
@@ -4333,8 +4339,8 @@ pub fn encode_notify_stmt(val NotifyStmt) []u8 {
 pub fn encode_listen_stmt(val ListenStmt) []u8 {
 	mut buf := []u8{}
 	if val.conditionname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.conditionname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.conditionname)
 	}
 	return buf
 }
@@ -4342,8 +4348,8 @@ pub fn encode_listen_stmt(val ListenStmt) []u8 {
 pub fn encode_unlisten_stmt(val UnlistenStmt) []u8 {
 	mut buf := []u8{}
 	if val.conditionname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.conditionname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.conditionname)
 	}
 	return buf
 }
@@ -4351,33 +4357,33 @@ pub fn encode_unlisten_stmt(val UnlistenStmt) []u8 {
 pub fn encode_transaction_stmt(val TransactionStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.kind) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.kind))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.kind))
 	}
 	if val.options.len > 0 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.savepoint_name != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.savepoint_name)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.savepoint_name)
 	}
 	if val.gid != '' {
-		buf << write_tag(4, 2)
-		buf << write_string(val.gid)
+		write_tag_into(mut buf, 4, 2)
+		write_string_into(mut buf, val.gid)
 	}
 	if val.chain {
-		buf << write_tag(5, 0)
-		buf << write_bool(val.chain)
+		write_tag_into(mut buf, 5, 0)
+		write_bool_into(mut buf, val.chain)
 	}
 	if val.location != 0 {
-		buf << write_tag(6, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 6, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -4388,8 +4394,8 @@ pub fn encode_create_enum_stmt(val CreateEnumStmt) []u8 {
 		for v in val.type_name {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4397,8 +4403,8 @@ pub fn encode_create_enum_stmt(val CreateEnumStmt) []u8 {
 		for v in val.vals {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4411,8 +4417,8 @@ pub fn encode_create_range_stmt(val CreateRangeStmt) []u8 {
 		for v in val.type_name {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4420,8 +4426,8 @@ pub fn encode_create_range_stmt(val CreateRangeStmt) []u8 {
 		for v in val.params {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4434,30 +4440,30 @@ pub fn encode_alter_enum_stmt(val AlterEnumStmt) []u8 {
 		for v in val.type_name {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.old_val != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.old_val)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.old_val)
 	}
 	if val.new_val != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.new_val)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.new_val)
 	}
 	if val.new_val_neighbor != '' {
-		buf << write_tag(4, 2)
-		buf << write_string(val.new_val_neighbor)
+		write_tag_into(mut buf, 4, 2)
+		write_string_into(mut buf, val.new_val_neighbor)
 	}
 	if val.new_val_is_after {
-		buf << write_tag(5, 0)
-		buf << write_bool(val.new_val_is_after)
+		write_tag_into(mut buf, 5, 0)
+		write_bool_into(mut buf, val.new_val_is_after)
 	}
 	if val.skip_if_new_val_exists {
-		buf << write_tag(6, 0)
-		buf << write_bool(val.skip_if_new_val_exists)
+		write_tag_into(mut buf, 6, 0)
+		write_bool_into(mut buf, val.skip_if_new_val_exists)
 	}
 	return buf
 }
@@ -4465,8 +4471,8 @@ pub fn encode_alter_enum_stmt(val AlterEnumStmt) []u8 {
 pub fn encode_load_stmt(val LoadStmt) []u8 {
 	mut buf := []u8{}
 	if val.filename != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.filename)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.filename)
 	}
 	return buf
 }
@@ -4474,15 +4480,15 @@ pub fn encode_load_stmt(val LoadStmt) []u8 {
 pub fn encode_createdb_stmt(val CreatedbStmt) []u8 {
 	mut buf := []u8{}
 	if val.dbname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.dbname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.dbname)
 	}
 	if val.options.len > 0 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4492,15 +4498,15 @@ pub fn encode_createdb_stmt(val CreatedbStmt) []u8 {
 pub fn encode_alter_database_stmt(val AlterDatabaseStmt) []u8 {
 	mut buf := []u8{}
 	if val.dbname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.dbname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.dbname)
 	}
 	if val.options.len > 0 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4510,8 +4516,8 @@ pub fn encode_alter_database_stmt(val AlterDatabaseStmt) []u8 {
 pub fn encode_alter_database_refresh_coll_stmt(val AlterDatabaseRefreshCollStmt) []u8 {
 	mut buf := []u8{}
 	if val.dbname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.dbname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.dbname)
 	}
 	return buf
 }
@@ -4519,19 +4525,19 @@ pub fn encode_alter_database_refresh_coll_stmt(val AlterDatabaseRefreshCollStmt)
 pub fn encode_dropdb_stmt(val DropdbStmt) []u8 {
 	mut buf := []u8{}
 	if val.dbname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.dbname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.dbname)
 	}
 	if val.missing_ok {
-		buf << write_tag(2, 0)
-		buf << write_bool(val.missing_ok)
+		write_tag_into(mut buf, 2, 0)
+		write_bool_into(mut buf, val.missing_ok)
 	}
 	if val.options.len > 0 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4544,8 +4550,8 @@ pub fn encode_vacuum_stmt(val VacuumStmt) []u8 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4553,14 +4559,14 @@ pub fn encode_vacuum_stmt(val VacuumStmt) []u8 {
 		for v in val.rels {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.is_vacuumcmd {
-		buf << write_tag(3, 0)
-		buf << write_bool(val.is_vacuumcmd)
+		write_tag_into(mut buf, 3, 0)
+		write_bool_into(mut buf, val.is_vacuumcmd)
 	}
 	return buf
 }
@@ -4569,15 +4575,15 @@ pub fn encode_explain_stmt(val ExplainStmt) []u8 {
 	mut buf := []u8{}
 	n_query := encode_node(val.query)
 	if n_query.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_query)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_query)
 	}
 	if val.options.len > 0 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4592,8 +4598,8 @@ pub fn encode_check_point_stmt(val CheckPointStmt) []u8 {
 pub fn encode_discard_stmt(val DiscardStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.target) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.target))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.target))
 	}
 	return buf
 }
@@ -4604,18 +4610,18 @@ pub fn encode_lock_stmt(val LockStmt) []u8 {
 		for v in val.relations {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.mode != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.mode))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.mode))
 	}
 	if val.nowait {
-		buf << write_tag(3, 0)
-		buf << write_bool(val.nowait)
+		write_tag_into(mut buf, 3, 0)
+		write_bool_into(mut buf, val.nowait)
 	}
 	return buf
 }
@@ -4626,14 +4632,14 @@ pub fn encode_constraints_set_stmt(val ConstraintsSetStmt) []u8 {
 		for v in val.constraints {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.deferred {
-		buf << write_tag(2, 0)
-		buf << write_bool(val.deferred)
+		write_tag_into(mut buf, 2, 0)
+		write_bool_into(mut buf, val.deferred)
 	}
 	return buf
 }
@@ -4644,31 +4650,31 @@ pub fn encode_create_conversion_stmt(val CreateConversionStmt) []u8 {
 		for v in val.conversion_name {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.for_encoding_name != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.for_encoding_name)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.for_encoding_name)
 	}
 	if val.to_encoding_name != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.to_encoding_name)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.to_encoding_name)
 	}
 	if val.func_name.len > 0 {
 		for v in val.func_name {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.def {
-		buf << write_tag(5, 0)
-		buf << write_bool(val.def)
+		write_tag_into(mut buf, 5, 0)
+		write_bool_into(mut buf, val.def)
 	}
 	return buf
 }
@@ -4676,22 +4682,22 @@ pub fn encode_create_conversion_stmt(val CreateConversionStmt) []u8 {
 pub fn encode_prepare_stmt(val PrepareStmt) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.name)
 	}
 	if val.argtypes.len > 0 {
 		for v in val.argtypes {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_query := encode_node(val.query)
 	if n_query.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(n_query)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, n_query)
 	}
 	return buf
 }
@@ -4699,15 +4705,15 @@ pub fn encode_prepare_stmt(val PrepareStmt) []u8 {
 pub fn encode_execute_stmt(val ExecuteStmt) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.name)
 	}
 	if val.params.len > 0 {
 		for v in val.params {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4717,16 +4723,16 @@ pub fn encode_execute_stmt(val ExecuteStmt) []u8 {
 pub fn encode_deallocate_stmt(val DeallocateStmt) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.name)
 	}
 	if val.isall {
-		buf << write_tag(2, 0)
-		buf << write_bool(val.isall)
+		write_tag_into(mut buf, 2, 0)
+		write_bool_into(mut buf, val.isall)
 	}
 	if val.location != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -4737,14 +4743,14 @@ pub fn encode_drop_owned_stmt(val DropOwnedStmt) []u8 {
 		for v in val.roles {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if u64(val.behavior) != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.behavior))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.behavior))
 	}
 	return buf
 }
@@ -4755,8 +4761,8 @@ pub fn encode_alter_t_s_dictionary_stmt(val AlterTSDictionaryStmt) []u8 {
 		for v in val.dictname {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4764,8 +4770,8 @@ pub fn encode_alter_t_s_dictionary_stmt(val AlterTSDictionaryStmt) []u8 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4775,15 +4781,15 @@ pub fn encode_alter_t_s_dictionary_stmt(val AlterTSDictionaryStmt) []u8 {
 pub fn encode_alter_t_s_configuration_stmt(val AlterTSConfigurationStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.kind) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.kind))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.kind))
 	}
 	if val.cfgname.len > 0 {
 		for v in val.cfgname {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4791,8 +4797,8 @@ pub fn encode_alter_t_s_configuration_stmt(val AlterTSConfigurationStmt) []u8 {
 		for v in val.tokentype {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4800,22 +4806,22 @@ pub fn encode_alter_t_s_configuration_stmt(val AlterTSConfigurationStmt) []u8 {
 		for v in val.dicts {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.override {
-		buf << write_tag(5, 0)
-		buf << write_bool(val.override)
+		write_tag_into(mut buf, 5, 0)
+		write_bool_into(mut buf, val.override)
 	}
 	if val.replace {
-		buf << write_tag(6, 0)
-		buf << write_bool(val.replace)
+		write_tag_into(mut buf, 6, 0)
+		write_bool_into(mut buf, val.replace)
 	}
 	if val.missing_ok {
-		buf << write_tag(7, 0)
-		buf << write_bool(val.missing_ok)
+		write_tag_into(mut buf, 7, 0)
+		write_bool_into(mut buf, val.missing_ok)
 	}
 	return buf
 }
@@ -4823,15 +4829,15 @@ pub fn encode_alter_t_s_configuration_stmt(val AlterTSConfigurationStmt) []u8 {
 pub fn encode_create_publication_stmt(val CreatePublicationStmt) []u8 {
 	mut buf := []u8{}
 	if val.pubname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.pubname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.pubname)
 	}
 	if val.options.len > 0 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4839,14 +4845,14 @@ pub fn encode_create_publication_stmt(val CreatePublicationStmt) []u8 {
 		for v in val.pubobjects {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.for_all_tables {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.for_all_tables)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.for_all_tables)
 	}
 	return buf
 }
@@ -4854,15 +4860,15 @@ pub fn encode_create_publication_stmt(val CreatePublicationStmt) []u8 {
 pub fn encode_alter_publication_stmt(val AlterPublicationStmt) []u8 {
 	mut buf := []u8{}
 	if val.pubname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.pubname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.pubname)
 	}
 	if val.options.len > 0 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4870,18 +4876,18 @@ pub fn encode_alter_publication_stmt(val AlterPublicationStmt) []u8 {
 		for v in val.pubobjects {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.for_all_tables {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.for_all_tables)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.for_all_tables)
 	}
 	if u64(val.action) != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.action))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.action))
 	}
 	return buf
 }
@@ -4889,19 +4895,19 @@ pub fn encode_alter_publication_stmt(val AlterPublicationStmt) []u8 {
 pub fn encode_create_subscription_stmt(val CreateSubscriptionStmt) []u8 {
 	mut buf := []u8{}
 	if val.subname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.subname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.subname)
 	}
 	if val.conninfo != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.conninfo)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.conninfo)
 	}
 	if val.publication.len > 0 {
 		for v in val.publication {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4909,8 +4915,8 @@ pub fn encode_create_subscription_stmt(val CreateSubscriptionStmt) []u8 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4920,23 +4926,23 @@ pub fn encode_create_subscription_stmt(val CreateSubscriptionStmt) []u8 {
 pub fn encode_alter_subscription_stmt(val AlterSubscriptionStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.kind) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.kind))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.kind))
 	}
 	if val.subname != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.subname)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.subname)
 	}
 	if val.conninfo != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.conninfo)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.conninfo)
 	}
 	if val.publication.len > 0 {
 		for v in val.publication {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4944,8 +4950,8 @@ pub fn encode_alter_subscription_stmt(val AlterSubscriptionStmt) []u8 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -4955,16 +4961,16 @@ pub fn encode_alter_subscription_stmt(val AlterSubscriptionStmt) []u8 {
 pub fn encode_drop_subscription_stmt(val DropSubscriptionStmt) []u8 {
 	mut buf := []u8{}
 	if val.subname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.subname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.subname)
 	}
 	if val.missing_ok {
-		buf << write_tag(2, 0)
-		buf << write_bool(val.missing_ok)
+		write_tag_into(mut buf, 2, 0)
+		write_bool_into(mut buf, val.missing_ok)
 	}
 	if u64(val.behavior) != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.behavior))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.behavior))
 	}
 	return buf
 }
@@ -4972,20 +4978,20 @@ pub fn encode_drop_subscription_stmt(val DropSubscriptionStmt) []u8 {
 pub fn encode_scan_token(val ScanToken) []u8 {
 	mut buf := []u8{}
 	if val.start != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.start))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.start))
 	}
 	if val.end != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.end))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.end))
 	}
 	if u64(val.token) != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.token))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.token))
 	}
 	if u64(val.keyword_kind) != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.keyword_kind))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.keyword_kind))
 	}
 	return buf
 }
@@ -4993,20 +4999,20 @@ pub fn encode_scan_token(val ScanToken) []u8 {
 pub fn encode_summary_result_table(val SummaryResultTable) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.name)
 	}
 	if val.schema_name != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.schema_name)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.schema_name)
 	}
 	if val.table_name != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.table_name)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.table_name)
 	}
 	if u64(val.context) != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.context))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.context))
 	}
 	return buf
 }
@@ -5014,20 +5020,20 @@ pub fn encode_summary_result_table(val SummaryResultTable) []u8 {
 pub fn encode_summary_result_function(val SummaryResultFunction) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.name)
 	}
 	if val.function_name != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.function_name)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.function_name)
 	}
 	if val.schema_name != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.schema_name)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.schema_name)
 	}
 	if u64(val.context) != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.context))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.context))
 	}
 	return buf
 }
@@ -5035,16 +5041,16 @@ pub fn encode_summary_result_function(val SummaryResultFunction) []u8 {
 pub fn encode_summary_result_filter_column(val SummaryResultFilterColumn) []u8 {
 	mut buf := []u8{}
 	if val.schema_name != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.schema_name)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.schema_name)
 	}
 	if val.table_name != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.table_name)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.table_name)
 	}
 	if val.column != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.column)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.column)
 	}
 	return buf
 }
@@ -5052,33 +5058,33 @@ pub fn encode_summary_result_filter_column(val SummaryResultFilterColumn) []u8 {
 pub fn encode_range_var(val RangeVar) []u8 {
 	mut buf := []u8{}
 	if val.catalogname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.catalogname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.catalogname)
 	}
 	if val.schemaname != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.schemaname)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.schemaname)
 	}
 	if val.relname != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.relname)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.relname)
 	}
 	if val.inh {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.inh)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.inh)
 	}
 	if val.relpersistence != '' {
-		buf << write_tag(5, 2)
-		buf << write_string(val.relpersistence)
+		write_tag_into(mut buf, 5, 2)
+		write_string_into(mut buf, val.relpersistence)
 	}
 	in_alias := encode_alias(val.alias)
 	if in_alias.len > 0 {
-		buf << write_tag(6, 2)
-		buf << write_length_delimited(in_alias)
+		write_tag_into(mut buf, 6, 2)
+		write_length_delimited_into(mut buf, in_alias)
 	}
 	if val.location != 0 {
-		buf << write_tag(7, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 7, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -5086,50 +5092,50 @@ pub fn encode_range_var(val RangeVar) []u8 {
 pub fn encode_join_expr(val JoinExpr) []u8 {
 	mut buf := []u8{}
 	if u64(val.jointype) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.jointype))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.jointype))
 	}
 	if val.is_natural {
-		buf << write_tag(2, 0)
-		buf << write_bool(val.is_natural)
+		write_tag_into(mut buf, 2, 0)
+		write_bool_into(mut buf, val.is_natural)
 	}
 	n_larg := encode_node(val.larg)
 	if n_larg.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(n_larg)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, n_larg)
 	}
 	n_rarg := encode_node(val.rarg)
 	if n_rarg.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(n_rarg)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, n_rarg)
 	}
 	if val.using_clause.len > 0 {
 		for v in val.using_clause {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	in_join_using_alias := encode_alias(val.join_using_alias)
 	if in_join_using_alias.len > 0 {
-		buf << write_tag(6, 2)
-		buf << write_length_delimited(in_join_using_alias)
+		write_tag_into(mut buf, 6, 2)
+		write_length_delimited_into(mut buf, in_join_using_alias)
 	}
 	n_quals := encode_node(val.quals)
 	if n_quals.len > 0 {
-		buf << write_tag(7, 2)
-		buf << write_length_delimited(n_quals)
+		write_tag_into(mut buf, 7, 2)
+		write_length_delimited_into(mut buf, n_quals)
 	}
 	in_alias := encode_alias(val.alias)
 	if in_alias.len > 0 {
-		buf << write_tag(8, 2)
-		buf << write_length_delimited(in_alias)
+		write_tag_into(mut buf, 8, 2)
+		write_length_delimited_into(mut buf, in_alias)
 	}
 	if val.rtindex != 0 {
-		buf << write_tag(9, 0)
-		buf << write_varint(u64(val.rtindex))
+		write_tag_into(mut buf, 9, 0)
+		write_varint_into(mut buf, u64(val.rtindex))
 	}
 	return buf
 }
@@ -5137,18 +5143,18 @@ pub fn encode_join_expr(val JoinExpr) []u8 {
 pub fn encode_range_subselect(val RangeSubselect) []u8 {
 	mut buf := []u8{}
 	if val.lateral {
-		buf << write_tag(1, 0)
-		buf << write_bool(val.lateral)
+		write_tag_into(mut buf, 1, 0)
+		write_bool_into(mut buf, val.lateral)
 	}
 	n_subquery := encode_node(val.subquery)
 	if n_subquery.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_subquery)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_subquery)
 	}
 	in_alias := encode_alias(val.alias)
 	if in_alias.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(in_alias)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, in_alias)
 	}
 	return buf
 }
@@ -5156,37 +5162,37 @@ pub fn encode_range_subselect(val RangeSubselect) []u8 {
 pub fn encode_range_function(val RangeFunction) []u8 {
 	mut buf := []u8{}
 	if val.lateral {
-		buf << write_tag(1, 0)
-		buf << write_bool(val.lateral)
+		write_tag_into(mut buf, 1, 0)
+		write_bool_into(mut buf, val.lateral)
 	}
 	if val.ordinality {
-		buf << write_tag(2, 0)
-		buf << write_bool(val.ordinality)
+		write_tag_into(mut buf, 2, 0)
+		write_bool_into(mut buf, val.ordinality)
 	}
 	if val.is_rowsfrom {
-		buf << write_tag(3, 0)
-		buf << write_bool(val.is_rowsfrom)
+		write_tag_into(mut buf, 3, 0)
+		write_bool_into(mut buf, val.is_rowsfrom)
 	}
 	if val.functions.len > 0 {
 		for v in val.functions {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	in_alias := encode_alias(val.alias)
 	if in_alias.len > 0 {
-		buf << write_tag(5, 2)
-		buf << write_length_delimited(in_alias)
+		write_tag_into(mut buf, 5, 2)
+		write_length_delimited_into(mut buf, in_alias)
 	}
 	if val.coldeflist.len > 0 {
 		for v in val.coldeflist {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(6, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 6, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -5196,25 +5202,25 @@ pub fn encode_range_function(val RangeFunction) []u8 {
 pub fn encode_range_table_func(val RangeTableFunc) []u8 {
 	mut buf := []u8{}
 	if val.lateral {
-		buf << write_tag(1, 0)
-		buf << write_bool(val.lateral)
+		write_tag_into(mut buf, 1, 0)
+		write_bool_into(mut buf, val.lateral)
 	}
 	n_docexpr := encode_node(val.docexpr)
 	if n_docexpr.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_docexpr)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_docexpr)
 	}
 	n_rowexpr := encode_node(val.rowexpr)
 	if n_rowexpr.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(n_rowexpr)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, n_rowexpr)
 	}
 	if val.namespaces.len > 0 {
 		for v in val.namespaces {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -5222,19 +5228,19 @@ pub fn encode_range_table_func(val RangeTableFunc) []u8 {
 		for v in val.columns {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	in_alias := encode_alias(val.alias)
 	if in_alias.len > 0 {
-		buf << write_tag(6, 2)
-		buf << write_length_delimited(in_alias)
+		write_tag_into(mut buf, 6, 2)
+		write_length_delimited_into(mut buf, in_alias)
 	}
 	if val.location != 0 {
-		buf << write_tag(7, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 7, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -5243,16 +5249,16 @@ pub fn encode_json_returning(val JsonReturning) []u8 {
 	mut buf := []u8{}
 	in_format := encode_json_format(val.format)
 	if in_format.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_format)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_format)
 	}
 	if val.typid != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.typid))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.typid))
 	}
 	if val.typmod != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.typmod))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.typmod))
 	}
 	return buf
 }
@@ -5261,18 +5267,18 @@ pub fn encode_json_value_expr(val JsonValueExpr) []u8 {
 	mut buf := []u8{}
 	n_raw_expr := encode_node(val.raw_expr)
 	if n_raw_expr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_raw_expr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_raw_expr)
 	}
 	n_formatted_expr := encode_node(val.formatted_expr)
 	if n_formatted_expr.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_formatted_expr)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_formatted_expr)
 	}
 	in_format := encode_json_format(val.format)
 	if in_format.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(in_format)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, in_format)
 	}
 	return buf
 }
@@ -5281,25 +5287,25 @@ pub fn encode_json_is_predicate(val JsonIsPredicate) []u8 {
 	mut buf := []u8{}
 	n_expr := encode_node(val.expr)
 	if n_expr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_expr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_expr)
 	}
 	in_format := encode_json_format(val.format)
 	if in_format.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_format)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_format)
 	}
 	if u64(val.item_type) != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.item_type))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.item_type))
 	}
 	if val.unique_keys {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.unique_keys)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.unique_keys)
 	}
 	if val.location != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -5308,30 +5314,30 @@ pub fn encode_json_table_path_scan(val JsonTablePathScan) []u8 {
 	mut buf := []u8{}
 	n_plan := encode_node(val.plan)
 	if n_plan.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_plan)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_plan)
 	}
 	in_path := encode_json_table_path(val.path)
 	if in_path.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_path)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_path)
 	}
 	if val.error_on_error {
-		buf << write_tag(3, 0)
-		buf << write_bool(val.error_on_error)
+		write_tag_into(mut buf, 3, 0)
+		write_bool_into(mut buf, val.error_on_error)
 	}
 	n_child := encode_node(val.child)
 	if n_child.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(n_child)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, n_child)
 	}
 	if val.col_min != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.col_min))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.col_min))
 	}
 	if val.col_max != 0 {
-		buf << write_tag(6, 0)
-		buf << write_varint(u64(val.col_max))
+		write_tag_into(mut buf, 6, 0)
+		write_varint_into(mut buf, u64(val.col_max))
 	}
 	return buf
 }
@@ -5339,72 +5345,72 @@ pub fn encode_json_table_path_scan(val JsonTablePathScan) []u8 {
 pub fn encode_query(val Query) []u8 {
 	mut buf := []u8{}
 	if u64(val.command_type) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.command_type))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.command_type))
 	}
 	if u64(val.query_source) != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.query_source))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.query_source))
 	}
 	if val.can_set_tag {
-		buf << write_tag(3, 0)
-		buf << write_bool(val.can_set_tag)
+		write_tag_into(mut buf, 3, 0)
+		write_bool_into(mut buf, val.can_set_tag)
 	}
 	n_utility_stmt := encode_node(val.utility_stmt)
 	if n_utility_stmt.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(n_utility_stmt)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, n_utility_stmt)
 	}
 	if val.result_relation != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.result_relation))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.result_relation))
 	}
 	if val.has_aggs {
-		buf << write_tag(6, 0)
-		buf << write_bool(val.has_aggs)
+		write_tag_into(mut buf, 6, 0)
+		write_bool_into(mut buf, val.has_aggs)
 	}
 	if val.has_window_funcs {
-		buf << write_tag(7, 0)
-		buf << write_bool(val.has_window_funcs)
+		write_tag_into(mut buf, 7, 0)
+		write_bool_into(mut buf, val.has_window_funcs)
 	}
 	if val.has_target_srfs {
-		buf << write_tag(8, 0)
-		buf << write_bool(val.has_target_srfs)
+		write_tag_into(mut buf, 8, 0)
+		write_bool_into(mut buf, val.has_target_srfs)
 	}
 	if val.has_sub_links {
-		buf << write_tag(9, 0)
-		buf << write_bool(val.has_sub_links)
+		write_tag_into(mut buf, 9, 0)
+		write_bool_into(mut buf, val.has_sub_links)
 	}
 	if val.has_distinct_on {
-		buf << write_tag(10, 0)
-		buf << write_bool(val.has_distinct_on)
+		write_tag_into(mut buf, 10, 0)
+		write_bool_into(mut buf, val.has_distinct_on)
 	}
 	if val.has_recursive {
-		buf << write_tag(11, 0)
-		buf << write_bool(val.has_recursive)
+		write_tag_into(mut buf, 11, 0)
+		write_bool_into(mut buf, val.has_recursive)
 	}
 	if val.has_modifying_cte {
-		buf << write_tag(12, 0)
-		buf << write_bool(val.has_modifying_cte)
+		write_tag_into(mut buf, 12, 0)
+		write_bool_into(mut buf, val.has_modifying_cte)
 	}
 	if val.has_for_update {
-		buf << write_tag(13, 0)
-		buf << write_bool(val.has_for_update)
+		write_tag_into(mut buf, 13, 0)
+		write_bool_into(mut buf, val.has_for_update)
 	}
 	if val.has_row_security {
-		buf << write_tag(14, 0)
-		buf << write_bool(val.has_row_security)
+		write_tag_into(mut buf, 14, 0)
+		write_bool_into(mut buf, val.has_row_security)
 	}
 	if val.is_return {
-		buf << write_tag(15, 0)
-		buf << write_bool(val.is_return)
+		write_tag_into(mut buf, 15, 0)
+		write_bool_into(mut buf, val.is_return)
 	}
 	if val.cte_list.len > 0 {
 		for v in val.cte_list {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(16, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 16, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -5412,8 +5418,8 @@ pub fn encode_query(val Query) []u8 {
 		for v in val.rtable {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(17, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 17, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -5421,58 +5427,58 @@ pub fn encode_query(val Query) []u8 {
 		for v in val.rteperminfos {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(18, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 18, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	in_jointree := encode_from_expr(val.jointree)
 	if in_jointree.len > 0 {
-		buf << write_tag(19, 2)
-		buf << write_length_delimited(in_jointree)
+		write_tag_into(mut buf, 19, 2)
+		write_length_delimited_into(mut buf, in_jointree)
 	}
 	if val.merge_action_list.len > 0 {
 		for v in val.merge_action_list {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(20, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 20, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.merge_target_relation != 0 {
-		buf << write_tag(21, 0)
-		buf << write_varint(u64(val.merge_target_relation))
+		write_tag_into(mut buf, 21, 0)
+		write_varint_into(mut buf, u64(val.merge_target_relation))
 	}
 	n_merge_join_condition := encode_node(val.merge_join_condition)
 	if n_merge_join_condition.len > 0 {
-		buf << write_tag(22, 2)
-		buf << write_length_delimited(n_merge_join_condition)
+		write_tag_into(mut buf, 22, 2)
+		write_length_delimited_into(mut buf, n_merge_join_condition)
 	}
 	if val.target_list.len > 0 {
 		for v in val.target_list {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(23, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 23, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if u64(val.override) != 0 {
-		buf << write_tag(24, 0)
-		buf << write_varint(u64(val.override))
+		write_tag_into(mut buf, 24, 0)
+		write_varint_into(mut buf, u64(val.override))
 	}
 	in_on_conflict := encode_on_conflict_expr(val.on_conflict)
 	if in_on_conflict.len > 0 {
-		buf << write_tag(25, 2)
-		buf << write_length_delimited(in_on_conflict)
+		write_tag_into(mut buf, 25, 2)
+		write_length_delimited_into(mut buf, in_on_conflict)
 	}
 	if val.returning_list.len > 0 {
 		for v in val.returning_list {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(26, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 26, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -5480,35 +5486,35 @@ pub fn encode_query(val Query) []u8 {
 		for v in val.group_clause {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(27, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 27, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.group_distinct {
-		buf << write_tag(28, 0)
-		buf << write_bool(val.group_distinct)
+		write_tag_into(mut buf, 28, 0)
+		write_bool_into(mut buf, val.group_distinct)
 	}
 	if val.grouping_sets.len > 0 {
 		for v in val.grouping_sets {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(29, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 29, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_having_qual := encode_node(val.having_qual)
 	if n_having_qual.len > 0 {
-		buf << write_tag(30, 2)
-		buf << write_length_delimited(n_having_qual)
+		write_tag_into(mut buf, 30, 2)
+		write_length_delimited_into(mut buf, n_having_qual)
 	}
 	if val.window_clause.len > 0 {
 		for v in val.window_clause {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(31, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 31, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -5516,8 +5522,8 @@ pub fn encode_query(val Query) []u8 {
 		for v in val.distinct_clause {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(32, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 32, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -5525,45 +5531,45 @@ pub fn encode_query(val Query) []u8 {
 		for v in val.sort_clause {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(33, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 33, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_limit_offset := encode_node(val.limit_offset)
 	if n_limit_offset.len > 0 {
-		buf << write_tag(34, 2)
-		buf << write_length_delimited(n_limit_offset)
+		write_tag_into(mut buf, 34, 2)
+		write_length_delimited_into(mut buf, n_limit_offset)
 	}
 	n_limit_count := encode_node(val.limit_count)
 	if n_limit_count.len > 0 {
-		buf << write_tag(35, 2)
-		buf << write_length_delimited(n_limit_count)
+		write_tag_into(mut buf, 35, 2)
+		write_length_delimited_into(mut buf, n_limit_count)
 	}
 	if u64(val.limit_option) != 0 {
-		buf << write_tag(36, 0)
-		buf << write_varint(u64(val.limit_option))
+		write_tag_into(mut buf, 36, 0)
+		write_varint_into(mut buf, u64(val.limit_option))
 	}
 	if val.row_marks.len > 0 {
 		for v in val.row_marks {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(37, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 37, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_set_operations := encode_node(val.set_operations)
 	if n_set_operations.len > 0 {
-		buf << write_tag(38, 2)
-		buf << write_length_delimited(n_set_operations)
+		write_tag_into(mut buf, 38, 2)
+		write_length_delimited_into(mut buf, n_set_operations)
 	}
 	if val.constraint_deps.len > 0 {
 		for v in val.constraint_deps {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(39, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 39, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -5571,18 +5577,18 @@ pub fn encode_query(val Query) []u8 {
 		for v in val.with_check_options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(40, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 40, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.stmt_location != 0 {
-		buf << write_tag(41, 0)
-		buf << write_varint(u64(val.stmt_location))
+		write_tag_into(mut buf, 41, 0)
+		write_varint_into(mut buf, u64(val.stmt_location))
 	}
 	if val.stmt_len != 0 {
-		buf << write_tag(42, 0)
-		buf << write_varint(u64(val.stmt_len))
+		write_tag_into(mut buf, 42, 0)
+		write_varint_into(mut buf, u64(val.stmt_len))
 	}
 	return buf
 }
@@ -5591,17 +5597,17 @@ pub fn encode_type_cast(val TypeCast) []u8 {
 	mut buf := []u8{}
 	n_arg := encode_node(val.arg)
 	if n_arg.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_arg)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_arg)
 	}
 	in_type_name := encode_type_name(val.type_name)
 	if in_type_name.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_type_name)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_type_name)
 	}
 	if val.location != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -5609,35 +5615,35 @@ pub fn encode_type_cast(val TypeCast) []u8 {
 pub fn encode_range_table_func_col(val RangeTableFuncCol) []u8 {
 	mut buf := []u8{}
 	if val.colname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.colname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.colname)
 	}
 	in_type_name := encode_type_name(val.type_name)
 	if in_type_name.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_type_name)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_type_name)
 	}
 	if val.for_ordinality {
-		buf << write_tag(3, 0)
-		buf << write_bool(val.for_ordinality)
+		write_tag_into(mut buf, 3, 0)
+		write_bool_into(mut buf, val.for_ordinality)
 	}
 	if val.is_not_null {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.is_not_null)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.is_not_null)
 	}
 	n_colexpr := encode_node(val.colexpr)
 	if n_colexpr.len > 0 {
-		buf << write_tag(5, 2)
-		buf << write_length_delimited(n_colexpr)
+		write_tag_into(mut buf, 5, 2)
+		write_length_delimited_into(mut buf, n_colexpr)
 	}
 	n_coldefexpr := encode_node(val.coldefexpr)
 	if n_coldefexpr.len > 0 {
-		buf << write_tag(6, 2)
-		buf << write_length_delimited(n_coldefexpr)
+		write_tag_into(mut buf, 6, 2)
+		write_length_delimited_into(mut buf, n_coldefexpr)
 	}
 	if val.location != 0 {
-		buf << write_tag(7, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 7, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -5645,26 +5651,26 @@ pub fn encode_range_table_func_col(val RangeTableFuncCol) []u8 {
 pub fn encode_xml_serialize(val XmlSerialize) []u8 {
 	mut buf := []u8{}
 	if u64(val.xmloption) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.xmloption))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.xmloption))
 	}
 	n_expr := encode_node(val.expr)
 	if n_expr.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_expr)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_expr)
 	}
 	in_type_name := encode_type_name(val.type_name)
 	if in_type_name.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(in_type_name)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, in_type_name)
 	}
 	if val.indent {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.indent)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.indent)
 	}
 	if val.location != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -5675,8 +5681,8 @@ pub fn encode_create_op_class_stmt(val CreateOpClassStmt) []u8 {
 		for v in val.opclassname {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -5684,32 +5690,32 @@ pub fn encode_create_op_class_stmt(val CreateOpClassStmt) []u8 {
 		for v in val.opfamilyname {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.amname != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.amname)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.amname)
 	}
 	in_datatype := encode_type_name(val.datatype)
 	if in_datatype.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(in_datatype)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, in_datatype)
 	}
 	if val.items.len > 0 {
 		for v in val.items {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.is_default {
-		buf << write_tag(6, 0)
-		buf << write_bool(val.is_default)
+		write_tag_into(mut buf, 6, 0)
+		write_bool_into(mut buf, val.is_default)
 	}
 	return buf
 }
@@ -5717,19 +5723,19 @@ pub fn encode_create_op_class_stmt(val CreateOpClassStmt) []u8 {
 pub fn encode_create_function_stmt(val CreateFunctionStmt) []u8 {
 	mut buf := []u8{}
 	if val.is_procedure {
-		buf << write_tag(1, 0)
-		buf << write_bool(val.is_procedure)
+		write_tag_into(mut buf, 1, 0)
+		write_bool_into(mut buf, val.is_procedure)
 	}
 	if val.replace {
-		buf << write_tag(2, 0)
-		buf << write_bool(val.replace)
+		write_tag_into(mut buf, 2, 0)
+		write_bool_into(mut buf, val.replace)
 	}
 	if val.funcname.len > 0 {
 		for v in val.funcname {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -5737,29 +5743,29 @@ pub fn encode_create_function_stmt(val CreateFunctionStmt) []u8 {
 		for v in val.parameters {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	in_return_type := encode_type_name(val.return_type)
 	if in_return_type.len > 0 {
-		buf << write_tag(5, 2)
-		buf << write_length_delimited(in_return_type)
+		write_tag_into(mut buf, 5, 2)
+		write_length_delimited_into(mut buf, in_return_type)
 	}
 	if val.options.len > 0 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(6, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 6, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_sql_body := encode_node(val.sql_body)
 	if n_sql_body.len > 0 {
-		buf << write_tag(7, 2)
-		buf << write_length_delimited(n_sql_body)
+		write_tag_into(mut buf, 7, 2)
+		write_length_delimited_into(mut buf, n_sql_body)
 	}
 	return buf
 }
@@ -5767,22 +5773,22 @@ pub fn encode_create_function_stmt(val CreateFunctionStmt) []u8 {
 pub fn encode_function_parameter(val FunctionParameter) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.name)
 	}
 	in_arg_type := encode_type_name(val.arg_type)
 	if in_arg_type.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_arg_type)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_arg_type)
 	}
 	if u64(val.mode) != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.mode))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.mode))
 	}
 	n_defexpr := encode_node(val.defexpr)
 	if n_defexpr.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(n_defexpr)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, n_defexpr)
 	}
 	return buf
 }
@@ -5793,27 +5799,27 @@ pub fn encode_create_domain_stmt(val CreateDomainStmt) []u8 {
 		for v in val.domainname {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	in_type_name := encode_type_name(val.type_name)
 	if in_type_name.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_type_name)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_type_name)
 	}
 	in_coll_clause := encode_collate_clause(val.coll_clause)
 	if in_coll_clause.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(in_coll_clause)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, in_coll_clause)
 	}
 	if val.constraints.len > 0 {
 		for v in val.constraints {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -5823,26 +5829,26 @@ pub fn encode_create_domain_stmt(val CreateDomainStmt) []u8 {
 pub fn encode_create_schema_stmt(val CreateSchemaStmt) []u8 {
 	mut buf := []u8{}
 	if val.schemaname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.schemaname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.schemaname)
 	}
 	in_authrole := encode_role_spec(val.authrole)
 	if in_authrole.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_authrole)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_authrole)
 	}
 	if val.schema_elts.len > 0 {
 		for v in val.schema_elts {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.if_not_exists {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.if_not_exists)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.if_not_exists)
 	}
 	return buf
 }
@@ -5850,38 +5856,38 @@ pub fn encode_create_schema_stmt(val CreateSchemaStmt) []u8 {
 pub fn encode_alter_table_cmd(val AlterTableCmd) []u8 {
 	mut buf := []u8{}
 	if u64(val.subtype) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.subtype))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.subtype))
 	}
 	if val.name != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.name)
 	}
 	if val.num != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.num))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.num))
 	}
 	in_newowner := encode_role_spec(val.newowner)
 	if in_newowner.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(in_newowner)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, in_newowner)
 	}
 	n_def := encode_node(val.def)
 	if n_def.len > 0 {
-		buf << write_tag(5, 2)
-		buf << write_length_delimited(n_def)
+		write_tag_into(mut buf, 5, 2)
+		write_length_delimited_into(mut buf, n_def)
 	}
 	if u64(val.behavior) != 0 {
-		buf << write_tag(6, 0)
-		buf << write_varint(u64(val.behavior))
+		write_tag_into(mut buf, 6, 0)
+		write_varint_into(mut buf, u64(val.behavior))
 	}
 	if val.missing_ok {
-		buf << write_tag(7, 0)
-		buf << write_bool(val.missing_ok)
+		write_tag_into(mut buf, 7, 0)
+		write_bool_into(mut buf, val.missing_ok)
 	}
 	if val.recurse {
-		buf << write_tag(8, 0)
-		buf << write_bool(val.recurse)
+		write_tag_into(mut buf, 8, 0)
+		write_bool_into(mut buf, val.recurse)
 	}
 	return buf
 }
@@ -5889,23 +5895,23 @@ pub fn encode_alter_table_cmd(val AlterTableCmd) []u8 {
 pub fn encode_grant_stmt(val GrantStmt) []u8 {
 	mut buf := []u8{}
 	if val.is_grant {
-		buf << write_tag(1, 0)
-		buf << write_bool(val.is_grant)
+		write_tag_into(mut buf, 1, 0)
+		write_bool_into(mut buf, val.is_grant)
 	}
 	if u64(val.targtype) != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.targtype))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.targtype))
 	}
 	if u64(val.objtype) != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.objtype))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.objtype))
 	}
 	if val.objects.len > 0 {
 		for v in val.objects {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -5913,8 +5919,8 @@ pub fn encode_grant_stmt(val GrantStmt) []u8 {
 		for v in val.privileges {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -5922,23 +5928,23 @@ pub fn encode_grant_stmt(val GrantStmt) []u8 {
 		for v in val.grantees {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(6, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 6, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.grant_option {
-		buf << write_tag(7, 0)
-		buf << write_bool(val.grant_option)
+		write_tag_into(mut buf, 7, 0)
+		write_bool_into(mut buf, val.grant_option)
 	}
 	in_grantor := encode_role_spec(val.grantor)
 	if in_grantor.len > 0 {
-		buf << write_tag(8, 2)
-		buf << write_length_delimited(in_grantor)
+		write_tag_into(mut buf, 8, 2)
+		write_length_delimited_into(mut buf, in_grantor)
 	}
 	if u64(val.behavior) != 0 {
-		buf << write_tag(9, 0)
-		buf << write_varint(u64(val.behavior))
+		write_tag_into(mut buf, 9, 0)
+		write_varint_into(mut buf, u64(val.behavior))
 	}
 	return buf
 }
@@ -5949,8 +5955,8 @@ pub fn encode_grant_role_stmt(val GrantRoleStmt) []u8 {
 		for v in val.granted_roles {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -5958,32 +5964,32 @@ pub fn encode_grant_role_stmt(val GrantRoleStmt) []u8 {
 		for v in val.grantee_roles {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.is_grant {
-		buf << write_tag(3, 0)
-		buf << write_bool(val.is_grant)
+		write_tag_into(mut buf, 3, 0)
+		write_bool_into(mut buf, val.is_grant)
 	}
 	if val.opt.len > 0 {
 		for v in val.opt {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	in_grantor := encode_role_spec(val.grantor)
 	if in_grantor.len > 0 {
-		buf << write_tag(5, 2)
-		buf << write_length_delimited(in_grantor)
+		write_tag_into(mut buf, 5, 2)
+		write_length_delimited_into(mut buf, in_grantor)
 	}
 	if u64(val.behavior) != 0 {
-		buf << write_tag(6, 0)
-		buf << write_varint(u64(val.behavior))
+		write_tag_into(mut buf, 6, 0)
+		write_varint_into(mut buf, u64(val.behavior))
 	}
 	return buf
 }
@@ -5991,24 +5997,24 @@ pub fn encode_grant_role_stmt(val GrantRoleStmt) []u8 {
 pub fn encode_create_table_space_stmt(val CreateTableSpaceStmt) []u8 {
 	mut buf := []u8{}
 	if val.tablespacename != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.tablespacename)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.tablespacename)
 	}
 	in_owner := encode_role_spec(val.owner)
 	if in_owner.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_owner)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_owner)
 	}
 	if val.location != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.location)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.location)
 	}
 	if val.options.len > 0 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -6019,23 +6025,23 @@ pub fn encode_create_user_mapping_stmt(val CreateUserMappingStmt) []u8 {
 	mut buf := []u8{}
 	in_user := encode_role_spec(val.user)
 	if in_user.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_user)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_user)
 	}
 	if val.servername != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.servername)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.servername)
 	}
 	if val.if_not_exists {
-		buf << write_tag(3, 0)
-		buf << write_bool(val.if_not_exists)
+		write_tag_into(mut buf, 3, 0)
+		write_bool_into(mut buf, val.if_not_exists)
 	}
 	if val.options.len > 0 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -6046,19 +6052,19 @@ pub fn encode_alter_user_mapping_stmt(val AlterUserMappingStmt) []u8 {
 	mut buf := []u8{}
 	in_user := encode_role_spec(val.user)
 	if in_user.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_user)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_user)
 	}
 	if val.servername != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.servername)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.servername)
 	}
 	if val.options.len > 0 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -6069,16 +6075,16 @@ pub fn encode_drop_user_mapping_stmt(val DropUserMappingStmt) []u8 {
 	mut buf := []u8{}
 	in_user := encode_role_spec(val.user)
 	if in_user.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_user)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_user)
 	}
 	if val.servername != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.servername)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.servername)
 	}
 	if val.missing_ok {
-		buf << write_tag(3, 0)
-		buf << write_bool(val.missing_ok)
+		write_tag_into(mut buf, 3, 0)
+		write_bool_into(mut buf, val.missing_ok)
 	}
 	return buf
 }
@@ -6087,21 +6093,21 @@ pub fn encode_alter_role_stmt(val AlterRoleStmt) []u8 {
 	mut buf := []u8{}
 	in_role := encode_role_spec(val.role)
 	if in_role.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_role)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_role)
 	}
 	if val.options.len > 0 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.action != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.action))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.action))
 	}
 	return buf
 }
@@ -6112,15 +6118,15 @@ pub fn encode_reassign_owned_stmt(val ReassignOwnedStmt) []u8 {
 		for v in val.roles {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	in_newrole := encode_role_spec(val.newrole)
 	if in_newrole.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_newrole)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_newrole)
 	}
 	return buf
 }
@@ -6131,8 +6137,8 @@ pub fn encode_func_call(val FuncCall) []u8 {
 		for v in val.funcname {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -6140,8 +6146,8 @@ pub fn encode_func_call(val FuncCall) []u8 {
 		for v in val.args {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -6149,44 +6155,44 @@ pub fn encode_func_call(val FuncCall) []u8 {
 		for v in val.agg_order {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_agg_filter := encode_node(val.agg_filter)
 	if n_agg_filter.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(n_agg_filter)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, n_agg_filter)
 	}
 	in_over := encode_window_def(val.over)
 	if in_over.len > 0 {
-		buf << write_tag(5, 2)
-		buf << write_length_delimited(in_over)
+		write_tag_into(mut buf, 5, 2)
+		write_length_delimited_into(mut buf, in_over)
 	}
 	if val.agg_within_group {
-		buf << write_tag(6, 0)
-		buf << write_bool(val.agg_within_group)
+		write_tag_into(mut buf, 6, 0)
+		write_bool_into(mut buf, val.agg_within_group)
 	}
 	if val.agg_star {
-		buf << write_tag(7, 0)
-		buf << write_bool(val.agg_star)
+		write_tag_into(mut buf, 7, 0)
+		write_bool_into(mut buf, val.agg_star)
 	}
 	if val.agg_distinct {
-		buf << write_tag(8, 0)
-		buf << write_bool(val.agg_distinct)
+		write_tag_into(mut buf, 8, 0)
+		write_bool_into(mut buf, val.agg_distinct)
 	}
 	if val.func_variadic {
-		buf << write_tag(9, 0)
-		buf << write_bool(val.func_variadic)
+		write_tag_into(mut buf, 9, 0)
+		write_bool_into(mut buf, val.func_variadic)
 	}
 	if u64(val.funcformat) != 0 {
-		buf << write_tag(10, 0)
-		buf << write_varint(u64(val.funcformat))
+		write_tag_into(mut buf, 10, 0)
+		write_varint_into(mut buf, u64(val.funcformat))
 	}
 	if val.location != 0 {
-		buf << write_tag(11, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 11, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -6194,31 +6200,31 @@ pub fn encode_func_call(val FuncCall) []u8 {
 pub fn encode_on_conflict_clause(val OnConflictClause) []u8 {
 	mut buf := []u8{}
 	if u64(val.action) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.action))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.action))
 	}
 	in_infer := encode_infer_clause(val.infer)
 	if in_infer.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_infer)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_infer)
 	}
 	if val.target_list.len > 0 {
 		for v in val.target_list {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_where_clause := encode_node(val.where_clause)
 	if n_where_clause.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(n_where_clause)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, n_where_clause)
 	}
 	if val.location != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -6226,55 +6232,55 @@ pub fn encode_on_conflict_clause(val OnConflictClause) []u8 {
 pub fn encode_common_table_expr(val CommonTableExpr) []u8 {
 	mut buf := []u8{}
 	if val.ctename != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.ctename)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.ctename)
 	}
 	if val.aliascolnames.len > 0 {
 		for v in val.aliascolnames {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if u64(val.ctematerialized) != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.ctematerialized))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.ctematerialized))
 	}
 	n_ctequery := encode_node(val.ctequery)
 	if n_ctequery.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(n_ctequery)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, n_ctequery)
 	}
 	in_search_clause := encode_c_t_e_search_clause(val.search_clause)
 	if in_search_clause.len > 0 {
-		buf << write_tag(5, 2)
-		buf << write_length_delimited(in_search_clause)
+		write_tag_into(mut buf, 5, 2)
+		write_length_delimited_into(mut buf, in_search_clause)
 	}
 	in_cycle_clause := encode_c_t_e_cycle_clause(val.cycle_clause)
 	if in_cycle_clause.len > 0 {
-		buf << write_tag(6, 2)
-		buf << write_length_delimited(in_cycle_clause)
+		write_tag_into(mut buf, 6, 2)
+		write_length_delimited_into(mut buf, in_cycle_clause)
 	}
 	if val.location != 0 {
-		buf << write_tag(7, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 7, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	if val.cterecursive {
-		buf << write_tag(8, 0)
-		buf << write_bool(val.cterecursive)
+		write_tag_into(mut buf, 8, 0)
+		write_bool_into(mut buf, val.cterecursive)
 	}
 	if val.cterefcount != 0 {
-		buf << write_tag(9, 0)
-		buf << write_varint(u64(val.cterefcount))
+		write_tag_into(mut buf, 9, 0)
+		write_varint_into(mut buf, u64(val.cterefcount))
 	}
 	if val.ctecolnames.len > 0 {
 		for v in val.ctecolnames {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(10, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 10, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -6282,8 +6288,8 @@ pub fn encode_common_table_expr(val CommonTableExpr) []u8 {
 		for v in val.ctecoltypes {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(11, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 11, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -6291,8 +6297,8 @@ pub fn encode_common_table_expr(val CommonTableExpr) []u8 {
 		for v in val.ctecoltypmods {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(12, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 12, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -6300,8 +6306,8 @@ pub fn encode_common_table_expr(val CommonTableExpr) []u8 {
 		for v in val.ctecolcollations {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(13, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 13, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -6311,58 +6317,58 @@ pub fn encode_common_table_expr(val CommonTableExpr) []u8 {
 pub fn encode_json_table_column(val JsonTableColumn) []u8 {
 	mut buf := []u8{}
 	if u64(val.coltype) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.coltype))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.coltype))
 	}
 	if val.name != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.name)
 	}
 	in_type_name := encode_type_name(val.type_name)
 	if in_type_name.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(in_type_name)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, in_type_name)
 	}
 	in_pathspec := encode_json_table_path_spec(val.pathspec)
 	if in_pathspec.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(in_pathspec)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, in_pathspec)
 	}
 	in_format := encode_json_format(val.format)
 	if in_format.len > 0 {
-		buf << write_tag(5, 2)
-		buf << write_length_delimited(in_format)
+		write_tag_into(mut buf, 5, 2)
+		write_length_delimited_into(mut buf, in_format)
 	}
 	if u64(val.wrapper) != 0 {
-		buf << write_tag(6, 0)
-		buf << write_varint(u64(val.wrapper))
+		write_tag_into(mut buf, 6, 0)
+		write_varint_into(mut buf, u64(val.wrapper))
 	}
 	if u64(val.quotes) != 0 {
-		buf << write_tag(7, 0)
-		buf << write_varint(u64(val.quotes))
+		write_tag_into(mut buf, 7, 0)
+		write_varint_into(mut buf, u64(val.quotes))
 	}
 	if val.columns.len > 0 {
 		for v in val.columns {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(8, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 8, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	in_on_empty := encode_json_behavior(val.on_empty)
 	if in_on_empty.len > 0 {
-		buf << write_tag(9, 2)
-		buf << write_length_delimited(in_on_empty)
+		write_tag_into(mut buf, 9, 2)
+		write_length_delimited_into(mut buf, in_on_empty)
 	}
 	in_on_error := encode_json_behavior(val.on_error)
 	if in_on_error.len > 0 {
-		buf << write_tag(10, 2)
-		buf << write_length_delimited(in_on_error)
+		write_tag_into(mut buf, 10, 2)
+		write_length_delimited_into(mut buf, in_on_error)
 	}
 	if val.location != 0 {
-		buf << write_tag(11, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 11, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -6370,24 +6376,24 @@ pub fn encode_json_table_column(val JsonTableColumn) []u8 {
 pub fn encode_create_op_class_item(val CreateOpClassItem) []u8 {
 	mut buf := []u8{}
 	if val.itemtype != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.itemtype))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.itemtype))
 	}
 	in_name := encode_object_with_args(val.name)
 	if in_name.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_name)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_name)
 	}
 	if val.number != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.number))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.number))
 	}
 	if val.order_family.len > 0 {
 		for v in val.order_family {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -6395,15 +6401,15 @@ pub fn encode_create_op_class_item(val CreateOpClassItem) []u8 {
 		for v in val.class_args {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	in_storedtype := encode_type_name(val.storedtype)
 	if in_storedtype.len > 0 {
-		buf << write_tag(6, 2)
-		buf << write_length_delimited(in_storedtype)
+		write_tag_into(mut buf, 6, 2)
+		write_length_delimited_into(mut buf, in_storedtype)
 	}
 	return buf
 }
@@ -6411,20 +6417,20 @@ pub fn encode_create_op_class_item(val CreateOpClassItem) []u8 {
 pub fn encode_alter_function_stmt(val AlterFunctionStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.objtype) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.objtype))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.objtype))
 	}
 	in_func := encode_object_with_args(val.func)
 	if in_func.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_func)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_func)
 	}
 	if val.actions.len > 0 {
 		for v in val.actions {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -6435,15 +6441,15 @@ pub fn encode_alter_operator_stmt(val AlterOperatorStmt) []u8 {
 	mut buf := []u8{}
 	in_opername := encode_object_with_args(val.opername)
 	if in_opername.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_opername)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_opername)
 	}
 	if val.options.len > 0 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -6454,26 +6460,26 @@ pub fn encode_create_cast_stmt(val CreateCastStmt) []u8 {
 	mut buf := []u8{}
 	in_sourcetype := encode_type_name(val.sourcetype)
 	if in_sourcetype.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_sourcetype)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_sourcetype)
 	}
 	in_targettype := encode_type_name(val.targettype)
 	if in_targettype.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_targettype)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_targettype)
 	}
 	in_func := encode_object_with_args(val.func)
 	if in_func.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(in_func)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, in_func)
 	}
 	if u64(val.context) != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.context))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.context))
 	}
 	if val.inout {
-		buf << write_tag(5, 0)
-		buf << write_bool(val.inout)
+		write_tag_into(mut buf, 5, 0)
+		write_bool_into(mut buf, val.inout)
 	}
 	return buf
 }
@@ -6481,27 +6487,27 @@ pub fn encode_create_cast_stmt(val CreateCastStmt) []u8 {
 pub fn encode_create_transform_stmt(val CreateTransformStmt) []u8 {
 	mut buf := []u8{}
 	if val.replace {
-		buf << write_tag(1, 0)
-		buf << write_bool(val.replace)
+		write_tag_into(mut buf, 1, 0)
+		write_bool_into(mut buf, val.replace)
 	}
 	in_type_name := encode_type_name(val.type_name)
 	if in_type_name.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_type_name)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_type_name)
 	}
 	if val.lang != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.lang)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.lang)
 	}
 	in_fromsql := encode_object_with_args(val.fromsql)
 	if in_fromsql.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(in_fromsql)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, in_fromsql)
 	}
 	in_tosql := encode_object_with_args(val.tosql)
 	if in_tosql.len > 0 {
-		buf << write_tag(5, 2)
-		buf << write_length_delimited(in_tosql)
+		write_tag_into(mut buf, 5, 2)
+		write_length_delimited_into(mut buf, in_tosql)
 	}
 	return buf
 }
@@ -6510,17 +6516,17 @@ pub fn encode_alter_role_set_stmt(val AlterRoleSetStmt) []u8 {
 	mut buf := []u8{}
 	in_role := encode_role_spec(val.role)
 	if in_role.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_role)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_role)
 	}
 	if val.database != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.database)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.database)
 	}
 	in_setstmt := encode_variable_set_stmt(val.setstmt)
 	if in_setstmt.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(in_setstmt)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, in_setstmt)
 	}
 	return buf
 }
@@ -6528,13 +6534,13 @@ pub fn encode_alter_role_set_stmt(val AlterRoleSetStmt) []u8 {
 pub fn encode_alter_database_set_stmt(val AlterDatabaseSetStmt) []u8 {
 	mut buf := []u8{}
 	if val.dbname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.dbname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.dbname)
 	}
 	in_setstmt := encode_variable_set_stmt(val.setstmt)
 	if in_setstmt.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_setstmt)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_setstmt)
 	}
 	return buf
 }
@@ -6543,8 +6549,8 @@ pub fn encode_alter_system_stmt(val AlterSystemStmt) []u8 {
 	mut buf := []u8{}
 	in_setstmt := encode_variable_set_stmt(val.setstmt)
 	if in_setstmt.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_setstmt)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_setstmt)
 	}
 	return buf
 }
@@ -6553,47 +6559,47 @@ pub fn encode_into_clause(val IntoClause) []u8 {
 	mut buf := []u8{}
 	in_rel := encode_range_var(val.rel)
 	if in_rel.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_rel)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_rel)
 	}
 	if val.col_names.len > 0 {
 		for v in val.col_names {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.access_method != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.access_method)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.access_method)
 	}
 	if val.options.len > 0 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if u64(val.on_commit) != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.on_commit))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.on_commit))
 	}
 	if val.table_space_name != '' {
-		buf << write_tag(6, 2)
-		buf << write_string(val.table_space_name)
+		write_tag_into(mut buf, 6, 2)
+		write_string_into(mut buf, val.table_space_name)
 	}
 	n_view_query := encode_node(val.view_query)
 	if n_view_query.len > 0 {
-		buf << write_tag(7, 2)
-		buf << write_length_delimited(n_view_query)
+		write_tag_into(mut buf, 7, 2)
+		write_length_delimited_into(mut buf, n_view_query)
 	}
 	if val.skip_data {
-		buf << write_tag(8, 0)
-		buf << write_bool(val.skip_data)
+		write_tag_into(mut buf, 8, 0)
+		write_bool_into(mut buf, val.skip_data)
 	}
 	return buf
 }
@@ -6601,80 +6607,80 @@ pub fn encode_into_clause(val IntoClause) []u8 {
 pub fn encode_column_def(val ColumnDef) []u8 {
 	mut buf := []u8{}
 	if val.colname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.colname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.colname)
 	}
 	in_type_name := encode_type_name(val.type_name)
 	if in_type_name.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_type_name)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_type_name)
 	}
 	if val.compression != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.compression)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.compression)
 	}
 	if val.inhcount != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.inhcount))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.inhcount))
 	}
 	if val.is_local {
-		buf << write_tag(5, 0)
-		buf << write_bool(val.is_local)
+		write_tag_into(mut buf, 5, 0)
+		write_bool_into(mut buf, val.is_local)
 	}
 	if val.is_not_null {
-		buf << write_tag(6, 0)
-		buf << write_bool(val.is_not_null)
+		write_tag_into(mut buf, 6, 0)
+		write_bool_into(mut buf, val.is_not_null)
 	}
 	if val.is_from_type {
-		buf << write_tag(7, 0)
-		buf << write_bool(val.is_from_type)
+		write_tag_into(mut buf, 7, 0)
+		write_bool_into(mut buf, val.is_from_type)
 	}
 	if val.storage != '' {
-		buf << write_tag(8, 2)
-		buf << write_string(val.storage)
+		write_tag_into(mut buf, 8, 2)
+		write_string_into(mut buf, val.storage)
 	}
 	if val.storage_name != '' {
-		buf << write_tag(9, 2)
-		buf << write_string(val.storage_name)
+		write_tag_into(mut buf, 9, 2)
+		write_string_into(mut buf, val.storage_name)
 	}
 	n_raw_default := encode_node(val.raw_default)
 	if n_raw_default.len > 0 {
-		buf << write_tag(10, 2)
-		buf << write_length_delimited(n_raw_default)
+		write_tag_into(mut buf, 10, 2)
+		write_length_delimited_into(mut buf, n_raw_default)
 	}
 	n_cooked_default := encode_node(val.cooked_default)
 	if n_cooked_default.len > 0 {
-		buf << write_tag(11, 2)
-		buf << write_length_delimited(n_cooked_default)
+		write_tag_into(mut buf, 11, 2)
+		write_length_delimited_into(mut buf, n_cooked_default)
 	}
 	if val.identity != '' {
-		buf << write_tag(12, 2)
-		buf << write_string(val.identity)
+		write_tag_into(mut buf, 12, 2)
+		write_string_into(mut buf, val.identity)
 	}
 	in_identity_sequence := encode_range_var(val.identity_sequence)
 	if in_identity_sequence.len > 0 {
-		buf << write_tag(13, 2)
-		buf << write_length_delimited(in_identity_sequence)
+		write_tag_into(mut buf, 13, 2)
+		write_length_delimited_into(mut buf, in_identity_sequence)
 	}
 	if val.generated != '' {
-		buf << write_tag(14, 2)
-		buf << write_string(val.generated)
+		write_tag_into(mut buf, 14, 2)
+		write_string_into(mut buf, val.generated)
 	}
 	in_coll_clause := encode_collate_clause(val.coll_clause)
 	if in_coll_clause.len > 0 {
-		buf << write_tag(15, 2)
-		buf << write_length_delimited(in_coll_clause)
+		write_tag_into(mut buf, 15, 2)
+		write_length_delimited_into(mut buf, in_coll_clause)
 	}
 	if val.coll_oid != 0 {
-		buf << write_tag(16, 0)
-		buf << write_varint(u64(val.coll_oid))
+		write_tag_into(mut buf, 16, 0)
+		write_varint_into(mut buf, u64(val.coll_oid))
 	}
 	if val.constraints.len > 0 {
 		for v in val.constraints {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(17, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 17, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -6682,14 +6688,14 @@ pub fn encode_column_def(val ColumnDef) []u8 {
 		for v in val.fdwoptions {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(18, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 18, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.location != 0 {
-		buf << write_tag(19, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 19, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -6698,16 +6704,16 @@ pub fn encode_table_like_clause(val TableLikeClause) []u8 {
 	mut buf := []u8{}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_relation)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_relation)
 	}
 	if val.options != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.options))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.options))
 	}
 	if val.relation_oid != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.relation_oid))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.relation_oid))
 	}
 	return buf
 }
@@ -6716,17 +6722,17 @@ pub fn encode_partition_cmd(val PartitionCmd) []u8 {
 	mut buf := []u8{}
 	in_name := encode_range_var(val.name)
 	if in_name.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_name)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_name)
 	}
 	in_bound := encode_partition_bound_spec(val.bound)
 	if in_bound.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_bound)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_bound)
 	}
 	if val.concurrent {
-		buf << write_tag(3, 0)
-		buf << write_bool(val.concurrent)
+		write_tag_into(mut buf, 3, 0)
+		write_bool_into(mut buf, val.concurrent)
 	}
 	return buf
 }
@@ -6735,36 +6741,36 @@ pub fn encode_delete_stmt(val DeleteStmt) []u8 {
 	mut buf := []u8{}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_relation)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_relation)
 	}
 	if val.using_clause.len > 0 {
 		for v in val.using_clause {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_where_clause := encode_node(val.where_clause)
 	if n_where_clause.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(n_where_clause)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, n_where_clause)
 	}
 	if val.returning_list.len > 0 {
 		for v in val.returning_list {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	in_with_clause := encode_with_clause(val.with_clause)
 	if in_with_clause.len > 0 {
-		buf << write_tag(5, 2)
-		buf << write_length_delimited(in_with_clause)
+		write_tag_into(mut buf, 5, 2)
+		write_length_delimited_into(mut buf, in_with_clause)
 	}
 	return buf
 }
@@ -6773,29 +6779,29 @@ pub fn encode_update_stmt(val UpdateStmt) []u8 {
 	mut buf := []u8{}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_relation)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_relation)
 	}
 	if val.target_list.len > 0 {
 		for v in val.target_list {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_where_clause := encode_node(val.where_clause)
 	if n_where_clause.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(n_where_clause)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, n_where_clause)
 	}
 	if val.from_clause.len > 0 {
 		for v in val.from_clause {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -6803,15 +6809,15 @@ pub fn encode_update_stmt(val UpdateStmt) []u8 {
 		for v in val.returning_list {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	in_with_clause := encode_with_clause(val.with_clause)
 	if in_with_clause.len > 0 {
-		buf << write_tag(6, 2)
-		buf << write_length_delimited(in_with_clause)
+		write_tag_into(mut buf, 6, 2)
+		write_length_delimited_into(mut buf, in_with_clause)
 	}
 	return buf
 }
@@ -6820,25 +6826,25 @@ pub fn encode_merge_stmt(val MergeStmt) []u8 {
 	mut buf := []u8{}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_relation)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_relation)
 	}
 	n_source_relation := encode_node(val.source_relation)
 	if n_source_relation.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_source_relation)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_source_relation)
 	}
 	n_join_condition := encode_node(val.join_condition)
 	if n_join_condition.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(n_join_condition)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, n_join_condition)
 	}
 	if val.merge_when_clauses.len > 0 {
 		for v in val.merge_when_clauses {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -6846,15 +6852,15 @@ pub fn encode_merge_stmt(val MergeStmt) []u8 {
 		for v in val.returning_list {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	in_with_clause := encode_with_clause(val.with_clause)
 	if in_with_clause.len > 0 {
-		buf << write_tag(6, 2)
-		buf << write_length_delimited(in_with_clause)
+		write_tag_into(mut buf, 6, 2)
+		write_length_delimited_into(mut buf, in_with_clause)
 	}
 	return buf
 }
@@ -6863,25 +6869,25 @@ pub fn encode_alter_table_stmt(val AlterTableStmt) []u8 {
 	mut buf := []u8{}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_relation)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_relation)
 	}
 	if val.cmds.len > 0 {
 		for v in val.cmds {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if u64(val.objtype) != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.objtype))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.objtype))
 	}
 	if val.missing_ok {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.missing_ok)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.missing_ok)
 	}
 	return buf
 }
@@ -6890,48 +6896,48 @@ pub fn encode_copy_stmt(val CopyStmt) []u8 {
 	mut buf := []u8{}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_relation)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_relation)
 	}
 	n_query := encode_node(val.query)
 	if n_query.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_query)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_query)
 	}
 	if val.attlist.len > 0 {
 		for v in val.attlist {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.is_from {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.is_from)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.is_from)
 	}
 	if val.is_program {
-		buf << write_tag(5, 0)
-		buf << write_bool(val.is_program)
+		write_tag_into(mut buf, 5, 0)
+		write_bool_into(mut buf, val.is_program)
 	}
 	if val.filename != '' {
-		buf << write_tag(6, 2)
-		buf << write_string(val.filename)
+		write_tag_into(mut buf, 6, 2)
+		write_string_into(mut buf, val.filename)
 	}
 	if val.options.len > 0 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(7, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 7, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_where_clause := encode_node(val.where_clause)
 	if n_where_clause.len > 0 {
-		buf << write_tag(8, 2)
-		buf << write_length_delimited(n_where_clause)
+		write_tag_into(mut buf, 8, 2)
+		write_length_delimited_into(mut buf, n_where_clause)
 	}
 	return buf
 }
@@ -6940,15 +6946,15 @@ pub fn encode_create_stmt(val CreateStmt) []u8 {
 	mut buf := []u8{}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_relation)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_relation)
 	}
 	if val.table_elts.len > 0 {
 		for v in val.table_elts {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -6956,32 +6962,32 @@ pub fn encode_create_stmt(val CreateStmt) []u8 {
 		for v in val.inh_relations {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	in_partbound := encode_partition_bound_spec(val.partbound)
 	if in_partbound.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(in_partbound)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, in_partbound)
 	}
 	in_partspec := encode_partition_spec(val.partspec)
 	if in_partspec.len > 0 {
-		buf << write_tag(5, 2)
-		buf << write_length_delimited(in_partspec)
+		write_tag_into(mut buf, 5, 2)
+		write_length_delimited_into(mut buf, in_partspec)
 	}
 	in_of_typename := encode_type_name(val.of_typename)
 	if in_of_typename.len > 0 {
-		buf << write_tag(6, 2)
-		buf << write_length_delimited(in_of_typename)
+		write_tag_into(mut buf, 6, 2)
+		write_length_delimited_into(mut buf, in_of_typename)
 	}
 	if val.constraints.len > 0 {
 		for v in val.constraints {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(7, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 7, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -6989,26 +6995,26 @@ pub fn encode_create_stmt(val CreateStmt) []u8 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(8, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 8, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if u64(val.oncommit) != 0 {
-		buf << write_tag(9, 0)
-		buf << write_varint(u64(val.oncommit))
+		write_tag_into(mut buf, 9, 0)
+		write_varint_into(mut buf, u64(val.oncommit))
 	}
 	if val.tablespacename != '' {
-		buf << write_tag(10, 2)
-		buf << write_string(val.tablespacename)
+		write_tag_into(mut buf, 10, 2)
+		write_string_into(mut buf, val.tablespacename)
 	}
 	if val.access_method != '' {
-		buf << write_tag(11, 2)
-		buf << write_string(val.access_method)
+		write_tag_into(mut buf, 11, 2)
+		write_string_into(mut buf, val.access_method)
 	}
 	if val.if_not_exists {
-		buf << write_tag(12, 0)
-		buf << write_bool(val.if_not_exists)
+		write_tag_into(mut buf, 12, 0)
+		write_bool_into(mut buf, val.if_not_exists)
 	}
 	return buf
 }
@@ -7016,60 +7022,60 @@ pub fn encode_create_stmt(val CreateStmt) []u8 {
 pub fn encode_constraint(val Constraint) []u8 {
 	mut buf := []u8{}
 	if u64(val.contype) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.contype))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.contype))
 	}
 	if val.conname != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.conname)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.conname)
 	}
 	if val.deferrable {
-		buf << write_tag(3, 0)
-		buf << write_bool(val.deferrable)
+		write_tag_into(mut buf, 3, 0)
+		write_bool_into(mut buf, val.deferrable)
 	}
 	if val.initdeferred {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.initdeferred)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.initdeferred)
 	}
 	if val.skip_validation {
-		buf << write_tag(5, 0)
-		buf << write_bool(val.skip_validation)
+		write_tag_into(mut buf, 5, 0)
+		write_bool_into(mut buf, val.skip_validation)
 	}
 	if val.initially_valid {
-		buf << write_tag(6, 0)
-		buf << write_bool(val.initially_valid)
+		write_tag_into(mut buf, 6, 0)
+		write_bool_into(mut buf, val.initially_valid)
 	}
 	if val.is_no_inherit {
-		buf << write_tag(7, 0)
-		buf << write_bool(val.is_no_inherit)
+		write_tag_into(mut buf, 7, 0)
+		write_bool_into(mut buf, val.is_no_inherit)
 	}
 	n_raw_expr := encode_node(val.raw_expr)
 	if n_raw_expr.len > 0 {
-		buf << write_tag(8, 2)
-		buf << write_length_delimited(n_raw_expr)
+		write_tag_into(mut buf, 8, 2)
+		write_length_delimited_into(mut buf, n_raw_expr)
 	}
 	if val.cooked_expr != '' {
-		buf << write_tag(9, 2)
-		buf << write_string(val.cooked_expr)
+		write_tag_into(mut buf, 9, 2)
+		write_string_into(mut buf, val.cooked_expr)
 	}
 	if val.generated_when != '' {
-		buf << write_tag(10, 2)
-		buf << write_string(val.generated_when)
+		write_tag_into(mut buf, 10, 2)
+		write_string_into(mut buf, val.generated_when)
 	}
 	if val.inhcount != 0 {
-		buf << write_tag(11, 0)
-		buf << write_varint(u64(val.inhcount))
+		write_tag_into(mut buf, 11, 0)
+		write_varint_into(mut buf, u64(val.inhcount))
 	}
 	if val.nulls_not_distinct {
-		buf << write_tag(12, 0)
-		buf << write_bool(val.nulls_not_distinct)
+		write_tag_into(mut buf, 12, 0)
+		write_bool_into(mut buf, val.nulls_not_distinct)
 	}
 	if val.keys.len > 0 {
 		for v in val.keys {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(13, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 13, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -7077,8 +7083,8 @@ pub fn encode_constraint(val Constraint) []u8 {
 		for v in val.including {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(14, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 14, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -7086,8 +7092,8 @@ pub fn encode_constraint(val Constraint) []u8 {
 		for v in val.exclusions {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(15, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 15, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -7095,43 +7101,43 @@ pub fn encode_constraint(val Constraint) []u8 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(16, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 16, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.indexname != '' {
-		buf << write_tag(17, 2)
-		buf << write_string(val.indexname)
+		write_tag_into(mut buf, 17, 2)
+		write_string_into(mut buf, val.indexname)
 	}
 	if val.indexspace != '' {
-		buf << write_tag(18, 2)
-		buf << write_string(val.indexspace)
+		write_tag_into(mut buf, 18, 2)
+		write_string_into(mut buf, val.indexspace)
 	}
 	if val.reset_default_tblspc {
-		buf << write_tag(19, 0)
-		buf << write_bool(val.reset_default_tblspc)
+		write_tag_into(mut buf, 19, 0)
+		write_bool_into(mut buf, val.reset_default_tblspc)
 	}
 	if val.access_method != '' {
-		buf << write_tag(20, 2)
-		buf << write_string(val.access_method)
+		write_tag_into(mut buf, 20, 2)
+		write_string_into(mut buf, val.access_method)
 	}
 	n_where_clause := encode_node(val.where_clause)
 	if n_where_clause.len > 0 {
-		buf << write_tag(21, 2)
-		buf << write_length_delimited(n_where_clause)
+		write_tag_into(mut buf, 21, 2)
+		write_length_delimited_into(mut buf, n_where_clause)
 	}
 	in_pktable := encode_range_var(val.pktable)
 	if in_pktable.len > 0 {
-		buf << write_tag(22, 2)
-		buf << write_length_delimited(in_pktable)
+		write_tag_into(mut buf, 22, 2)
+		write_length_delimited_into(mut buf, in_pktable)
 	}
 	if val.fk_attrs.len > 0 {
 		for v in val.fk_attrs {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(23, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 23, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -7139,29 +7145,29 @@ pub fn encode_constraint(val Constraint) []u8 {
 		for v in val.pk_attrs {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(24, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 24, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.fk_matchtype != '' {
-		buf << write_tag(25, 2)
-		buf << write_string(val.fk_matchtype)
+		write_tag_into(mut buf, 25, 2)
+		write_string_into(mut buf, val.fk_matchtype)
 	}
 	if val.fk_upd_action != '' {
-		buf << write_tag(26, 2)
-		buf << write_string(val.fk_upd_action)
+		write_tag_into(mut buf, 26, 2)
+		write_string_into(mut buf, val.fk_upd_action)
 	}
 	if val.fk_del_action != '' {
-		buf << write_tag(27, 2)
-		buf << write_string(val.fk_del_action)
+		write_tag_into(mut buf, 27, 2)
+		write_string_into(mut buf, val.fk_del_action)
 	}
 	if val.fk_del_set_cols.len > 0 {
 		for v in val.fk_del_set_cols {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(28, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 28, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -7169,18 +7175,18 @@ pub fn encode_constraint(val Constraint) []u8 {
 		for v in val.old_conpfeqop {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(29, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 29, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.old_pktable_oid != 0 {
-		buf << write_tag(30, 0)
-		buf << write_varint(u64(val.old_pktable_oid))
+		write_tag_into(mut buf, 30, 0)
+		write_varint_into(mut buf, u64(val.old_pktable_oid))
 	}
 	if val.location != 0 {
-		buf << write_tag(31, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 31, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -7188,40 +7194,40 @@ pub fn encode_constraint(val Constraint) []u8 {
 pub fn encode_create_policy_stmt(val CreatePolicyStmt) []u8 {
 	mut buf := []u8{}
 	if val.policy_name != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.policy_name)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.policy_name)
 	}
 	in_table := encode_range_var(val.table)
 	if in_table.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_table)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_table)
 	}
 	if val.cmd_name != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.cmd_name)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.cmd_name)
 	}
 	if val.permissive {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.permissive)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.permissive)
 	}
 	if val.roles.len > 0 {
 		for v in val.roles {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_qual := encode_node(val.qual)
 	if n_qual.len > 0 {
-		buf << write_tag(6, 2)
-		buf << write_length_delimited(n_qual)
+		write_tag_into(mut buf, 6, 2)
+		write_length_delimited_into(mut buf, n_qual)
 	}
 	n_with_check := encode_node(val.with_check)
 	if n_with_check.len > 0 {
-		buf << write_tag(7, 2)
-		buf << write_length_delimited(n_with_check)
+		write_tag_into(mut buf, 7, 2)
+		write_length_delimited_into(mut buf, n_with_check)
 	}
 	return buf
 }
@@ -7229,32 +7235,32 @@ pub fn encode_create_policy_stmt(val CreatePolicyStmt) []u8 {
 pub fn encode_alter_policy_stmt(val AlterPolicyStmt) []u8 {
 	mut buf := []u8{}
 	if val.policy_name != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.policy_name)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.policy_name)
 	}
 	in_table := encode_range_var(val.table)
 	if in_table.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_table)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_table)
 	}
 	if val.roles.len > 0 {
 		for v in val.roles {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_qual := encode_node(val.qual)
 	if n_qual.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(n_qual)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, n_qual)
 	}
 	n_with_check := encode_node(val.with_check)
 	if n_with_check.len > 0 {
-		buf << write_tag(5, 2)
-		buf << write_length_delimited(n_with_check)
+		write_tag_into(mut buf, 5, 2)
+		write_length_delimited_into(mut buf, n_with_check)
 	}
 	return buf
 }
@@ -7262,28 +7268,28 @@ pub fn encode_alter_policy_stmt(val AlterPolicyStmt) []u8 {
 pub fn encode_create_trig_stmt(val CreateTrigStmt) []u8 {
 	mut buf := []u8{}
 	if val.replace {
-		buf << write_tag(1, 0)
-		buf << write_bool(val.replace)
+		write_tag_into(mut buf, 1, 0)
+		write_bool_into(mut buf, val.replace)
 	}
 	if val.isconstraint {
-		buf << write_tag(2, 0)
-		buf << write_bool(val.isconstraint)
+		write_tag_into(mut buf, 2, 0)
+		write_bool_into(mut buf, val.isconstraint)
 	}
 	if val.trigname != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.trigname)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.trigname)
 	}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(in_relation)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, in_relation)
 	}
 	if val.funcname.len > 0 {
 		for v in val.funcname {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -7291,58 +7297,58 @@ pub fn encode_create_trig_stmt(val CreateTrigStmt) []u8 {
 		for v in val.args {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(6, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 6, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.row {
-		buf << write_tag(7, 0)
-		buf << write_bool(val.row)
+		write_tag_into(mut buf, 7, 0)
+		write_bool_into(mut buf, val.row)
 	}
 	if val.timing != 0 {
-		buf << write_tag(8, 0)
-		buf << write_varint(u64(val.timing))
+		write_tag_into(mut buf, 8, 0)
+		write_varint_into(mut buf, u64(val.timing))
 	}
 	if val.events != 0 {
-		buf << write_tag(9, 0)
-		buf << write_varint(u64(val.events))
+		write_tag_into(mut buf, 9, 0)
+		write_varint_into(mut buf, u64(val.events))
 	}
 	if val.columns.len > 0 {
 		for v in val.columns {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(10, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 10, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_when_clause := encode_node(val.when_clause)
 	if n_when_clause.len > 0 {
-		buf << write_tag(11, 2)
-		buf << write_length_delimited(n_when_clause)
+		write_tag_into(mut buf, 11, 2)
+		write_length_delimited_into(mut buf, n_when_clause)
 	}
 	if val.transition_rels.len > 0 {
 		for v in val.transition_rels {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(12, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 12, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.deferrable {
-		buf << write_tag(13, 0)
-		buf << write_bool(val.deferrable)
+		write_tag_into(mut buf, 13, 0)
+		write_bool_into(mut buf, val.deferrable)
 	}
 	if val.initdeferred {
-		buf << write_tag(14, 0)
-		buf << write_bool(val.initdeferred)
+		write_tag_into(mut buf, 14, 0)
+		write_bool_into(mut buf, val.initdeferred)
 	}
 	in_constrrel := encode_range_var(val.constrrel)
 	if in_constrrel.len > 0 {
-		buf << write_tag(15, 2)
-		buf << write_length_delimited(in_constrrel)
+		write_tag_into(mut buf, 15, 2)
+		write_length_delimited_into(mut buf, in_constrrel)
 	}
 	return buf
 }
@@ -7351,29 +7357,29 @@ pub fn encode_create_seq_stmt(val CreateSeqStmt) []u8 {
 	mut buf := []u8{}
 	in_sequence := encode_range_var(val.sequence)
 	if in_sequence.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_sequence)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_sequence)
 	}
 	if val.options.len > 0 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.owner_id != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.owner_id))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.owner_id))
 	}
 	if val.for_identity {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.for_identity)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.for_identity)
 	}
 	if val.if_not_exists {
-		buf << write_tag(5, 0)
-		buf << write_bool(val.if_not_exists)
+		write_tag_into(mut buf, 5, 0)
+		write_bool_into(mut buf, val.if_not_exists)
 	}
 	return buf
 }
@@ -7382,25 +7388,25 @@ pub fn encode_alter_seq_stmt(val AlterSeqStmt) []u8 {
 	mut buf := []u8{}
 	in_sequence := encode_range_var(val.sequence)
 	if in_sequence.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_sequence)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_sequence)
 	}
 	if val.options.len > 0 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.for_identity {
-		buf << write_tag(3, 0)
-		buf << write_bool(val.for_identity)
+		write_tag_into(mut buf, 3, 0)
+		write_bool_into(mut buf, val.for_identity)
 	}
 	if val.missing_ok {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.missing_ok)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.missing_ok)
 	}
 	return buf
 }
@@ -7408,28 +7414,28 @@ pub fn encode_alter_seq_stmt(val AlterSeqStmt) []u8 {
 pub fn encode_index_stmt(val IndexStmt) []u8 {
 	mut buf := []u8{}
 	if val.idxname != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.idxname)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.idxname)
 	}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_relation)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_relation)
 	}
 	if val.access_method != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.access_method)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.access_method)
 	}
 	if val.table_space != '' {
-		buf << write_tag(4, 2)
-		buf << write_string(val.table_space)
+		write_tag_into(mut buf, 4, 2)
+		write_string_into(mut buf, val.table_space)
 	}
 	if val.index_params.len > 0 {
 		for v in val.index_params {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -7437,8 +7443,8 @@ pub fn encode_index_stmt(val IndexStmt) []u8 {
 		for v in val.index_including_params {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(6, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 6, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -7446,84 +7452,84 @@ pub fn encode_index_stmt(val IndexStmt) []u8 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(7, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 7, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_where_clause := encode_node(val.where_clause)
 	if n_where_clause.len > 0 {
-		buf << write_tag(8, 2)
-		buf << write_length_delimited(n_where_clause)
+		write_tag_into(mut buf, 8, 2)
+		write_length_delimited_into(mut buf, n_where_clause)
 	}
 	if val.exclude_op_names.len > 0 {
 		for v in val.exclude_op_names {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(9, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 9, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.idxcomment != '' {
-		buf << write_tag(10, 2)
-		buf << write_string(val.idxcomment)
+		write_tag_into(mut buf, 10, 2)
+		write_string_into(mut buf, val.idxcomment)
 	}
 	if val.index_oid != 0 {
-		buf << write_tag(11, 0)
-		buf << write_varint(u64(val.index_oid))
+		write_tag_into(mut buf, 11, 0)
+		write_varint_into(mut buf, u64(val.index_oid))
 	}
 	if val.old_number != 0 {
-		buf << write_tag(12, 0)
-		buf << write_varint(u64(val.old_number))
+		write_tag_into(mut buf, 12, 0)
+		write_varint_into(mut buf, u64(val.old_number))
 	}
 	if val.old_create_subid != 0 {
-		buf << write_tag(13, 0)
-		buf << write_varint(u64(val.old_create_subid))
+		write_tag_into(mut buf, 13, 0)
+		write_varint_into(mut buf, u64(val.old_create_subid))
 	}
 	if val.old_first_relfilelocator_subid != 0 {
-		buf << write_tag(14, 0)
-		buf << write_varint(u64(val.old_first_relfilelocator_subid))
+		write_tag_into(mut buf, 14, 0)
+		write_varint_into(mut buf, u64(val.old_first_relfilelocator_subid))
 	}
 	if val.unique {
-		buf << write_tag(15, 0)
-		buf << write_bool(val.unique)
+		write_tag_into(mut buf, 15, 0)
+		write_bool_into(mut buf, val.unique)
 	}
 	if val.nulls_not_distinct {
-		buf << write_tag(16, 0)
-		buf << write_bool(val.nulls_not_distinct)
+		write_tag_into(mut buf, 16, 0)
+		write_bool_into(mut buf, val.nulls_not_distinct)
 	}
 	if val.primary {
-		buf << write_tag(17, 0)
-		buf << write_bool(val.primary)
+		write_tag_into(mut buf, 17, 0)
+		write_bool_into(mut buf, val.primary)
 	}
 	if val.isconstraint {
-		buf << write_tag(18, 0)
-		buf << write_bool(val.isconstraint)
+		write_tag_into(mut buf, 18, 0)
+		write_bool_into(mut buf, val.isconstraint)
 	}
 	if val.deferrable {
-		buf << write_tag(19, 0)
-		buf << write_bool(val.deferrable)
+		write_tag_into(mut buf, 19, 0)
+		write_bool_into(mut buf, val.deferrable)
 	}
 	if val.initdeferred {
-		buf << write_tag(20, 0)
-		buf << write_bool(val.initdeferred)
+		write_tag_into(mut buf, 20, 0)
+		write_bool_into(mut buf, val.initdeferred)
 	}
 	if val.transformed {
-		buf << write_tag(21, 0)
-		buf << write_bool(val.transformed)
+		write_tag_into(mut buf, 21, 0)
+		write_bool_into(mut buf, val.transformed)
 	}
 	if val.concurrent {
-		buf << write_tag(22, 0)
-		buf << write_bool(val.concurrent)
+		write_tag_into(mut buf, 22, 0)
+		write_bool_into(mut buf, val.concurrent)
 	}
 	if val.if_not_exists {
-		buf << write_tag(23, 0)
-		buf << write_bool(val.if_not_exists)
+		write_tag_into(mut buf, 23, 0)
+		write_bool_into(mut buf, val.if_not_exists)
 	}
 	if val.reset_default_tblspc {
-		buf << write_tag(24, 0)
-		buf << write_bool(val.reset_default_tblspc)
+		write_tag_into(mut buf, 24, 0)
+		write_bool_into(mut buf, val.reset_default_tblspc)
 	}
 	return buf
 }
@@ -7531,38 +7537,38 @@ pub fn encode_index_stmt(val IndexStmt) []u8 {
 pub fn encode_rename_stmt(val RenameStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.rename_type) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.rename_type))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.rename_type))
 	}
 	if u64(val.relation_type) != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.relation_type))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.relation_type))
 	}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(in_relation)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, in_relation)
 	}
 	n_object := encode_node(val.object)
 	if n_object.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(n_object)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, n_object)
 	}
 	if val.subname != '' {
-		buf << write_tag(5, 2)
-		buf << write_string(val.subname)
+		write_tag_into(mut buf, 5, 2)
+		write_string_into(mut buf, val.subname)
 	}
 	if val.newname != '' {
-		buf << write_tag(6, 2)
-		buf << write_string(val.newname)
+		write_tag_into(mut buf, 6, 2)
+		write_string_into(mut buf, val.newname)
 	}
 	if u64(val.behavior) != 0 {
-		buf << write_tag(7, 0)
-		buf << write_varint(u64(val.behavior))
+		write_tag_into(mut buf, 7, 0)
+		write_varint_into(mut buf, u64(val.behavior))
 	}
 	if val.missing_ok {
-		buf << write_tag(8, 0)
-		buf << write_bool(val.missing_ok)
+		write_tag_into(mut buf, 8, 0)
+		write_bool_into(mut buf, val.missing_ok)
 	}
 	return buf
 }
@@ -7570,27 +7576,27 @@ pub fn encode_rename_stmt(val RenameStmt) []u8 {
 pub fn encode_alter_object_depends_stmt(val AlterObjectDependsStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.object_type) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.object_type))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.object_type))
 	}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_relation)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_relation)
 	}
 	n_object := encode_node(val.object)
 	if n_object.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(n_object)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, n_object)
 	}
 	in_extname := encode_string(val.extname)
 	if in_extname.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(in_extname)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, in_extname)
 	}
 	if val.remove {
-		buf << write_tag(5, 0)
-		buf << write_bool(val.remove)
+		write_tag_into(mut buf, 5, 0)
+		write_bool_into(mut buf, val.remove)
 	}
 	return buf
 }
@@ -7598,26 +7604,26 @@ pub fn encode_alter_object_depends_stmt(val AlterObjectDependsStmt) []u8 {
 pub fn encode_alter_object_schema_stmt(val AlterObjectSchemaStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.object_type) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.object_type))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.object_type))
 	}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_relation)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_relation)
 	}
 	n_object := encode_node(val.object)
 	if n_object.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(n_object)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, n_object)
 	}
 	if val.newschema != '' {
-		buf << write_tag(4, 2)
-		buf << write_string(val.newschema)
+		write_tag_into(mut buf, 4, 2)
+		write_string_into(mut buf, val.newschema)
 	}
 	if val.missing_ok {
-		buf << write_tag(5, 0)
-		buf << write_bool(val.missing_ok)
+		write_tag_into(mut buf, 5, 0)
+		write_bool_into(mut buf, val.missing_ok)
 	}
 	return buf
 }
@@ -7625,23 +7631,23 @@ pub fn encode_alter_object_schema_stmt(val AlterObjectSchemaStmt) []u8 {
 pub fn encode_alter_owner_stmt(val AlterOwnerStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.object_type) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.object_type))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.object_type))
 	}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_relation)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_relation)
 	}
 	n_object := encode_node(val.object)
 	if n_object.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(n_object)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, n_object)
 	}
 	in_newowner := encode_role_spec(val.newowner)
 	if in_newowner.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(in_newowner)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, in_newowner)
 	}
 	return buf
 }
@@ -7650,38 +7656,38 @@ pub fn encode_rule_stmt(val RuleStmt) []u8 {
 	mut buf := []u8{}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_relation)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_relation)
 	}
 	if val.rulename != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.rulename)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.rulename)
 	}
 	n_where_clause := encode_node(val.where_clause)
 	if n_where_clause.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(n_where_clause)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, n_where_clause)
 	}
 	if u64(val.event) != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.event))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.event))
 	}
 	if val.instead {
-		buf << write_tag(5, 0)
-		buf << write_bool(val.instead)
+		write_tag_into(mut buf, 5, 0)
+		write_bool_into(mut buf, val.instead)
 	}
 	if val.actions.len > 0 {
 		for v in val.actions {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(6, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 6, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.replace {
-		buf << write_tag(7, 0)
-		buf << write_bool(val.replace)
+		write_tag_into(mut buf, 7, 0)
+		write_bool_into(mut buf, val.replace)
 	}
 	return buf
 }
@@ -7690,15 +7696,15 @@ pub fn encode_composite_type_stmt(val CompositeTypeStmt) []u8 {
 	mut buf := []u8{}
 	in_typevar := encode_range_var(val.typevar)
 	if in_typevar.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_typevar)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_typevar)
 	}
 	if val.coldeflist.len > 0 {
 		for v in val.coldeflist {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -7709,39 +7715,39 @@ pub fn encode_view_stmt(val ViewStmt) []u8 {
 	mut buf := []u8{}
 	in_view := encode_range_var(val.view)
 	if in_view.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_view)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_view)
 	}
 	if val.aliases.len > 0 {
 		for v in val.aliases {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_query := encode_node(val.query)
 	if n_query.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(n_query)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, n_query)
 	}
 	if val.replace {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.replace)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.replace)
 	}
 	if val.options.len > 0 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if u64(val.with_check_option) != 0 {
-		buf << write_tag(6, 0)
-		buf << write_varint(u64(val.with_check_option))
+		write_tag_into(mut buf, 6, 0)
+		write_varint_into(mut buf, u64(val.with_check_option))
 	}
 	return buf
 }
@@ -7750,19 +7756,19 @@ pub fn encode_cluster_stmt(val ClusterStmt) []u8 {
 	mut buf := []u8{}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_relation)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_relation)
 	}
 	if val.indexname != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.indexname)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.indexname)
 	}
 	if val.params.len > 0 {
 		for v in val.params {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -7773,19 +7779,19 @@ pub fn encode_vacuum_relation(val VacuumRelation) []u8 {
 	mut buf := []u8{}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_relation)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_relation)
 	}
 	if val.oid != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.oid))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.oid))
 	}
 	if val.va_cols.len > 0 {
 		for v in val.va_cols {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -7795,17 +7801,17 @@ pub fn encode_vacuum_relation(val VacuumRelation) []u8 {
 pub fn encode_refresh_mat_view_stmt(val RefreshMatViewStmt) []u8 {
 	mut buf := []u8{}
 	if val.concurrent {
-		buf << write_tag(1, 0)
-		buf << write_bool(val.concurrent)
+		write_tag_into(mut buf, 1, 0)
+		write_bool_into(mut buf, val.concurrent)
 	}
 	if val.skip_data {
-		buf << write_tag(2, 0)
-		buf << write_bool(val.skip_data)
+		write_tag_into(mut buf, 2, 0)
+		write_bool_into(mut buf, val.skip_data)
 	}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(in_relation)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, in_relation)
 	}
 	return buf
 }
@@ -7813,24 +7819,24 @@ pub fn encode_refresh_mat_view_stmt(val RefreshMatViewStmt) []u8 {
 pub fn encode_reindex_stmt(val ReindexStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.kind) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.kind))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.kind))
 	}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_relation)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_relation)
 	}
 	if val.name != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.name)
 	}
 	if val.params.len > 0 {
 		for v in val.params {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -7841,20 +7847,20 @@ pub fn encode_publication_table(val PublicationTable) []u8 {
 	mut buf := []u8{}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_relation)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_relation)
 	}
 	n_where_clause := encode_node(val.where_clause)
 	if n_where_clause.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_where_clause)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_where_clause)
 	}
 	if val.columns.len > 0 {
 		for v in val.columns {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -7865,48 +7871,48 @@ pub fn encode_json_constructor_expr(val JsonConstructorExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if u64(val.type) != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.type))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.type))
 	}
 	if val.args.len > 0 {
 		for v in val.args {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_func := encode_node(val.func)
 	if n_func.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(n_func)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, n_func)
 	}
 	n_coercion := encode_node(val.coercion)
 	if n_coercion.len > 0 {
-		buf << write_tag(5, 2)
-		buf << write_length_delimited(n_coercion)
+		write_tag_into(mut buf, 5, 2)
+		write_length_delimited_into(mut buf, n_coercion)
 	}
 	in_returning := encode_json_returning(val.returning)
 	if in_returning.len > 0 {
-		buf << write_tag(6, 2)
-		buf << write_length_delimited(in_returning)
+		write_tag_into(mut buf, 6, 2)
+		write_length_delimited_into(mut buf, in_returning)
 	}
 	if val.absent_on_null {
-		buf << write_tag(7, 0)
-		buf << write_bool(val.absent_on_null)
+		write_tag_into(mut buf, 7, 0)
+		write_bool_into(mut buf, val.absent_on_null)
 	}
 	if val.unique {
-		buf << write_tag(8, 0)
-		buf << write_bool(val.unique)
+		write_tag_into(mut buf, 8, 0)
+		write_bool_into(mut buf, val.unique)
 	}
 	if val.location != 0 {
-		buf << write_tag(9, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 9, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -7915,43 +7921,43 @@ pub fn encode_json_expr(val JsonExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_xpr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_xpr)
 	}
 	if u64(val.op) != 0 {
-		buf << write_tag(2, 0)
-		buf << write_varint(u64(val.op))
+		write_tag_into(mut buf, 2, 0)
+		write_varint_into(mut buf, u64(val.op))
 	}
 	if val.column_name != '' {
-		buf << write_tag(3, 2)
-		buf << write_string(val.column_name)
+		write_tag_into(mut buf, 3, 2)
+		write_string_into(mut buf, val.column_name)
 	}
 	n_formatted_expr := encode_node(val.formatted_expr)
 	if n_formatted_expr.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(n_formatted_expr)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, n_formatted_expr)
 	}
 	in_format := encode_json_format(val.format)
 	if in_format.len > 0 {
-		buf << write_tag(5, 2)
-		buf << write_length_delimited(in_format)
+		write_tag_into(mut buf, 5, 2)
+		write_length_delimited_into(mut buf, in_format)
 	}
 	n_path_spec := encode_node(val.path_spec)
 	if n_path_spec.len > 0 {
-		buf << write_tag(6, 2)
-		buf << write_length_delimited(n_path_spec)
+		write_tag_into(mut buf, 6, 2)
+		write_length_delimited_into(mut buf, n_path_spec)
 	}
 	in_returning := encode_json_returning(val.returning)
 	if in_returning.len > 0 {
-		buf << write_tag(7, 2)
-		buf << write_length_delimited(in_returning)
+		write_tag_into(mut buf, 7, 2)
+		write_length_delimited_into(mut buf, in_returning)
 	}
 	if val.passing_names.len > 0 {
 		for v in val.passing_names {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(8, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 8, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -7959,44 +7965,44 @@ pub fn encode_json_expr(val JsonExpr) []u8 {
 		for v in val.passing_values {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(9, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 9, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	in_on_empty := encode_json_behavior(val.on_empty)
 	if in_on_empty.len > 0 {
-		buf << write_tag(10, 2)
-		buf << write_length_delimited(in_on_empty)
+		write_tag_into(mut buf, 10, 2)
+		write_length_delimited_into(mut buf, in_on_empty)
 	}
 	in_on_error := encode_json_behavior(val.on_error)
 	if in_on_error.len > 0 {
-		buf << write_tag(11, 2)
-		buf << write_length_delimited(in_on_error)
+		write_tag_into(mut buf, 11, 2)
+		write_length_delimited_into(mut buf, in_on_error)
 	}
 	if val.use_io_coercion {
-		buf << write_tag(12, 0)
-		buf << write_bool(val.use_io_coercion)
+		write_tag_into(mut buf, 12, 0)
+		write_bool_into(mut buf, val.use_io_coercion)
 	}
 	if val.use_json_coercion {
-		buf << write_tag(13, 0)
-		buf << write_bool(val.use_json_coercion)
+		write_tag_into(mut buf, 13, 0)
+		write_bool_into(mut buf, val.use_json_coercion)
 	}
 	if u64(val.wrapper) != 0 {
-		buf << write_tag(14, 0)
-		buf << write_varint(u64(val.wrapper))
+		write_tag_into(mut buf, 14, 0)
+		write_varint_into(mut buf, u64(val.wrapper))
 	}
 	if val.omit_quotes {
-		buf << write_tag(15, 0)
-		buf << write_bool(val.omit_quotes)
+		write_tag_into(mut buf, 15, 0)
+		write_bool_into(mut buf, val.omit_quotes)
 	}
 	if val.collation != 0 {
-		buf << write_tag(16, 0)
-		buf << write_varint(u64(val.collation))
+		write_tag_into(mut buf, 16, 0)
+		write_varint_into(mut buf, u64(val.collation))
 	}
 	if val.location != 0 {
-		buf << write_tag(17, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 17, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -8005,13 +8011,13 @@ pub fn encode_json_output(val JsonOutput) []u8 {
 	mut buf := []u8{}
 	in_type_name := encode_type_name(val.type_name)
 	if in_type_name.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_type_name)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_type_name)
 	}
 	in_returning := encode_json_returning(val.returning)
 	if in_returning.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_returning)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_returning)
 	}
 	return buf
 }
@@ -8020,12 +8026,12 @@ pub fn encode_json_argument(val JsonArgument) []u8 {
 	mut buf := []u8{}
 	in_val := encode_json_value_expr(val.val)
 	if in_val.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_val)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_val)
 	}
 	if val.name != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.name)
 	}
 	return buf
 }
@@ -8034,20 +8040,20 @@ pub fn encode_json_table(val JsonTable) []u8 {
 	mut buf := []u8{}
 	in_context_item := encode_json_value_expr(val.context_item)
 	if in_context_item.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_context_item)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_context_item)
 	}
 	in_pathspec := encode_json_table_path_spec(val.pathspec)
 	if in_pathspec.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_pathspec)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_pathspec)
 	}
 	if val.passing.len > 0 {
 		for v in val.passing {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -8055,28 +8061,28 @@ pub fn encode_json_table(val JsonTable) []u8 {
 		for v in val.columns {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	in_on_error := encode_json_behavior(val.on_error)
 	if in_on_error.len > 0 {
-		buf << write_tag(5, 2)
-		buf << write_length_delimited(in_on_error)
+		write_tag_into(mut buf, 5, 2)
+		write_length_delimited_into(mut buf, in_on_error)
 	}
 	in_alias := encode_alias(val.alias)
 	if in_alias.len > 0 {
-		buf << write_tag(6, 2)
-		buf << write_length_delimited(in_alias)
+		write_tag_into(mut buf, 6, 2)
+		write_length_delimited_into(mut buf, in_alias)
 	}
 	if val.lateral {
-		buf << write_tag(7, 0)
-		buf << write_bool(val.lateral)
+		write_tag_into(mut buf, 7, 0)
+		write_bool_into(mut buf, val.lateral)
 	}
 	if val.location != 0 {
-		buf << write_tag(8, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 8, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -8085,13 +8091,13 @@ pub fn encode_json_key_value(val JsonKeyValue) []u8 {
 	mut buf := []u8{}
 	n_key := encode_node(val.key)
 	if n_key.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_key)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_key)
 	}
 	in_value := encode_json_value_expr(val.value)
 	if in_value.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_value)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_value)
 	}
 	return buf
 }
@@ -8100,66 +8106,66 @@ pub fn encode_range_tbl_entry(val RangeTblEntry) []u8 {
 	mut buf := []u8{}
 	in_alias := encode_alias(val.alias)
 	if in_alias.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_alias)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_alias)
 	}
 	in_eref := encode_alias(val.eref)
 	if in_eref.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_eref)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_eref)
 	}
 	if u64(val.rtekind) != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.rtekind))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.rtekind))
 	}
 	if val.relid != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.relid))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.relid))
 	}
 	if val.inh {
-		buf << write_tag(5, 0)
-		buf << write_bool(val.inh)
+		write_tag_into(mut buf, 5, 0)
+		write_bool_into(mut buf, val.inh)
 	}
 	if val.relkind != '' {
-		buf << write_tag(6, 2)
-		buf << write_string(val.relkind)
+		write_tag_into(mut buf, 6, 2)
+		write_string_into(mut buf, val.relkind)
 	}
 	if val.rellockmode != 0 {
-		buf << write_tag(7, 0)
-		buf << write_varint(u64(val.rellockmode))
+		write_tag_into(mut buf, 7, 0)
+		write_varint_into(mut buf, u64(val.rellockmode))
 	}
 	if val.perminfoindex != 0 {
-		buf << write_tag(8, 0)
-		buf << write_varint(u64(val.perminfoindex))
+		write_tag_into(mut buf, 8, 0)
+		write_varint_into(mut buf, u64(val.perminfoindex))
 	}
 	in_tablesample := encode_table_sample_clause(val.tablesample)
 	if in_tablesample.len > 0 {
-		buf << write_tag(9, 2)
-		buf << write_length_delimited(in_tablesample)
+		write_tag_into(mut buf, 9, 2)
+		write_length_delimited_into(mut buf, in_tablesample)
 	}
 	in_subquery := encode_query(val.subquery)
 	if in_subquery.len > 0 {
-		buf << write_tag(10, 2)
-		buf << write_length_delimited(in_subquery)
+		write_tag_into(mut buf, 10, 2)
+		write_length_delimited_into(mut buf, in_subquery)
 	}
 	if val.security_barrier {
-		buf << write_tag(11, 0)
-		buf << write_bool(val.security_barrier)
+		write_tag_into(mut buf, 11, 0)
+		write_bool_into(mut buf, val.security_barrier)
 	}
 	if u64(val.jointype) != 0 {
-		buf << write_tag(12, 0)
-		buf << write_varint(u64(val.jointype))
+		write_tag_into(mut buf, 12, 0)
+		write_varint_into(mut buf, u64(val.jointype))
 	}
 	if val.joinmergedcols != 0 {
-		buf << write_tag(13, 0)
-		buf << write_varint(u64(val.joinmergedcols))
+		write_tag_into(mut buf, 13, 0)
+		write_varint_into(mut buf, u64(val.joinmergedcols))
 	}
 	if val.joinaliasvars.len > 0 {
 		for v in val.joinaliasvars {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(14, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 14, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -8167,8 +8173,8 @@ pub fn encode_range_tbl_entry(val RangeTblEntry) []u8 {
 		for v in val.joinleftcols {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(15, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 15, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -8176,61 +8182,61 @@ pub fn encode_range_tbl_entry(val RangeTblEntry) []u8 {
 		for v in val.joinrightcols {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(16, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 16, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	in_join_using_alias := encode_alias(val.join_using_alias)
 	if in_join_using_alias.len > 0 {
-		buf << write_tag(17, 2)
-		buf << write_length_delimited(in_join_using_alias)
+		write_tag_into(mut buf, 17, 2)
+		write_length_delimited_into(mut buf, in_join_using_alias)
 	}
 	if val.functions.len > 0 {
 		for v in val.functions {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(18, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 18, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.funcordinality {
-		buf << write_tag(19, 0)
-		buf << write_bool(val.funcordinality)
+		write_tag_into(mut buf, 19, 0)
+		write_bool_into(mut buf, val.funcordinality)
 	}
 	in_tablefunc := encode_table_func(val.tablefunc)
 	if in_tablefunc.len > 0 {
-		buf << write_tag(20, 2)
-		buf << write_length_delimited(in_tablefunc)
+		write_tag_into(mut buf, 20, 2)
+		write_length_delimited_into(mut buf, in_tablefunc)
 	}
 	if val.values_lists.len > 0 {
 		for v in val.values_lists {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(21, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 21, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.ctename != '' {
-		buf << write_tag(22, 2)
-		buf << write_string(val.ctename)
+		write_tag_into(mut buf, 22, 2)
+		write_string_into(mut buf, val.ctename)
 	}
 	if val.ctelevelsup != 0 {
-		buf << write_tag(23, 0)
-		buf << write_varint(u64(val.ctelevelsup))
+		write_tag_into(mut buf, 23, 0)
+		write_varint_into(mut buf, u64(val.ctelevelsup))
 	}
 	if val.self_reference {
-		buf << write_tag(24, 0)
-		buf << write_bool(val.self_reference)
+		write_tag_into(mut buf, 24, 0)
+		write_bool_into(mut buf, val.self_reference)
 	}
 	if val.coltypes.len > 0 {
 		for v in val.coltypes {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(25, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 25, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -8238,8 +8244,8 @@ pub fn encode_range_tbl_entry(val RangeTblEntry) []u8 {
 		for v in val.coltypmods {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(26, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 26, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -8247,33 +8253,33 @@ pub fn encode_range_tbl_entry(val RangeTblEntry) []u8 {
 		for v in val.colcollations {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(27, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 27, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.enrname != '' {
-		buf << write_tag(28, 2)
-		buf << write_string(val.enrname)
+		write_tag_into(mut buf, 28, 2)
+		write_string_into(mut buf, val.enrname)
 	}
 	if val.enrtuples != 0.0 {
-		buf << write_tag(29, 1)
-		buf << write_double(val.enrtuples)
+		write_tag_into(mut buf, 29, 1)
+		write_double_into(mut buf, val.enrtuples)
 	}
 	if val.lateral {
-		buf << write_tag(30, 0)
-		buf << write_bool(val.lateral)
+		write_tag_into(mut buf, 30, 0)
+		write_bool_into(mut buf, val.lateral)
 	}
 	if val.in_from_cl {
-		buf << write_tag(31, 0)
-		buf << write_bool(val.in_from_cl)
+		write_tag_into(mut buf, 31, 0)
+		write_bool_into(mut buf, val.in_from_cl)
 	}
 	if val.security_quals.len > 0 {
 		for v in val.security_quals {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(32, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 32, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -8286,15 +8292,15 @@ pub fn encode_alter_default_privileges_stmt(val AlterDefaultPrivilegesStmt) []u8
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	in_action := encode_grant_stmt(val.action)
 	if in_action.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_action)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_action)
 	}
 	return buf
 }
@@ -8303,20 +8309,20 @@ pub fn encode_call_stmt(val CallStmt) []u8 {
 	mut buf := []u8{}
 	in_funccall := encode_func_call(val.funccall)
 	if in_funccall.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_funccall)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_funccall)
 	}
 	in_funcexpr := encode_func_expr(val.funcexpr)
 	if in_funcexpr.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_funcexpr)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_funcexpr)
 	}
 	if val.outargs.len > 0 {
 		for v in val.outargs {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -8327,45 +8333,45 @@ pub fn encode_insert_stmt(val InsertStmt) []u8 {
 	mut buf := []u8{}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_relation)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_relation)
 	}
 	if val.cols.len > 0 {
 		for v in val.cols {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_select_stmt := encode_node(val.select_stmt)
 	if n_select_stmt.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(n_select_stmt)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, n_select_stmt)
 	}
 	in_on_conflict_clause := encode_on_conflict_clause(val.on_conflict_clause)
 	if in_on_conflict_clause.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(in_on_conflict_clause)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, in_on_conflict_clause)
 	}
 	if val.returning_list.len > 0 {
 		for v in val.returning_list {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	in_with_clause := encode_with_clause(val.with_clause)
 	if in_with_clause.len > 0 {
-		buf << write_tag(6, 2)
-		buf << write_length_delimited(in_with_clause)
+		write_tag_into(mut buf, 6, 2)
+		write_length_delimited_into(mut buf, in_with_clause)
 	}
 	if u64(val.override) != 0 {
-		buf << write_tag(7, 0)
-		buf << write_varint(u64(val.override))
+		write_tag_into(mut buf, 7, 0)
+		write_varint_into(mut buf, u64(val.override))
 	}
 	return buf
 }
@@ -8376,22 +8382,22 @@ pub fn encode_select_stmt(val SelectStmt) []u8 {
 		for v in val.distinct_clause {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	in_into_clause := encode_into_clause(val.into_clause)
 	if in_into_clause.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_into_clause)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_into_clause)
 	}
 	if val.target_list.len > 0 {
 		for v in val.target_list {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -8399,40 +8405,40 @@ pub fn encode_select_stmt(val SelectStmt) []u8 {
 		for v in val.from_clause {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(4, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 4, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_where_clause := encode_node(val.where_clause)
 	if n_where_clause.len > 0 {
-		buf << write_tag(5, 2)
-		buf << write_length_delimited(n_where_clause)
+		write_tag_into(mut buf, 5, 2)
+		write_length_delimited_into(mut buf, n_where_clause)
 	}
 	if val.group_clause.len > 0 {
 		for v in val.group_clause {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(6, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 6, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.group_distinct {
-		buf << write_tag(7, 0)
-		buf << write_bool(val.group_distinct)
+		write_tag_into(mut buf, 7, 0)
+		write_bool_into(mut buf, val.group_distinct)
 	}
 	n_having_clause := encode_node(val.having_clause)
 	if n_having_clause.len > 0 {
-		buf << write_tag(8, 2)
-		buf << write_length_delimited(n_having_clause)
+		write_tag_into(mut buf, 8, 2)
+		write_length_delimited_into(mut buf, n_having_clause)
 	}
 	if val.window_clause.len > 0 {
 		for v in val.window_clause {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(9, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 9, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -8440,8 +8446,8 @@ pub fn encode_select_stmt(val SelectStmt) []u8 {
 		for v in val.values_lists {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(10, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 10, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -8449,56 +8455,56 @@ pub fn encode_select_stmt(val SelectStmt) []u8 {
 		for v in val.sort_clause {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(11, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 11, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	n_limit_offset := encode_node(val.limit_offset)
 	if n_limit_offset.len > 0 {
-		buf << write_tag(12, 2)
-		buf << write_length_delimited(n_limit_offset)
+		write_tag_into(mut buf, 12, 2)
+		write_length_delimited_into(mut buf, n_limit_offset)
 	}
 	n_limit_count := encode_node(val.limit_count)
 	if n_limit_count.len > 0 {
-		buf << write_tag(13, 2)
-		buf << write_length_delimited(n_limit_count)
+		write_tag_into(mut buf, 13, 2)
+		write_length_delimited_into(mut buf, n_limit_count)
 	}
 	if u64(val.limit_option) != 0 {
-		buf << write_tag(14, 0)
-		buf << write_varint(u64(val.limit_option))
+		write_tag_into(mut buf, 14, 0)
+		write_varint_into(mut buf, u64(val.limit_option))
 	}
 	if val.locking_clause.len > 0 {
 		for v in val.locking_clause {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(15, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 15, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	in_with_clause := encode_with_clause(val.with_clause)
 	if in_with_clause.len > 0 {
-		buf << write_tag(16, 2)
-		buf << write_length_delimited(in_with_clause)
+		write_tag_into(mut buf, 16, 2)
+		write_length_delimited_into(mut buf, in_with_clause)
 	}
 	if u64(val.op) != 0 {
-		buf << write_tag(17, 0)
-		buf << write_varint(u64(val.op))
+		write_tag_into(mut buf, 17, 0)
+		write_varint_into(mut buf, u64(val.op))
 	}
 	if val.all {
-		buf << write_tag(18, 0)
-		buf << write_bool(val.all)
+		write_tag_into(mut buf, 18, 0)
+		write_bool_into(mut buf, val.all)
 	}
 	if val.larg != unsafe { nil } {
 		sr_larg := encode_select_stmt(*val.larg)
-		buf << write_tag(19, 2)
-		buf << write_length_delimited(sr_larg)
+		write_tag_into(mut buf, 19, 2)
+		write_length_delimited_into(mut buf, sr_larg)
 	}
 	if val.rarg != unsafe { nil } {
 		sr_rarg := encode_select_stmt(*val.rarg)
-		buf << write_tag(20, 2)
-		buf << write_length_delimited(sr_rarg)
+		write_tag_into(mut buf, 20, 2)
+		write_length_delimited_into(mut buf, sr_rarg)
 	}
 	return buf
 }
@@ -8507,25 +8513,25 @@ pub fn encode_create_table_as_stmt(val CreateTableAsStmt) []u8 {
 	mut buf := []u8{}
 	n_query := encode_node(val.query)
 	if n_query.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_query)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_query)
 	}
 	in_into := encode_into_clause(val.into)
 	if in_into.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_into)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_into)
 	}
 	if u64(val.objtype) != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.objtype))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.objtype))
 	}
 	if val.is_select_into {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.is_select_into)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.is_select_into)
 	}
 	if val.if_not_exists {
-		buf << write_tag(5, 0)
-		buf << write_bool(val.if_not_exists)
+		write_tag_into(mut buf, 5, 0)
+		write_bool_into(mut buf, val.if_not_exists)
 	}
 	return buf
 }
@@ -8534,19 +8540,19 @@ pub fn encode_create_foreign_table_stmt(val CreateForeignTableStmt) []u8 {
 	mut buf := []u8{}
 	in_base_stmt := encode_create_stmt(val.base_stmt)
 	if in_base_stmt.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_base_stmt)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_base_stmt)
 	}
 	if val.servername != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.servername)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.servername)
 	}
 	if val.options.len > 0 {
 		for v in val.options {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
@@ -8556,21 +8562,21 @@ pub fn encode_create_foreign_table_stmt(val CreateForeignTableStmt) []u8 {
 pub fn encode_publication_obj_spec(val PublicationObjSpec) []u8 {
 	mut buf := []u8{}
 	if u64(val.pubobjtype) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.pubobjtype))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.pubobjtype))
 	}
 	if val.name != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.name)
 	}
 	in_pubtable := encode_publication_table(val.pubtable)
 	if in_pubtable.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(in_pubtable)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, in_pubtable)
 	}
 	if val.location != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -8578,58 +8584,58 @@ pub fn encode_publication_obj_spec(val PublicationObjSpec) []u8 {
 pub fn encode_json_func_expr(val JsonFuncExpr) []u8 {
 	mut buf := []u8{}
 	if u64(val.op) != 0 {
-		buf << write_tag(1, 0)
-		buf << write_varint(u64(val.op))
+		write_tag_into(mut buf, 1, 0)
+		write_varint_into(mut buf, u64(val.op))
 	}
 	if val.column_name != '' {
-		buf << write_tag(2, 2)
-		buf << write_string(val.column_name)
+		write_tag_into(mut buf, 2, 2)
+		write_string_into(mut buf, val.column_name)
 	}
 	in_context_item := encode_json_value_expr(val.context_item)
 	if in_context_item.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(in_context_item)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, in_context_item)
 	}
 	n_pathspec := encode_node(val.pathspec)
 	if n_pathspec.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(n_pathspec)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, n_pathspec)
 	}
 	if val.passing.len > 0 {
 		for v in val.passing {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(5, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 5, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	in_output := encode_json_output(val.output)
 	if in_output.len > 0 {
-		buf << write_tag(6, 2)
-		buf << write_length_delimited(in_output)
+		write_tag_into(mut buf, 6, 2)
+		write_length_delimited_into(mut buf, in_output)
 	}
 	in_on_empty := encode_json_behavior(val.on_empty)
 	if in_on_empty.len > 0 {
-		buf << write_tag(7, 2)
-		buf << write_length_delimited(in_on_empty)
+		write_tag_into(mut buf, 7, 2)
+		write_length_delimited_into(mut buf, in_on_empty)
 	}
 	in_on_error := encode_json_behavior(val.on_error)
 	if in_on_error.len > 0 {
-		buf << write_tag(8, 2)
-		buf << write_length_delimited(in_on_error)
+		write_tag_into(mut buf, 8, 2)
+		write_length_delimited_into(mut buf, in_on_error)
 	}
 	if u64(val.wrapper) != 0 {
-		buf << write_tag(9, 0)
-		buf << write_varint(u64(val.wrapper))
+		write_tag_into(mut buf, 9, 0)
+		write_varint_into(mut buf, u64(val.wrapper))
 	}
 	if u64(val.quotes) != 0 {
-		buf << write_tag(10, 0)
-		buf << write_varint(u64(val.quotes))
+		write_tag_into(mut buf, 10, 0)
+		write_varint_into(mut buf, u64(val.quotes))
 	}
 	if val.location != 0 {
-		buf << write_tag(11, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 11, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -8638,21 +8644,21 @@ pub fn encode_json_parse_expr(val JsonParseExpr) []u8 {
 	mut buf := []u8{}
 	in_expr := encode_json_value_expr(val.expr)
 	if in_expr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_expr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_expr)
 	}
 	in_output := encode_json_output(val.output)
 	if in_output.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_output)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_output)
 	}
 	if val.unique_keys {
-		buf << write_tag(3, 0)
-		buf << write_bool(val.unique_keys)
+		write_tag_into(mut buf, 3, 0)
+		write_bool_into(mut buf, val.unique_keys)
 	}
 	if val.location != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -8661,17 +8667,17 @@ pub fn encode_json_scalar_expr(val JsonScalarExpr) []u8 {
 	mut buf := []u8{}
 	n_expr := encode_node(val.expr)
 	if n_expr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_expr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_expr)
 	}
 	in_output := encode_json_output(val.output)
 	if in_output.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_output)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_output)
 	}
 	if val.location != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -8680,17 +8686,17 @@ pub fn encode_json_serialize_expr(val JsonSerializeExpr) []u8 {
 	mut buf := []u8{}
 	in_expr := encode_json_value_expr(val.expr)
 	if in_expr.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_expr)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_expr)
 	}
 	in_output := encode_json_output(val.output)
 	if in_output.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_output)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_output)
 	}
 	if val.location != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -8701,27 +8707,27 @@ pub fn encode_json_object_constructor(val JsonObjectConstructor) []u8 {
 		for v in val.exprs {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	in_output := encode_json_output(val.output)
 	if in_output.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_output)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_output)
 	}
 	if val.absent_on_null {
-		buf << write_tag(3, 0)
-		buf << write_bool(val.absent_on_null)
+		write_tag_into(mut buf, 3, 0)
+		write_bool_into(mut buf, val.absent_on_null)
 	}
 	if val.unique {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.unique)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.unique)
 	}
 	if val.location != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -8732,23 +8738,23 @@ pub fn encode_json_array_constructor(val JsonArrayConstructor) []u8 {
 		for v in val.exprs {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(1, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 1, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	in_output := encode_json_output(val.output)
 	if in_output.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_output)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_output)
 	}
 	if val.absent_on_null {
-		buf << write_tag(3, 0)
-		buf << write_bool(val.absent_on_null)
+		write_tag_into(mut buf, 3, 0)
+		write_bool_into(mut buf, val.absent_on_null)
 	}
 	if val.location != 0 {
-		buf << write_tag(4, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 4, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -8757,26 +8763,26 @@ pub fn encode_json_array_query_constructor(val JsonArrayQueryConstructor) []u8 {
 	mut buf := []u8{}
 	n_query := encode_node(val.query)
 	if n_query.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(n_query)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, n_query)
 	}
 	in_output := encode_json_output(val.output)
 	if in_output.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_output)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_output)
 	}
 	in_format := encode_json_format(val.format)
 	if in_format.len > 0 {
-		buf << write_tag(3, 2)
-		buf << write_length_delimited(in_format)
+		write_tag_into(mut buf, 3, 2)
+		write_length_delimited_into(mut buf, in_format)
 	}
 	if val.absent_on_null {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.absent_on_null)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.absent_on_null)
 	}
 	if val.location != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -8785,31 +8791,31 @@ pub fn encode_json_agg_constructor(val JsonAggConstructor) []u8 {
 	mut buf := []u8{}
 	in_output := encode_json_output(val.output)
 	if in_output.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_output)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_output)
 	}
 	n_agg_filter := encode_node(val.agg_filter)
 	if n_agg_filter.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(n_agg_filter)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, n_agg_filter)
 	}
 	if val.agg_order.len > 0 {
 		for v in val.agg_order {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(3, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 3, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	in_over := encode_window_def(val.over)
 	if in_over.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(in_over)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, in_over)
 	}
 	if val.location != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -8817,30 +8823,30 @@ pub fn encode_json_agg_constructor(val JsonAggConstructor) []u8 {
 pub fn encode_p_l_assign_stmt(val PLAssignStmt) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
-		buf << write_tag(1, 2)
-		buf << write_string(val.name)
+		write_tag_into(mut buf, 1, 2)
+		write_string_into(mut buf, val.name)
 	}
 	if val.indirection.len > 0 {
 		for v in val.indirection {
 			inner_ := encode_node(v)
 			if inner_.len > 0 {
-				buf << write_tag(2, 2)
-				buf << write_length_delimited(inner_)
+				write_tag_into(mut buf, 2, 2)
+				write_length_delimited_into(mut buf, inner_)
 			}
 		}
 	}
 	if val.nnames != 0 {
-		buf << write_tag(3, 0)
-		buf << write_varint(u64(val.nnames))
+		write_tag_into(mut buf, 3, 0)
+		write_varint_into(mut buf, u64(val.nnames))
 	}
 	in_val := encode_select_stmt(val.val)
 	if in_val.len > 0 {
-		buf << write_tag(4, 2)
-		buf << write_length_delimited(in_val)
+		write_tag_into(mut buf, 4, 2)
+		write_length_delimited_into(mut buf, in_val)
 	}
 	if val.location != 0 {
-		buf << write_tag(5, 0)
-		buf << write_varint(u64(val.location))
+		write_tag_into(mut buf, 5, 0)
+		write_varint_into(mut buf, u64(val.location))
 	}
 	return buf
 }
@@ -8849,21 +8855,21 @@ pub fn encode_json_object_agg(val JsonObjectAgg) []u8 {
 	mut buf := []u8{}
 	in_constructor := encode_json_agg_constructor(val.constructor)
 	if in_constructor.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_constructor)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_constructor)
 	}
 	in_arg := encode_json_key_value(val.arg)
 	if in_arg.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_arg)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_arg)
 	}
 	if val.absent_on_null {
-		buf << write_tag(3, 0)
-		buf << write_bool(val.absent_on_null)
+		write_tag_into(mut buf, 3, 0)
+		write_bool_into(mut buf, val.absent_on_null)
 	}
 	if val.unique {
-		buf << write_tag(4, 0)
-		buf << write_bool(val.unique)
+		write_tag_into(mut buf, 4, 0)
+		write_bool_into(mut buf, val.unique)
 	}
 	return buf
 }
@@ -8872,17 +8878,17 @@ pub fn encode_json_array_agg(val JsonArrayAgg) []u8 {
 	mut buf := []u8{}
 	in_constructor := encode_json_agg_constructor(val.constructor)
 	if in_constructor.len > 0 {
-		buf << write_tag(1, 2)
-		buf << write_length_delimited(in_constructor)
+		write_tag_into(mut buf, 1, 2)
+		write_length_delimited_into(mut buf, in_constructor)
 	}
 	in_arg := encode_json_value_expr(val.arg)
 	if in_arg.len > 0 {
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(in_arg)
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, in_arg)
 	}
 	if val.absent_on_null {
-		buf << write_tag(3, 0)
-		buf << write_bool(val.absent_on_null)
+		write_tag_into(mut buf, 3, 0)
+		write_bool_into(mut buf, val.absent_on_null)
 	}
 	return buf
 }
@@ -8891,43 +8897,47 @@ pub fn encode_summary_result(val SummaryResult) []u8 {
 	mut buf := []u8{}
 	if val.tables.len > 0 {
 		for v in val.tables {
-			buf << write_tag(1, 2)
-			buf << write_length_delimited(encode_summary_result_table(v))
+			sub_enc_ := encode_summary_result_table(v)
+			write_tag_into(mut buf, 1, 2)
+			write_length_delimited_into(mut buf, sub_enc_)
 		}
 	}
 	if val.aliases.len > 0 {
 		for k, v in val.aliases {
-			buf << write_tag(2, 2)
-			buf << write_length_delimited(write_map_string_entry(k, v))
+			map_enc_ := write_map_string_entry(k, v)
+			write_tag_into(mut buf, 2, 2)
+			write_length_delimited_into(mut buf, map_enc_)
 		}
 	}
 	if val.cte_names.len > 0 {
 		for v in val.cte_names {
-			buf << write_tag(3, 2)
-			buf << write_string(v)
+			write_tag_into(mut buf, 3, 2)
+			write_string_into(mut buf, v)
 		}
 	}
 	if val.functions.len > 0 {
 		for v in val.functions {
-			buf << write_tag(4, 2)
-			buf << write_length_delimited(encode_summary_result_function(v))
+			sub_enc_ := encode_summary_result_function(v)
+			write_tag_into(mut buf, 4, 2)
+			write_length_delimited_into(mut buf, sub_enc_)
 		}
 	}
 	if val.filter_columns.len > 0 {
 		for v in val.filter_columns {
-			buf << write_tag(5, 2)
-			buf << write_length_delimited(encode_summary_result_filter_column(v))
+			sub_enc_ := encode_summary_result_filter_column(v)
+			write_tag_into(mut buf, 5, 2)
+			write_length_delimited_into(mut buf, sub_enc_)
 		}
 	}
 	if val.statement_types.len > 0 {
 		for v in val.statement_types {
-			buf << write_tag(6, 2)
-			buf << write_string(v)
+			write_tag_into(mut buf, 6, 2)
+			write_string_into(mut buf, v)
 		}
 	}
 	if val.truncated_query != '' {
-		buf << write_tag(7, 2)
-		buf << write_string(val.truncated_query)
+		write_tag_into(mut buf, 7, 2)
+		write_string_into(mut buf, val.truncated_query)
 	}
 	return buf
 }
@@ -8937,1615 +8947,1884 @@ fn encode_node(val_ Node) []u8 {
 		Alias {
 			inner := encode_alias(val_)
 			if inner.len == 0 { return []u8{} }
-			mut buf := write_tag(1, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 1, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		RangeVar {
 			inner := encode_range_var(val_)
-			mut buf := write_tag(2, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 2, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		TableFunc {
 			inner := encode_table_func(val_)
-			mut buf := write_tag(3, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 3, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		IntoClause {
 			inner := encode_into_clause(val_)
-			mut buf := write_tag(4, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 4, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		Var {
 			inner := encode_var(val_)
-			mut buf := write_tag(5, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 5, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		Param {
 			inner := encode_param(val_)
-			mut buf := write_tag(6, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 6, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		Aggref {
 			inner := encode_aggref(val_)
-			mut buf := write_tag(7, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 7, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		GroupingFunc {
 			inner := encode_grouping_func(val_)
-			mut buf := write_tag(8, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 8, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		WindowFunc {
 			inner := encode_window_func(val_)
-			mut buf := write_tag(9, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 9, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		WindowFuncRunCondition {
 			inner := encode_window_func_run_condition(val_)
-			mut buf := write_tag(10, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 10, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		MergeSupportFunc {
 			inner := encode_merge_support_func(val_)
-			mut buf := write_tag(11, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 11, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		SubscriptingRef {
 			inner := encode_subscripting_ref(val_)
-			mut buf := write_tag(12, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 12, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		FuncExpr {
 			inner := encode_func_expr(val_)
-			mut buf := write_tag(13, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 13, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		NamedArgExpr {
 			inner := encode_named_arg_expr(val_)
-			mut buf := write_tag(14, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 14, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		OpExpr {
 			inner := encode_op_expr(val_)
-			mut buf := write_tag(15, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 15, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		DistinctExpr {
 			inner := encode_distinct_expr(val_)
-			mut buf := write_tag(16, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 16, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		NullIfExpr {
 			inner := encode_null_if_expr(val_)
-			mut buf := write_tag(17, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 17, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		ScalarArrayOpExpr {
 			inner := encode_scalar_array_op_expr(val_)
-			mut buf := write_tag(18, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 18, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		BoolExpr {
 			inner := encode_bool_expr(val_)
-			mut buf := write_tag(19, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 19, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		SubLink {
 			inner := encode_sub_link(val_)
-			mut buf := write_tag(20, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 20, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		SubPlan {
 			inner := encode_sub_plan(val_)
-			mut buf := write_tag(21, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 21, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlternativeSubPlan {
 			inner := encode_alternative_sub_plan(val_)
-			mut buf := write_tag(22, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 22, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		FieldSelect {
 			inner := encode_field_select(val_)
-			mut buf := write_tag(23, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 23, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		FieldStore {
 			inner := encode_field_store(val_)
-			mut buf := write_tag(24, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 24, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		RelabelType {
 			inner := encode_relabel_type(val_)
-			mut buf := write_tag(25, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 25, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CoerceViaIO {
 			inner := encode_coerce_via_i_o(val_)
-			mut buf := write_tag(26, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 26, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		ArrayCoerceExpr {
 			inner := encode_array_coerce_expr(val_)
-			mut buf := write_tag(27, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 27, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		ConvertRowtypeExpr {
 			inner := encode_convert_rowtype_expr(val_)
-			mut buf := write_tag(28, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 28, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CollateExpr {
 			inner := encode_collate_expr(val_)
-			mut buf := write_tag(29, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 29, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CaseExpr {
 			inner := encode_case_expr(val_)
-			mut buf := write_tag(30, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 30, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CaseWhen {
 			inner := encode_case_when(val_)
-			mut buf := write_tag(31, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 31, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CaseTestExpr {
 			inner := encode_case_test_expr(val_)
-			mut buf := write_tag(32, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 32, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		ArrayExpr {
 			inner := encode_array_expr(val_)
-			mut buf := write_tag(33, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 33, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		RowExpr {
 			inner := encode_row_expr(val_)
-			mut buf := write_tag(34, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 34, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		RowCompareExpr {
 			inner := encode_row_compare_expr(val_)
-			mut buf := write_tag(35, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 35, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CoalesceExpr {
 			inner := encode_coalesce_expr(val_)
-			mut buf := write_tag(36, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 36, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		MinMaxExpr {
 			inner := encode_min_max_expr(val_)
-			mut buf := write_tag(37, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 37, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		SQLValueFunction {
 			inner := encode_s_q_l_value_function(val_)
-			mut buf := write_tag(38, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 38, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		XmlExpr {
 			inner := encode_xml_expr(val_)
-			mut buf := write_tag(39, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 39, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonFormat {
 			inner := encode_json_format(val_)
-			mut buf := write_tag(40, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 40, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonReturning {
 			inner := encode_json_returning(val_)
-			mut buf := write_tag(41, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 41, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonValueExpr {
 			inner := encode_json_value_expr(val_)
-			mut buf := write_tag(42, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 42, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonConstructorExpr {
 			inner := encode_json_constructor_expr(val_)
-			mut buf := write_tag(43, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 43, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonIsPredicate {
 			inner := encode_json_is_predicate(val_)
-			mut buf := write_tag(44, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 44, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonBehavior {
 			inner := encode_json_behavior(val_)
-			mut buf := write_tag(45, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 45, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonExpr {
 			inner := encode_json_expr(val_)
-			mut buf := write_tag(46, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 46, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonTablePath {
 			inner := encode_json_table_path(val_)
-			mut buf := write_tag(47, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 47, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonTablePathScan {
 			inner := encode_json_table_path_scan(val_)
-			mut buf := write_tag(48, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 48, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonTableSiblingJoin {
 			inner := encode_json_table_sibling_join(val_)
-			mut buf := write_tag(49, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 49, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		NullTest {
 			inner := encode_null_test(val_)
-			mut buf := write_tag(50, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 50, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		BooleanTest {
 			inner := encode_boolean_test(val_)
-			mut buf := write_tag(51, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 51, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		MergeAction {
 			inner := encode_merge_action(val_)
-			mut buf := write_tag(52, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 52, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CoerceToDomain {
 			inner := encode_coerce_to_domain(val_)
-			mut buf := write_tag(53, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 53, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CoerceToDomainValue {
 			inner := encode_coerce_to_domain_value(val_)
-			mut buf := write_tag(54, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 54, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		SetToDefault {
 			inner := encode_set_to_default(val_)
-			mut buf := write_tag(55, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 55, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CurrentOfExpr {
 			inner := encode_current_of_expr(val_)
-			mut buf := write_tag(56, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 56, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		NextValueExpr {
 			inner := encode_next_value_expr(val_)
-			mut buf := write_tag(57, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 57, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		InferenceElem {
 			inner := encode_inference_elem(val_)
-			mut buf := write_tag(58, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 58, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		TargetEntry {
 			inner := encode_target_entry(val_)
-			mut buf := write_tag(59, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 59, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		RangeTblRef {
 			inner := encode_range_tbl_ref(val_)
-			mut buf := write_tag(60, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 60, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JoinExpr {
 			inner := encode_join_expr(val_)
-			mut buf := write_tag(61, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 61, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		FromExpr {
 			inner := encode_from_expr(val_)
-			mut buf := write_tag(62, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 62, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		OnConflictExpr {
 			inner := encode_on_conflict_expr(val_)
-			mut buf := write_tag(63, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 63, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		Query {
 			inner := encode_query(val_)
-			mut buf := write_tag(64, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 64, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		TypeName {
 			inner := encode_type_name(val_)
-			mut buf := write_tag(65, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 65, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		ColumnRef {
 			inner := encode_column_ref(val_)
-			mut buf := write_tag(66, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 66, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		ParamRef {
 			inner := encode_param_ref(val_)
-			mut buf := write_tag(67, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 67, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AExpr {
 			inner := encode_a_expr(val_)
-			mut buf := write_tag(68, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 68, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		TypeCast {
 			inner := encode_type_cast(val_)
-			mut buf := write_tag(69, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 69, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CollateClause {
 			inner := encode_collate_clause(val_)
-			mut buf := write_tag(70, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 70, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		RoleSpec {
 			inner := encode_role_spec(val_)
-			mut buf := write_tag(71, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 71, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		FuncCall {
 			inner := encode_func_call(val_)
-			mut buf := write_tag(72, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 72, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AStar {
 			inner := encode_a_star(val_)
-			mut buf := write_tag(73, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 73, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AIndices {
 			inner := encode_a_indices(val_)
-			mut buf := write_tag(74, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 74, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AIndirection {
 			inner := encode_a_indirection(val_)
-			mut buf := write_tag(75, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 75, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AArrayExpr {
 			inner := encode_a_array_expr(val_)
-			mut buf := write_tag(76, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 76, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		ResTarget {
 			inner := encode_res_target(val_)
-			mut buf := write_tag(77, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 77, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		MultiAssignRef {
 			inner := encode_multi_assign_ref(val_)
-			mut buf := write_tag(78, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 78, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		SortBy {
 			inner := encode_sort_by(val_)
-			mut buf := write_tag(79, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 79, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		WindowDef {
 			inner := encode_window_def(val_)
-			mut buf := write_tag(80, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 80, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		RangeSubselect {
 			inner := encode_range_subselect(val_)
-			mut buf := write_tag(81, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 81, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		RangeFunction {
 			inner := encode_range_function(val_)
-			mut buf := write_tag(82, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 82, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		RangeTableFunc {
 			inner := encode_range_table_func(val_)
-			mut buf := write_tag(83, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 83, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		RangeTableFuncCol {
 			inner := encode_range_table_func_col(val_)
-			mut buf := write_tag(84, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 84, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		RangeTableSample {
 			inner := encode_range_table_sample(val_)
-			mut buf := write_tag(85, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 85, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		ColumnDef {
 			inner := encode_column_def(val_)
-			mut buf := write_tag(86, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 86, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		TableLikeClause {
 			inner := encode_table_like_clause(val_)
-			mut buf := write_tag(87, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 87, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		IndexElem {
 			inner := encode_index_elem(val_)
-			mut buf := write_tag(88, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 88, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		DefElem {
 			inner := encode_def_elem(val_)
-			mut buf := write_tag(89, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 89, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		LockingClause {
 			inner := encode_locking_clause(val_)
-			mut buf := write_tag(90, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 90, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		XmlSerialize {
 			inner := encode_xml_serialize(val_)
-			mut buf := write_tag(91, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 91, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		PartitionElem {
 			inner := encode_partition_elem(val_)
-			mut buf := write_tag(92, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 92, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		PartitionSpec {
 			inner := encode_partition_spec(val_)
-			mut buf := write_tag(93, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 93, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		PartitionBoundSpec {
 			inner := encode_partition_bound_spec(val_)
-			mut buf := write_tag(94, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 94, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		PartitionRangeDatum {
 			inner := encode_partition_range_datum(val_)
-			mut buf := write_tag(95, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 95, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		SinglePartitionSpec {
 			inner := encode_single_partition_spec(val_)
-			mut buf := write_tag(96, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 96, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		PartitionCmd {
 			inner := encode_partition_cmd(val_)
-			mut buf := write_tag(97, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 97, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		RangeTblEntry {
 			inner := encode_range_tbl_entry(val_)
-			mut buf := write_tag(98, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 98, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		RTEPermissionInfo {
 			inner := encode_r_t_e_permission_info(val_)
-			mut buf := write_tag(99, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 99, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		RangeTblFunction {
 			inner := encode_range_tbl_function(val_)
-			mut buf := write_tag(100, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 100, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		TableSampleClause {
 			inner := encode_table_sample_clause(val_)
-			mut buf := write_tag(101, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 101, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		WithCheckOption {
 			inner := encode_with_check_option(val_)
-			mut buf := write_tag(102, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 102, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		SortGroupClause {
 			inner := encode_sort_group_clause(val_)
-			mut buf := write_tag(103, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 103, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		GroupingSet {
 			inner := encode_grouping_set(val_)
-			mut buf := write_tag(104, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 104, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		WindowClause {
 			inner := encode_window_clause(val_)
-			mut buf := write_tag(105, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 105, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		RowMarkClause {
 			inner := encode_row_mark_clause(val_)
-			mut buf := write_tag(106, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 106, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		WithClause {
 			inner := encode_with_clause(val_)
-			mut buf := write_tag(107, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 107, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		InferClause {
 			inner := encode_infer_clause(val_)
-			mut buf := write_tag(108, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 108, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		OnConflictClause {
 			inner := encode_on_conflict_clause(val_)
-			mut buf := write_tag(109, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 109, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CTESearchClause {
 			inner := encode_c_t_e_search_clause(val_)
-			mut buf := write_tag(110, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 110, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CTECycleClause {
 			inner := encode_c_t_e_cycle_clause(val_)
-			mut buf := write_tag(111, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 111, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CommonTableExpr {
 			inner := encode_common_table_expr(val_)
-			mut buf := write_tag(112, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 112, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		MergeWhenClause {
 			inner := encode_merge_when_clause(val_)
-			mut buf := write_tag(113, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 113, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		TriggerTransition {
 			inner := encode_trigger_transition(val_)
-			mut buf := write_tag(114, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 114, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonOutput {
 			inner := encode_json_output(val_)
-			mut buf := write_tag(115, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 115, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonArgument {
 			inner := encode_json_argument(val_)
-			mut buf := write_tag(116, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 116, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonFuncExpr {
 			inner := encode_json_func_expr(val_)
-			mut buf := write_tag(117, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 117, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonTablePathSpec {
 			inner := encode_json_table_path_spec(val_)
-			mut buf := write_tag(118, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 118, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonTable {
 			inner := encode_json_table(val_)
-			mut buf := write_tag(119, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 119, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonTableColumn {
 			inner := encode_json_table_column(val_)
-			mut buf := write_tag(120, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 120, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonKeyValue {
 			inner := encode_json_key_value(val_)
-			mut buf := write_tag(121, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 121, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonParseExpr {
 			inner := encode_json_parse_expr(val_)
-			mut buf := write_tag(122, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 122, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonScalarExpr {
 			inner := encode_json_scalar_expr(val_)
-			mut buf := write_tag(123, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 123, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonSerializeExpr {
 			inner := encode_json_serialize_expr(val_)
-			mut buf := write_tag(124, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 124, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonObjectConstructor {
 			inner := encode_json_object_constructor(val_)
-			mut buf := write_tag(125, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 125, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonArrayConstructor {
 			inner := encode_json_array_constructor(val_)
-			mut buf := write_tag(126, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 126, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonArrayQueryConstructor {
 			inner := encode_json_array_query_constructor(val_)
-			mut buf := write_tag(127, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 127, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonAggConstructor {
 			inner := encode_json_agg_constructor(val_)
-			mut buf := write_tag(128, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 128, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonObjectAgg {
 			inner := encode_json_object_agg(val_)
-			mut buf := write_tag(129, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 129, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		JsonArrayAgg {
 			inner := encode_json_array_agg(val_)
-			mut buf := write_tag(130, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 130, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		RawStmt {
 			inner := encode_raw_stmt(val_)
-			mut buf := write_tag(131, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 131, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		InsertStmt {
 			inner := encode_insert_stmt(val_)
-			mut buf := write_tag(132, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 132, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		DeleteStmt {
 			inner := encode_delete_stmt(val_)
-			mut buf := write_tag(133, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 133, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		UpdateStmt {
 			inner := encode_update_stmt(val_)
-			mut buf := write_tag(134, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 134, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		MergeStmt {
 			inner := encode_merge_stmt(val_)
-			mut buf := write_tag(135, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 135, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		SelectStmt {
 			inner := encode_select_stmt(val_)
-			mut buf := write_tag(136, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 136, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		SetOperationStmt {
 			inner := encode_set_operation_stmt(val_)
-			mut buf := write_tag(137, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 137, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		ReturnStmt {
 			inner := encode_return_stmt(val_)
-			mut buf := write_tag(138, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 138, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		PLAssignStmt {
 			inner := encode_p_l_assign_stmt(val_)
-			mut buf := write_tag(139, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 139, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateSchemaStmt {
 			inner := encode_create_schema_stmt(val_)
-			mut buf := write_tag(140, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 140, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterTableStmt {
 			inner := encode_alter_table_stmt(val_)
-			mut buf := write_tag(141, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 141, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		ReplicaIdentityStmt {
 			inner := encode_replica_identity_stmt(val_)
-			mut buf := write_tag(142, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 142, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterTableCmd {
 			inner := encode_alter_table_cmd(val_)
-			mut buf := write_tag(143, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 143, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterCollationStmt {
 			inner := encode_alter_collation_stmt(val_)
-			mut buf := write_tag(144, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 144, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterDomainStmt {
 			inner := encode_alter_domain_stmt(val_)
-			mut buf := write_tag(145, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 145, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		GrantStmt {
 			inner := encode_grant_stmt(val_)
-			mut buf := write_tag(146, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 146, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		ObjectWithArgs {
 			inner := encode_object_with_args(val_)
-			mut buf := write_tag(147, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 147, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AccessPriv {
 			inner := encode_access_priv(val_)
-			mut buf := write_tag(148, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 148, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		GrantRoleStmt {
 			inner := encode_grant_role_stmt(val_)
-			mut buf := write_tag(149, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 149, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterDefaultPrivilegesStmt {
 			inner := encode_alter_default_privileges_stmt(val_)
-			mut buf := write_tag(150, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 150, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CopyStmt {
 			inner := encode_copy_stmt(val_)
-			mut buf := write_tag(151, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 151, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		VariableSetStmt {
 			inner := encode_variable_set_stmt(val_)
-			mut buf := write_tag(152, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 152, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		VariableShowStmt {
 			inner := encode_variable_show_stmt(val_)
-			mut buf := write_tag(153, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 153, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateStmt {
 			inner := encode_create_stmt(val_)
-			mut buf := write_tag(154, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 154, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		Constraint {
 			inner := encode_constraint(val_)
-			mut buf := write_tag(155, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 155, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateTableSpaceStmt {
 			inner := encode_create_table_space_stmt(val_)
-			mut buf := write_tag(156, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 156, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		DropTableSpaceStmt {
 			inner := encode_drop_table_space_stmt(val_)
-			mut buf := write_tag(157, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 157, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterTableSpaceOptionsStmt {
 			inner := encode_alter_table_space_options_stmt(val_)
-			mut buf := write_tag(158, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 158, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterTableMoveAllStmt {
 			inner := encode_alter_table_move_all_stmt(val_)
-			mut buf := write_tag(159, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 159, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateExtensionStmt {
 			inner := encode_create_extension_stmt(val_)
-			mut buf := write_tag(160, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 160, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterExtensionStmt {
 			inner := encode_alter_extension_stmt(val_)
-			mut buf := write_tag(161, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 161, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterExtensionContentsStmt {
 			inner := encode_alter_extension_contents_stmt(val_)
-			mut buf := write_tag(162, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 162, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateFdwStmt {
 			inner := encode_create_fdw_stmt(val_)
-			mut buf := write_tag(163, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 163, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterFdwStmt {
 			inner := encode_alter_fdw_stmt(val_)
-			mut buf := write_tag(164, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 164, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateForeignServerStmt {
 			inner := encode_create_foreign_server_stmt(val_)
-			mut buf := write_tag(165, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 165, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterForeignServerStmt {
 			inner := encode_alter_foreign_server_stmt(val_)
-			mut buf := write_tag(166, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 166, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateForeignTableStmt {
 			inner := encode_create_foreign_table_stmt(val_)
-			mut buf := write_tag(167, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 167, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateUserMappingStmt {
 			inner := encode_create_user_mapping_stmt(val_)
-			mut buf := write_tag(168, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 168, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterUserMappingStmt {
 			inner := encode_alter_user_mapping_stmt(val_)
-			mut buf := write_tag(169, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 169, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		DropUserMappingStmt {
 			inner := encode_drop_user_mapping_stmt(val_)
-			mut buf := write_tag(170, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 170, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		ImportForeignSchemaStmt {
 			inner := encode_import_foreign_schema_stmt(val_)
-			mut buf := write_tag(171, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 171, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreatePolicyStmt {
 			inner := encode_create_policy_stmt(val_)
-			mut buf := write_tag(172, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 172, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterPolicyStmt {
 			inner := encode_alter_policy_stmt(val_)
-			mut buf := write_tag(173, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 173, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateAmStmt {
 			inner := encode_create_am_stmt(val_)
-			mut buf := write_tag(174, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 174, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateTrigStmt {
 			inner := encode_create_trig_stmt(val_)
-			mut buf := write_tag(175, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 175, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateEventTrigStmt {
 			inner := encode_create_event_trig_stmt(val_)
-			mut buf := write_tag(176, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 176, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterEventTrigStmt {
 			inner := encode_alter_event_trig_stmt(val_)
-			mut buf := write_tag(177, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 177, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreatePLangStmt {
 			inner := encode_create_p_lang_stmt(val_)
-			mut buf := write_tag(178, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 178, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateRoleStmt {
 			inner := encode_create_role_stmt(val_)
-			mut buf := write_tag(179, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 179, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterRoleStmt {
 			inner := encode_alter_role_stmt(val_)
-			mut buf := write_tag(180, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 180, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterRoleSetStmt {
 			inner := encode_alter_role_set_stmt(val_)
-			mut buf := write_tag(181, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 181, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		DropRoleStmt {
 			inner := encode_drop_role_stmt(val_)
-			mut buf := write_tag(182, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 182, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateSeqStmt {
 			inner := encode_create_seq_stmt(val_)
-			mut buf := write_tag(183, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 183, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterSeqStmt {
 			inner := encode_alter_seq_stmt(val_)
-			mut buf := write_tag(184, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 184, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		DefineStmt {
 			inner := encode_define_stmt(val_)
-			mut buf := write_tag(185, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 185, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateDomainStmt {
 			inner := encode_create_domain_stmt(val_)
-			mut buf := write_tag(186, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 186, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateOpClassStmt {
 			inner := encode_create_op_class_stmt(val_)
-			mut buf := write_tag(187, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 187, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateOpClassItem {
 			inner := encode_create_op_class_item(val_)
-			mut buf := write_tag(188, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 188, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateOpFamilyStmt {
 			inner := encode_create_op_family_stmt(val_)
-			mut buf := write_tag(189, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 189, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterOpFamilyStmt {
 			inner := encode_alter_op_family_stmt(val_)
-			mut buf := write_tag(190, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 190, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		DropStmt {
 			inner := encode_drop_stmt(val_)
-			mut buf := write_tag(191, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 191, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		TruncateStmt {
 			inner := encode_truncate_stmt(val_)
-			mut buf := write_tag(192, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 192, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CommentStmt {
 			inner := encode_comment_stmt(val_)
-			mut buf := write_tag(193, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 193, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		SecLabelStmt {
 			inner := encode_sec_label_stmt(val_)
-			mut buf := write_tag(194, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 194, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		DeclareCursorStmt {
 			inner := encode_declare_cursor_stmt(val_)
-			mut buf := write_tag(195, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 195, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		ClosePortalStmt {
 			inner := encode_close_portal_stmt(val_)
-			mut buf := write_tag(196, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 196, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		FetchStmt {
 			inner := encode_fetch_stmt(val_)
-			mut buf := write_tag(197, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 197, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		IndexStmt {
 			inner := encode_index_stmt(val_)
-			mut buf := write_tag(198, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 198, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateStatsStmt {
 			inner := encode_create_stats_stmt(val_)
-			mut buf := write_tag(199, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 199, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		StatsElem {
 			inner := encode_stats_elem(val_)
-			mut buf := write_tag(200, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 200, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterStatsStmt {
 			inner := encode_alter_stats_stmt(val_)
-			mut buf := write_tag(201, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 201, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateFunctionStmt {
 			inner := encode_create_function_stmt(val_)
-			mut buf := write_tag(202, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 202, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		FunctionParameter {
 			inner := encode_function_parameter(val_)
-			mut buf := write_tag(203, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 203, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterFunctionStmt {
 			inner := encode_alter_function_stmt(val_)
-			mut buf := write_tag(204, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 204, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		DoStmt {
 			inner := encode_do_stmt(val_)
-			mut buf := write_tag(205, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 205, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		InlineCodeBlock {
 			inner := encode_inline_code_block(val_)
-			mut buf := write_tag(206, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 206, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CallStmt {
 			inner := encode_call_stmt(val_)
-			mut buf := write_tag(207, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 207, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CallContext {
 			inner := encode_call_context(val_)
-			mut buf := write_tag(208, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 208, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		RenameStmt {
 			inner := encode_rename_stmt(val_)
-			mut buf := write_tag(209, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 209, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterObjectDependsStmt {
 			inner := encode_alter_object_depends_stmt(val_)
-			mut buf := write_tag(210, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 210, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterObjectSchemaStmt {
 			inner := encode_alter_object_schema_stmt(val_)
-			mut buf := write_tag(211, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 211, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterOwnerStmt {
 			inner := encode_alter_owner_stmt(val_)
-			mut buf := write_tag(212, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 212, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterOperatorStmt {
 			inner := encode_alter_operator_stmt(val_)
-			mut buf := write_tag(213, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 213, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterTypeStmt {
 			inner := encode_alter_type_stmt(val_)
-			mut buf := write_tag(214, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 214, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		RuleStmt {
 			inner := encode_rule_stmt(val_)
-			mut buf := write_tag(215, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 215, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		NotifyStmt {
 			inner := encode_notify_stmt(val_)
-			mut buf := write_tag(216, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 216, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		ListenStmt {
 			inner := encode_listen_stmt(val_)
-			mut buf := write_tag(217, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 217, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		UnlistenStmt {
 			inner := encode_unlisten_stmt(val_)
-			mut buf := write_tag(218, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 218, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		TransactionStmt {
 			inner := encode_transaction_stmt(val_)
-			mut buf := write_tag(219, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 219, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CompositeTypeStmt {
 			inner := encode_composite_type_stmt(val_)
-			mut buf := write_tag(220, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 220, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateEnumStmt {
 			inner := encode_create_enum_stmt(val_)
-			mut buf := write_tag(221, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 221, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateRangeStmt {
 			inner := encode_create_range_stmt(val_)
-			mut buf := write_tag(222, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 222, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterEnumStmt {
 			inner := encode_alter_enum_stmt(val_)
-			mut buf := write_tag(223, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 223, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		ViewStmt {
 			inner := encode_view_stmt(val_)
-			mut buf := write_tag(224, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 224, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		LoadStmt {
 			inner := encode_load_stmt(val_)
-			mut buf := write_tag(225, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 225, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreatedbStmt {
 			inner := encode_createdb_stmt(val_)
-			mut buf := write_tag(226, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 226, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterDatabaseStmt {
 			inner := encode_alter_database_stmt(val_)
-			mut buf := write_tag(227, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 227, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterDatabaseRefreshCollStmt {
 			inner := encode_alter_database_refresh_coll_stmt(val_)
-			mut buf := write_tag(228, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 228, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterDatabaseSetStmt {
 			inner := encode_alter_database_set_stmt(val_)
-			mut buf := write_tag(229, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 229, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		DropdbStmt {
 			inner := encode_dropdb_stmt(val_)
-			mut buf := write_tag(230, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 230, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterSystemStmt {
 			inner := encode_alter_system_stmt(val_)
-			mut buf := write_tag(231, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 231, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		ClusterStmt {
 			inner := encode_cluster_stmt(val_)
-			mut buf := write_tag(232, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 232, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		VacuumStmt {
 			inner := encode_vacuum_stmt(val_)
-			mut buf := write_tag(233, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 233, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		VacuumRelation {
 			inner := encode_vacuum_relation(val_)
-			mut buf := write_tag(234, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 234, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		ExplainStmt {
 			inner := encode_explain_stmt(val_)
-			mut buf := write_tag(235, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 235, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateTableAsStmt {
 			inner := encode_create_table_as_stmt(val_)
-			mut buf := write_tag(236, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 236, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		RefreshMatViewStmt {
 			inner := encode_refresh_mat_view_stmt(val_)
-			mut buf := write_tag(237, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 237, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CheckPointStmt {
 			inner := encode_check_point_stmt(val_)
-			mut buf := write_tag(238, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 238, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		DiscardStmt {
 			inner := encode_discard_stmt(val_)
-			mut buf := write_tag(239, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 239, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		LockStmt {
 			inner := encode_lock_stmt(val_)
-			mut buf := write_tag(240, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 240, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		ConstraintsSetStmt {
 			inner := encode_constraints_set_stmt(val_)
-			mut buf := write_tag(241, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 241, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		ReindexStmt {
 			inner := encode_reindex_stmt(val_)
-			mut buf := write_tag(242, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 242, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateConversionStmt {
 			inner := encode_create_conversion_stmt(val_)
-			mut buf := write_tag(243, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 243, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateCastStmt {
 			inner := encode_create_cast_stmt(val_)
-			mut buf := write_tag(244, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 244, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateTransformStmt {
 			inner := encode_create_transform_stmt(val_)
-			mut buf := write_tag(245, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 245, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		PrepareStmt {
 			inner := encode_prepare_stmt(val_)
-			mut buf := write_tag(246, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 246, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		ExecuteStmt {
 			inner := encode_execute_stmt(val_)
-			mut buf := write_tag(247, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 247, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		DeallocateStmt {
 			inner := encode_deallocate_stmt(val_)
-			mut buf := write_tag(248, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 248, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		DropOwnedStmt {
 			inner := encode_drop_owned_stmt(val_)
-			mut buf := write_tag(249, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 249, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		ReassignOwnedStmt {
 			inner := encode_reassign_owned_stmt(val_)
-			mut buf := write_tag(250, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 250, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterTSDictionaryStmt {
 			inner := encode_alter_t_s_dictionary_stmt(val_)
-			mut buf := write_tag(251, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 251, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterTSConfigurationStmt {
 			inner := encode_alter_t_s_configuration_stmt(val_)
-			mut buf := write_tag(252, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 252, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		PublicationTable {
 			inner := encode_publication_table(val_)
-			mut buf := write_tag(253, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 253, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		PublicationObjSpec {
 			inner := encode_publication_obj_spec(val_)
-			mut buf := write_tag(254, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 254, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreatePublicationStmt {
 			inner := encode_create_publication_stmt(val_)
-			mut buf := write_tag(255, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 255, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterPublicationStmt {
 			inner := encode_alter_publication_stmt(val_)
-			mut buf := write_tag(256, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 256, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		CreateSubscriptionStmt {
 			inner := encode_create_subscription_stmt(val_)
-			mut buf := write_tag(257, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 257, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AlterSubscriptionStmt {
 			inner := encode_alter_subscription_stmt(val_)
-			mut buf := write_tag(258, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 258, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		DropSubscriptionStmt {
 			inner := encode_drop_subscription_stmt(val_)
-			mut buf := write_tag(259, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 259, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		Integer {
 			inner := encode_integer(val_)
-			mut buf := write_tag(260, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 260, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		Float {
 			inner := encode_float(val_)
-			mut buf := write_tag(261, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 261, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		Boolean {
 			inner := encode_boolean(val_)
-			mut buf := write_tag(262, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 262, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		String {
 			inner := encode_string(val_)
-			mut buf := write_tag(263, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 263, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		BitString {
 			inner := encode_bit_string(val_)
-			mut buf := write_tag(264, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 264, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		List {
 			inner := encode_list(val_)
-			mut buf := write_tag(265, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 265, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		IntList {
 			inner := encode_int_list(val_)
-			mut buf := write_tag(266, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 266, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		OidList {
 			inner := encode_oid_list(val_)
-			mut buf := write_tag(267, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 267, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		AConst {
 			inner := encode_a_const(val_)
-			mut buf := write_tag(268, 2)
-			buf << write_length_delimited(inner)
+			mut buf := []u8{}
+			write_tag_into(mut buf, 268, 2)
+			write_length_delimited_into(mut buf, inner)
 			return buf
 		}
 		UnrecognizedNode {
-			mut buf := write_tag(val_.field_num, 2)
-			buf << write_length_delimited(val_.data)
+			mut buf := []u8{}
+			write_tag_into(mut buf, val_.field_num, 2)
+			write_length_delimited_into(mut buf, val_.data)
 			return buf
 		}
 	}
@@ -10553,18 +10832,18 @@ fn encode_node(val_ Node) []u8 {
 
 pub fn encode_parse_result(val ParseAstResult) []u8 {
 	mut buf := []u8{}
-	buf << write_tag(1, 0)
-	buf << write_varint(u64(val.version))
+	write_tag_into(mut buf, 1, 0)
+	write_varint_into(mut buf, u64(val.version))
 	for s in val.stmts {
 		mut inner := []u8{}
-		inner << write_tag(1, 2)
-		inner << write_length_delimited(encode_node(s.stmt))
-		inner << write_tag(2, 0)
-		inner << write_varint(u64(s.stmt_location))
-		inner << write_tag(3, 0)
-		inner << write_varint(u64(s.stmt_len))
-		buf << write_tag(2, 2)
-		buf << write_length_delimited(inner)
+		write_tag_into(mut inner, 1, 2)
+		write_length_delimited_into(mut inner, encode_node(s.stmt))
+		write_tag_into(mut inner, 2, 0)
+		write_varint_into(mut inner, u64(s.stmt_location))
+		write_tag_into(mut inner, 3, 0)
+		write_varint_into(mut inner, u64(s.stmt_len))
+		write_tag_into(mut buf, 2, 2)
+		write_length_delimited_into(mut buf, inner)
 	}
 	return buf
 }
