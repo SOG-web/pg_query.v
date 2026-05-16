@@ -87,16 +87,9 @@ pub struct C.PostgresDeparseComment {
 	str                     &char
 }
 
-@[typedef]
-pub struct C.PostgresDeparseOpts {
-	comments             voidptr
-	comment_count        usize
-	pretty_print         bool
-	indent_size          int
-	max_line_length      int
-	trailing_newline     bool
-	commas_start_of_line bool
-}
+// C.PostgresDeparseOpts is intentionally opaque — all field access
+// goes through C bridge setters in c_bridge.c to avoid ABI coupling.
+// If you need to add/remove fields, update c_bridge.c bridge functions only.
 
 @[typedef]
 pub struct C.PgQueryDeparseCommentsResult {
@@ -162,11 +155,18 @@ fn C.pg_query_split_with_parser(input &char) C.PgQuerySplitResult
 
 // Deparse functions
 fn C.pg_query_deparse_protobuf(parse_tree C.PgQueryProtobuf) C.PgQueryDeparseResult
-fn C.pg_query_deparse_protobuf_opts(parse_tree C.PgQueryProtobuf, opts C.PostgresDeparseOpts) C.PgQueryDeparseResult
-fn C.pg_query_deparse_comments_for_query(query &char) C.PgQueryDeparseCommentsResult
+fn C.pg_query_deparse_protobuf_opts(parse_tree C.PgQueryProtobuf, opts voidptr) C.PgQueryDeparseResult
+fn C.pg_query_split_with_scanner(input &char) C.PgQuerySplitResult
+fn C.pg_query_split_with_parser(input &char) C.PgQuerySplitResult
+fn C.pg_query_scan(input &char) C.PgQueryScanResult
+fn C.pg_query_normalize(input &char) C.PgQueryNormalizeResult
+fn C.pg_query_normalize_utility(input &char) C.PgQueryNormalizeResult
+fn C.pg_query_fingerprint(input &char) C.PgQueryFingerprintResult
+fn C.pg_query_fingerprint_opts(input &char, opts int) C.PgQueryFingerprintResult
+fn C.pg_query_is_utility_stmt(input &char) C.PgQueryIsUtilityResult
 
-// Utility
-fn C.pg_query_is_utility_stmt(query &char) C.PgQueryIsUtilityResult
+// Deparse functions
+fn C.pg_query_deparse_comments_for_query(query &char) C.PgQueryDeparseCommentsResult
 
 // Summary
 fn C.pg_query_summary(input &char, parser_options int, truncate_limit int) C.PgQuerySummaryParseResult
@@ -187,16 +187,22 @@ fn C.pg_query_free_summary_parse_result(result C.PgQuerySummaryParseResult)
 // Lifecycle
 fn C.pg_query_exit()
 
-// Bridge helpers
+// Bridge helpers (c_bridge.c) — all PostgresDeparseOpts access via voidptr
 fn C.pg_query_bridge_split_stmts_get(stmts voidptr, index int) voidptr
 fn C.pg_query_bridge_deparse_comments_get(comments voidptr, index usize) voidptr
 fn C.pg_query_bridge_pg_version() &char
 fn C.pg_query_bridge_pg_major_version() &char
-fn C.pg_query_bridge_deparse_opts_new() &C.PostgresDeparseOpts
-fn C.pg_query_bridge_deparse_opts_init_comments(opts &C.PostgresDeparseOpts, count usize)
-fn C.pg_query_bridge_deparse_opts_set_comment(opts &C.PostgresDeparseOpts, index usize, location int, newlines_before int, newlines_after int, str &char)
-fn C.pg_query_bridge_deparse_opts_free(opts &C.PostgresDeparseOpts)
-fn C.pg_query_bridge_deparse_protobuf_opts(parse_tree C.PgQueryProtobuf, opts &C.PostgresDeparseOpts) C.PgQueryDeparseResult
+fn C.pg_query_bridge_deparse_opts_new() voidptr
+fn C.pg_query_bridge_deparse_opts_set_pretty_print(opts voidptr, val int)
+fn C.pg_query_bridge_deparse_opts_set_indent_size(opts voidptr, val int)
+fn C.pg_query_bridge_deparse_opts_set_max_line_length(opts voidptr, val int)
+fn C.pg_query_bridge_deparse_opts_set_trailing_newline(opts voidptr, val int)
+fn C.pg_query_bridge_deparse_opts_set_commas_start_of_line(opts voidptr, val int)
+fn C.pg_query_bridge_deparse_opts_set_comment_count(opts voidptr, count usize)
+fn C.pg_query_bridge_deparse_opts_init_comments(opts voidptr, count usize)
+fn C.pg_query_bridge_deparse_opts_set_comment(opts voidptr, index usize, location int, newlines_before int, newlines_after int, str &char)
+fn C.pg_query_bridge_deparse_opts_free(opts voidptr)
+fn C.pg_query_bridge_deparse_protobuf_opts(parse_tree C.PgQueryProtobuf, opts voidptr) C.PgQueryDeparseResult
 
 // Protobuf bridge functions
 fn C.pg_query_bridge_parse_ast_direct(input &char, parser_options int) voidptr

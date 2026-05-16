@@ -4,15 +4,34 @@
 #include "pg_query.h"
 
 /*
- * Verify V's C.PostgresDeparseOpts redeclaration matches the actual C struct.
- * The expected size is fields: voidptr(8) + usize(8) + bool(1) + int(4) +
- * int(4) + bool(1) + bool(1) = 27 + 5 padding = 32 on LP64.
- * Update this when PostgresDeparseOpts changes.
- * If this assert fails, update pgquery.c.v's C.PostgresDeparseOpts.
+ * Bridge setters for PostgresDeparseOpts fields.
+ * V code must never access C.PostgresDeparseOpts fields directly —
+ * all field access goes through these bridge functions. This decouples
+ * the V declaration from the C struct layout entirely.
  */
-typedef char static_assert_deparse_opts_size[
-    sizeof(PostgresDeparseOpts) == 32 ? 1 : -1
-];
+void pg_query_bridge_deparse_opts_set_pretty_print(void *opts, int val) {
+    ((PostgresDeparseOpts*)opts)->pretty_print = val;
+}
+
+void pg_query_bridge_deparse_opts_set_indent_size(void *opts, int val) {
+    ((PostgresDeparseOpts*)opts)->indent_size = val;
+}
+
+void pg_query_bridge_deparse_opts_set_max_line_length(void *opts, int val) {
+    ((PostgresDeparseOpts*)opts)->max_line_length = val;
+}
+
+void pg_query_bridge_deparse_opts_set_trailing_newline(void *opts, int val) {
+    ((PostgresDeparseOpts*)opts)->trailing_newline = val;
+}
+
+void pg_query_bridge_deparse_opts_set_commas_start_of_line(void *opts, int val) {
+    ((PostgresDeparseOpts*)opts)->commas_start_of_line = val;
+}
+
+void pg_query_bridge_deparse_opts_set_comment_count(void *opts, size_t val) {
+    ((PostgresDeparseOpts*)opts)->comment_count = val;
+}
 
 void* pg_query_bridge_split_stmts_get(void *stmts, int index) {
 	return ((void**)stmts)[index];
@@ -30,39 +49,41 @@ const char* pg_query_bridge_pg_major_version(void) {
 	return PG_MAJORVERSION;
 }
 
-PostgresDeparseOpts* pg_query_bridge_deparse_opts_new(void) {
+void* pg_query_bridge_deparse_opts_new(void) {
 	return calloc(1, sizeof(PostgresDeparseOpts));
 }
 
-void pg_query_bridge_deparse_opts_init_comments(PostgresDeparseOpts *opts, size_t count) {
-	opts->comments = calloc(count, sizeof(PostgresDeparseComment*));
-	opts->comment_count = count;
+void pg_query_bridge_deparse_opts_init_comments(void *opts, size_t count) {
+	((PostgresDeparseOpts*)opts)->comments = calloc(count, sizeof(PostgresDeparseComment*));
+	((PostgresDeparseOpts*)opts)->comment_count = count;
 }
 
-void pg_query_bridge_deparse_opts_set_comment(PostgresDeparseOpts *opts, size_t index,
+void pg_query_bridge_deparse_opts_set_comment(void *opts, size_t index,
 	int location, int newlines_before, int newlines_after, const char *str)
 {
-	opts->comments[index] = calloc(1, sizeof(PostgresDeparseComment));
-	opts->comments[index]->match_location = location;
-	opts->comments[index]->newlines_before_comment = newlines_before;
-	opts->comments[index]->newlines_after_comment = newlines_after;
-	opts->comments[index]->str = str ? strdup(str) : NULL;
+	PostgresDeparseOpts *o = (PostgresDeparseOpts*)opts;
+	o->comments[index] = calloc(1, sizeof(PostgresDeparseComment));
+	o->comments[index]->match_location = location;
+	o->comments[index]->newlines_before_comment = newlines_before;
+	o->comments[index]->newlines_after_comment = newlines_after;
+	o->comments[index]->str = str ? strdup(str) : NULL;
 }
 
-void pg_query_bridge_deparse_opts_free(PostgresDeparseOpts *opts) {
+void pg_query_bridge_deparse_opts_free(void *opts) {
 	if (!opts) return;
-	if (opts->comments) {
-		for (size_t i = 0; i < opts->comment_count; i++) {
-			if (opts->comments[i]) {
-				free(opts->comments[i]->str);
-				free(opts->comments[i]);
+	PostgresDeparseOpts *o = (PostgresDeparseOpts*)opts;
+	if (o->comments) {
+		for (size_t i = 0; i < o->comment_count; i++) {
+			if (o->comments[i]) {
+				free(o->comments[i]->str);
+				free(o->comments[i]);
 			}
 		}
-		free(opts->comments);
+		free(o->comments);
 	}
-	free(opts);
+	free(o);
 }
 
-PgQueryDeparseResult pg_query_bridge_deparse_protobuf_opts(PgQueryProtobuf parse_tree, PostgresDeparseOpts *opts) {
-	return pg_query_deparse_protobuf_opts(parse_tree, *opts);
+PgQueryDeparseResult pg_query_bridge_deparse_protobuf_opts(PgQueryProtobuf parse_tree, void *opts) {
+	return pg_query_deparse_protobuf_opts(parse_tree, *(PostgresDeparseOpts*)opts);
 }

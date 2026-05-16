@@ -559,14 +559,14 @@ fn split_stmts_from_c(res C.PgQuerySplitResult) []SplitStmt {
 	return stmts
 }
 
-fn deparse_opts_to_c(opts DeparseOpts) &C.PostgresDeparseOpts {
+fn deparse_opts_to_c(opts DeparseOpts) voidptr {
 	mut c_opts := C.pg_query_bridge_deparse_opts_new()
-	c_opts.comment_count = usize(opts.comments.len)
-	c_opts.pretty_print = opts.pretty_print
-	c_opts.indent_size = opts.indent_size
-	c_opts.max_line_length = opts.max_line_length
-	c_opts.trailing_newline = opts.trailing_newline
-	c_opts.commas_start_of_line = opts.commas_start_of_line
+	C.pg_query_bridge_deparse_opts_set_comment_count(c_opts, usize(opts.comments.len))
+	C.pg_query_bridge_deparse_opts_set_pretty_print(c_opts, opts.pretty_print)
+	C.pg_query_bridge_deparse_opts_set_indent_size(c_opts, opts.indent_size)
+	C.pg_query_bridge_deparse_opts_set_max_line_length(c_opts, opts.max_line_length)
+	C.pg_query_bridge_deparse_opts_set_trailing_newline(c_opts, opts.trailing_newline)
+	C.pg_query_bridge_deparse_opts_set_commas_start_of_line(c_opts, opts.commas_start_of_line)
 	if opts.comments.len > 0 {
 		C.pg_query_bridge_deparse_opts_init_comments(c_opts, usize(opts.comments.len))
 		for i, comment in opts.comments {

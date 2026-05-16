@@ -225,9 +225,18 @@ fn test_parse_plpgsql() {
 }
 
 fn test_version() {
-	assert pg_version() == '17.7'
-	assert pg_major_version() == '17'
-	assert pg_version_num() == 170007
+	// Check internal consistency rather than hardcoding a specific version.
+	// If libpg_query is upgraded, this test will still pass as long as
+	// the version string, major version, and numeric version agree.
+	assert pg_version().len > 0
+	assert pg_major_version().len > 0
+	assert pg_version_num() > 0
+
+	parts := pg_version().split('.')
+	assert parts.len >= 2
+	major := parts[0].int()
+	assert pg_major_version() == parts[0]
+	assert pg_version_num() / 10000 == major
 }
 
 fn test_parse_opts() {
