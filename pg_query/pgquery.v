@@ -45,11 +45,7 @@ pub:
 	stderr_buffer   string
 }
 
-pub struct ScanResult {
-pub:
-	pbuf          Protobuf
-	stderr_buffer string
-}
+
 
 pub struct SplitStmt {
 pub:
@@ -100,12 +96,6 @@ pub struct IsUtilityResult {
 pub:
 	length int
 	items  []bool
-}
-
-pub struct SummaryParseResult {
-pub:
-	summary       Protobuf
-	stderr_buffer string
 }
 
 pub struct PgError {
@@ -284,13 +274,10 @@ pub fn scan(input string) !ScanResult {
 		C.pg_query_free_scan_result(res)
 		return pe
 	}
-	pb := protobuf_from_c(res.pbuf)
-	sb := cstring(res.stderr_buffer)
+	bytes := protobuf_to_bytes(res.pbuf)
 	C.pg_query_free_scan_result(res)
-	return ScanResult{
-		pbuf:          pb
-		stderr_buffer: sb
-	}
+	val, _ := decode_scan_result(bytes, max_decode_depth)
+	return val
 }
 
 // Fingerprint a SQL query.
@@ -429,19 +416,16 @@ pub fn is_utility_stmt(query string) !IsUtilityResult {
 }
 
 // Get a summary of a SQL query.
-pub fn summary(input string, parser_options int, truncate_limit int) !SummaryParseResult {
+pub fn summary(input string, parser_options int, truncate_limit int) !SummaryResult {
 	res := C.pg_query_summary(input.str, parser_options, truncate_limit)
 	if pe := pg_error_from(res.error) {
 		C.pg_query_free_summary_parse_result(res)
 		return pe
 	}
-	pb := protobuf_from_c(res.summary)
-	sb := cstring(res.stderr_buffer)
+	bytes := protobuf_to_bytes(res.summary)
 	C.pg_query_free_summary_parse_result(res)
-	return SummaryParseResult{
-		summary:       pb
-		stderr_buffer: sb
-	}
+	val, _ := decode_summary_result(bytes, max_decode_depth)
+	return val
 }
 
 // Clean up global memory contexts used by the C parser.

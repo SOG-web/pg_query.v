@@ -25,6 +25,9 @@ struct ProtoField {
 	json_name   string
 	is_oneof    bool
 	oneof_group string
+	is_map      bool
+	map_key_typ string
+	map_val_typ string
 }
 
 struct ProtoMessage {
@@ -112,7 +115,9 @@ fn parse_proto(text string) ProtoFile {
 					enum_parts := cline.split(' ')
 					if enum_parts.len >= 2 {
 						ename := enum_parts[1].trim_right(' {')
-						mut en := ProtoEnum{name: ename}
+						// Qualify nested enum name with parent message name
+						qname := '${msg.name}_${ename}'
+						mut en := ProtoEnum{name: qname}
 						i++
 						for i < lines.len {
 							eline := lines[i].trim_space()
@@ -133,13 +138,104 @@ fn parse_proto(text string) ProtoFile {
 					continue
 				}
 				if cline.starts_with('message ') {
-					mut depth := 1
-					i++
-					for i < lines.len {
-						tline := lines[i].trim_space()
-						if tline == '{' { depth++ }
-						if tline == '}' { depth--; if depth == 0 { break } }
+					nested_parts := cline.split(' ')
+					if nested_parts.len >= 2 {
+						nname := nested_parts[1].trim_right(' {')
+						// Qualify nested message name
+						qname := '${msg.name}_${nname}'
+						mut nmsg := ProtoMessage{name: qname}
+						mut depth := 1
 						i++
+						for i < lines.len {
+							tline := lines[i].trim_space()
+							if tline == '{' { depth++ }
+							if tline == '}' { depth--; if depth == 0 { break } }
+							// Parse nested fields inside
+							if depth == 1 && tline.contains('=') && !tline.starts_with('//') && !tline.starts_with('/*') {
+								neq_parts := tline.split('=')
+								if neq_parts.len >= 2 {
+									ndecl := neq_parts[0].trim_space()
+									mut nrepeated := false
+									mut nftype := ''
+									mut nfname := ''
+									mut nis_map := false
+									mut nmap_key := ''
+									mut nmap_val := ''
+									if ndecl.starts_with('map<') {
+										nis_map = true
+										mut ndepth := 1
+										mut nend := 4
+										for nend < ndecl.len && ndepth > 0 {
+											if ndecl[nend] == `<` { ndepth++ }
+											if ndecl[nend] == `>` { ndepth-- }
+											if ndepth > 0 { nend++ }
+										}
+										nmap_decl := ndecl[4..nend]
+										nmap_parts := nmap_decl.split(',')
+										if nmap_parts.len >= 2 {
+											nmap_key = nmap_parts[0].trim_space()
+											nmap_val = nmap_parts[1].trim_space()
+										}
+										nafter := ndecl[nend + 1..].trim_space()
+										nnparts := nafter.split(' ')
+										if nnparts.len >= 1 {
+											nfname = nnparts[0].trim_space()
+										}
+										nftype = 'map'
+									} else if ndecl.starts_with('repeated ') {
+										nrepeated = true
+										nafter := ndecl[9..].trim_space()
+										nsub := nafter.split(' ')
+										if nsub.len >= 2 {
+											nftype = nsub[0].trim_space()
+											nfname = nsub[1].trim_space()
+										}
+									} else {
+										nsub := ndecl.split(' ')
+										if nsub.len >= 2 {
+											nftype = nsub[0].trim_space()
+											nfname = nsub[1].trim_space()
+										}
+									}
+									if nfname != '' {
+										nrest := neq_parts[1].trim_right(';').trim_space()
+										nnum_part := nrest.split(' ')[0].trim_right(',').trim_right(']')
+										nfnum := nnum_part.int()
+										mut njn := nfname
+										if nrest.contains('json_name') {
+											njn = extract_json_name(nrest)
+										}
+										// Resolve type references within parent scope
+										mut ntyp := nftype
+										if ntyp == 'Context' || ntyp == 'Table' || ntyp == 'Function' || ntyp == 'FilterColumn' {
+											ntyp = '${msg.name}_${ntyp}'
+										}
+										nmsg.fields << ProtoField{
+											name: nfname
+											typ: ntyp
+											field_num: nfnum
+											repeated: nrepeated
+											json_name: njn
+											is_oneof: false
+											is_map: nis_map
+											map_key_typ: nmap_key
+											map_val_typ: nmap_val
+										}
+									}
+								}
+							}
+							i++
+						}
+						pf.messages << nmsg
+					} else {
+						mut depth := 1
+						i++
+						for i < lines.len {
+							tline := lines[i].trim_space()
+							if tline == '{' { depth++ }
+							if tline == '}' { depth--; if depth == 0 { break } }
+							i++
+						}
 					}
 					i++
 					continue
@@ -179,7 +275,33 @@ fn parse_proto(text string) ProtoFile {
 					mut repeated := false
 					mut ftype := ''
 					mut fname := ''
-					if decl.starts_with('repeated ') {
+					mut is_map := false
+					mut map_key_typ := ''
+					mut map_val_typ := ''
+					if decl.starts_with('map<') {
+						// map<K, V> name = num;
+						is_map = true
+						// Find the closing '>' of map<K, V>
+						mut depth := 1
+						mut end_idx := 4 // skip 'map<'
+						for end_idx < decl.len && depth > 0 {
+							if decl[end_idx] == `<` { depth++ }
+							if decl[end_idx] == `>` { depth-- }
+							if depth > 0 { end_idx++ }
+						}
+						map_decl := decl[4..end_idx]
+						map_parts := map_decl.split(',')
+						if map_parts.len >= 2 {
+							map_key_typ = map_parts[0].trim_space()
+							map_val_typ = map_parts[1].trim_space()
+						}
+						after_map := decl[end_idx + 1..].trim_space()
+						map_name_parts := after_map.split(' ')
+						if map_name_parts.len >= 1 {
+							fname = map_name_parts[0].trim_space()
+						}
+						ftype = 'map'
+					} else if decl.starts_with('repeated ') {
 						repeated = true
 						after := decl[9..].trim_space()
 						sub_parts := after.split(' ')
@@ -199,6 +321,22 @@ fn parse_proto(text string) ProtoFile {
 					if rest.contains('json_name') {
 						jn = extract_json_name(rest)
 					}
+					// Resolve nested type references
+					qtype := '${msg.name}_${ftype}'
+					if !is_primitive_proto(ftype) && ftype != 'Node' && ftype != 'string' && ftype != 'bytes' && ftype != 'Context' && ftype != 'map' {
+						for em in pf.messages {
+							if em.name == qtype {
+								ftype = qtype
+								break
+							}
+						}
+						for ee in pf.enums {
+							if ee.name == qtype {
+								ftype = qtype
+								break
+							}
+						}
+					}
 					msg.fields << ProtoField{
 						name: fname
 						typ: ftype
@@ -206,6 +344,9 @@ fn parse_proto(text string) ProtoFile {
 						repeated: repeated
 						json_name: jn
 						is_oneof: false
+						is_map: is_map
+						map_key_typ: map_key_typ
+						map_val_typ: map_val_typ
 					}
 				}
 				i++
@@ -254,6 +395,7 @@ fn proto_field_to_v_type(ptype string) string {
 		'bytes' { return '[]u8' }
 		'Node' { return 'Node' }
 		'Context' { return 'SummaryContext' }
+		'map' { return 'map[string]string' }
 		else {
 			parts := ptype.split('_')
 			mut out := ''
@@ -459,7 +601,7 @@ fn generate_v_ast(pf ProtoFile, node_oneof_fields []ProtoField) {
 
 	// Generate message structs (skip Node, ParseResult, ScanResult, SummaryResult)
 	for m in pf.messages {
-		if m.name == 'Node' || m.name == 'ParseResult' || m.name == 'ScanResult' || m.name == 'SummaryResult' { continue }
+		if m.name == 'Node' || m.name == 'ParseResult' { continue }
 		vname := proto_type_to_v_type(m.name)
 		out += 'pub struct ${vname} {\n'
 		out += 'pub mut:\n'
@@ -608,8 +750,6 @@ fn topological_sort_messages(pf ProtoFile) []ProtoMessage {
 	mut skip_names := map[string]bool{}
 	skip_names['Node'] = true
 	skip_names['ParseResult'] = true
-	skip_names['ScanResult'] = true
-	skip_names['SummaryResult'] = true
 
 	// Collect messages to sort
 	mut msgs := []ProtoMessage{}
@@ -2902,8 +3042,6 @@ fn generate_v_protobuf_decode(pf ProtoFile, node_oneof_fields []ProtoField) {
 	mut skip_names := map[string]bool{}
 	skip_names['Node'] = true
 	skip_names['ParseResult'] = true
-	skip_names['ScanResult'] = true
-	skip_names['SummaryResult'] = true
 	// RawStmt auto-generated for Node sum type variant
 
 	// Build map of types that directly have reference (self-referencing) fields
@@ -2950,13 +3088,23 @@ fn generate_v_protobuf_decode(pf ProtoFile, node_oneof_fields []ProtoField) {
 		needs_unsafe_init := has_ref_fields || transitive_init.len > 0
 		has_regular_fields := m.fields.len > 0
 		out += 'fn decode_${dfn}(buf []u8, depth int) (${vname}, int) {\n'
-		if needs_unsafe_init {
+		// Collect map field names for initialization
+		mut map_field_names := []string{}
+		for f in m.fields {
+			if f.is_map { map_field_names << snake_case(f.name) }
+		}
+		has_maps := map_field_names.len > 0
+
+		if needs_unsafe_init || has_maps {
 			out += '\tif depth <= 0 { return ${vname}{\n'
 			for rfn in ref_field_names {
 				out += '\t\t${rfn}: unsafe { nil }\n'
 			}
 			for ti in transitive_init {
 				out += '\t\t' + ti.trim_left('\t') + '\n'
+			}
+			for mfn in map_field_names {
+				out += '\t\t${mfn}: {}\n'
 			}
 			out += '\t}, 0 }\n'
 			out += '\tmut r := ${vname}{\n'
@@ -2965,6 +3113,9 @@ fn generate_v_protobuf_decode(pf ProtoFile, node_oneof_fields []ProtoField) {
 			}
 			for ti in transitive_init {
 				out += '\t' + ti + '\n'
+			}
+			for mfn in map_field_names {
+				out += '\t\t${mfn}: {}\n'
 			}
 			out += '\t}\n'
 		} else {
@@ -3075,6 +3226,11 @@ fn proto_decode_field_case(f ProtoField, vname string, msg_name string, pf Proto
 	} else if f.typ == 'bytes' {
 		out += '\t\t\t\td, c2 := read_bytes(buf, off)\n'
 		out += '\t\t\t\tr.${vfname} = d\n'
+		out += '\t\t\t\toff += c2\n'
+	} else if f.is_map && f.map_key_typ == 'string' && f.map_val_typ == 'string' {
+		out += '\t\t\t\tdata, c2 := read_submessage(buf, off)\n'
+		out += '\t\t\t\tkey, val := read_map_string_entry(data)\n'
+		out += '\t\t\t\tr.${vfname}[key] = val\n'
 		out += '\t\t\t\toff += c2\n'
 	} else if f.typ == 'Node' {
 		out += '\t\t\t\tdata, c2 := read_submessage(buf, off)\n'

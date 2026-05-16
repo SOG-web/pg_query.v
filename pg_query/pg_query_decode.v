@@ -2,6 +2,33 @@
 // DO NOT EDIT.
 module pg_query
 
+fn decode_scan_result(buf []u8, depth int) (ScanResult, int) {
+	if depth <= 0 { return ScanResult{}, 0 }
+	mut r := ScanResult{}
+	mut off := 0
+	for off < buf.len {
+		field_num, wire_type, c := read_tag(buf, off)
+		off += c
+		match field_num {
+			1 {
+				v, c2 := read_varint_i64(buf, off)
+				r.version = int(v)
+				off += c2
+			}
+			2 {
+				data, c2 := read_submessage(buf, off)
+				val, _ := decode_scan_token(data, depth - 1)
+				r.tokens << val
+				off += c2
+			}
+			else {
+				off = skip_field(buf, off, wire_type)
+			}
+		}
+	}
+	return r, off
+}
+
 fn decode_integer(buf []u8, depth int) (Integer, int) {
 	if depth <= 0 { return Integer{}, 0 }
 	mut r := Integer{}
@@ -6991,6 +7018,109 @@ fn decode_scan_token(buf []u8, depth int) (ScanToken, int) {
 	return r, off
 }
 
+fn decode_summary_result_table(buf []u8, depth int) (SummaryResultTable, int) {
+	if depth <= 0 { return SummaryResultTable{}, 0 }
+	mut r := SummaryResultTable{}
+	mut off := 0
+	for off < buf.len {
+		field_num, wire_type, c := read_tag(buf, off)
+		off += c
+		match field_num {
+			1 {
+				s, c2 := read_string(buf, off)
+				r.name = s
+				off += c2
+			}
+			2 {
+				s, c2 := read_string(buf, off)
+				r.schema_name = s
+				off += c2
+			}
+			3 {
+				s, c2 := read_string(buf, off)
+				r.table_name = s
+				off += c2
+			}
+			4 {
+				v, c2 := read_varint(buf, off)
+				r.context = unsafe { SummaryResultContext(valid_enum_int([0, 1, 2, 3, 4], v)) }
+				off += c2
+			}
+			else {
+				off = skip_field(buf, off, wire_type)
+			}
+		}
+	}
+	return r, off
+}
+
+fn decode_summary_result_function(buf []u8, depth int) (SummaryResultFunction, int) {
+	if depth <= 0 { return SummaryResultFunction{}, 0 }
+	mut r := SummaryResultFunction{}
+	mut off := 0
+	for off < buf.len {
+		field_num, wire_type, c := read_tag(buf, off)
+		off += c
+		match field_num {
+			1 {
+				s, c2 := read_string(buf, off)
+				r.name = s
+				off += c2
+			}
+			2 {
+				s, c2 := read_string(buf, off)
+				r.function_name = s
+				off += c2
+			}
+			3 {
+				s, c2 := read_string(buf, off)
+				r.schema_name = s
+				off += c2
+			}
+			4 {
+				v, c2 := read_varint(buf, off)
+				r.context = unsafe { SummaryResultContext(valid_enum_int([0, 1, 2, 3, 4], v)) }
+				off += c2
+			}
+			else {
+				off = skip_field(buf, off, wire_type)
+			}
+		}
+	}
+	return r, off
+}
+
+fn decode_summary_result_filter_column(buf []u8, depth int) (SummaryResultFilterColumn, int) {
+	if depth <= 0 { return SummaryResultFilterColumn{}, 0 }
+	mut r := SummaryResultFilterColumn{}
+	mut off := 0
+	for off < buf.len {
+		field_num, wire_type, c := read_tag(buf, off)
+		off += c
+		match field_num {
+			1 {
+				s, c2 := read_string(buf, off)
+				r.schema_name = s
+				off += c2
+			}
+			2 {
+				s, c2 := read_string(buf, off)
+				r.table_name = s
+				off += c2
+			}
+			3 {
+				s, c2 := read_string(buf, off)
+				r.column = s
+				off += c2
+			}
+			else {
+				off = skip_field(buf, off, wire_type)
+			}
+		}
+	}
+	return r, off
+}
+
 fn decode_range_var(buf []u8, depth int) (RangeVar, int) {
 	if depth <= 0 { return RangeVar{}, 0 }
 	mut r := RangeVar{}
@@ -11960,6 +12090,65 @@ fn decode_json_array_agg(buf []u8, depth int) (JsonArrayAgg, int) {
 			3 {
 				v, c2 := read_varint(buf, off)
 				r.absent_on_null = v != 0
+				off += c2
+			}
+			else {
+				off = skip_field(buf, off, wire_type)
+			}
+		}
+	}
+	return r, off
+}
+
+fn decode_summary_result(buf []u8, depth int) (SummaryResult, int) {
+	if depth <= 0 { return SummaryResult{
+		aliases: {}
+	}, 0 }
+	mut r := SummaryResult{
+		aliases: {}
+	}
+	mut off := 0
+	for off < buf.len {
+		field_num, wire_type, c := read_tag(buf, off)
+		off += c
+		match field_num {
+			1 {
+				data, c2 := read_submessage(buf, off)
+				val, _ := decode_summary_result_table(data, depth - 1)
+				r.tables << val
+				off += c2
+			}
+			2 {
+				data, c2 := read_submessage(buf, off)
+				key, val := read_map_string_entry(data)
+				r.aliases[key] = val
+				off += c2
+			}
+			3 {
+				s, c2 := read_string(buf, off)
+				r.cte_names << s
+				off += c2
+			}
+			4 {
+				data, c2 := read_submessage(buf, off)
+				val, _ := decode_summary_result_function(data, depth - 1)
+				r.functions << val
+				off += c2
+			}
+			5 {
+				data, c2 := read_submessage(buf, off)
+				val, _ := decode_summary_result_filter_column(data, depth - 1)
+				r.filter_columns << val
+				off += c2
+			}
+			6 {
+				s, c2 := read_string(buf, off)
+				r.statement_types << s
+				off += c2
+			}
+			7 {
+				s, c2 := read_string(buf, off)
+				r.truncated_query = s
 				off += c2
 			}
 			else {

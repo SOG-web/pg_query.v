@@ -162,8 +162,8 @@ fn test_summary() {
 		assert false, 'summary failed: ${err}'
 		return
 	}
-	assert result.summary.len > 0
-	assert result.summary.data.len == int(result.summary.len)
+	// Should contain statement_types for SELECT
+	assert result.statement_types.len > 0
 }
 
 fn test_deparse_roundtrip() {
@@ -210,7 +210,7 @@ fn test_parse_scan() {
 		assert false, 'scan failed: ${err}'
 		return
 	}
-	assert result.pbuf.len > 0
+	assert result.tokens.len > 0
 }
 
 fn test_parse_normalize_utility() {

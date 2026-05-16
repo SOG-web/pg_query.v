@@ -40,30 +40,22 @@ All `decode_*` functions now accept a `depth int` parameter. `decode_parse_resul
 ### 12. Unknown Node variants silently discarded — ✅ Fixed
 `decode_node()` returns `UnrecognizedNode{field_num, data}` for unknown field numbers instead of silently returning the first variant. `UnrecognizedNode` is a new struct added to the `Node` sum type, preserving the raw field number and submessage data for forward-compat.
 
-### 13. Enum values not validated
-All integer-to-enum casts in the generated decoder use `unsafe { EnumType(int(v)) }`. If the protobuf wire contains an integer that doesn't correspond to any enum variant, it's silently cast to an invalid enum value. Downstream code comparing against named variants will silently miss.
-
-**Fix needed:** Add a helper function that validates the integer is within the enum's known range before casting. Return a default (zero value) and signal the issue when out of range.
+### 13. Enum values not validated — ✅ Fixed
+Added `valid_enum_int(valid_values, v)` helper that checks the varint against the enum's known valid integer set before casting. All 116 generated enum casts use this helper with the enum-specific valid values list. Invalid values silently become 0.
 
 ### 14. No pure-V protobuf serialization
 Only decode (protobuf → V AST) is implemented in pure V. The reverse direction (V AST → protobuf) still uses the C library via `deparse_protobuf()`. There is no pure-V encoder generated from the proto schema.
 
 **Fix needed:** Generate `encode_*` functions parallel to `decode_*` that serialize each message back to protobuf wire format.
 
-### 15. No typed decoding for ScanResult / SummaryResult
-`ScanResult` and `SummaryResult` message types are excluded from auto-generation (`skip_names`). The `scan()` and `summary()` functions return raw `Protobuf` bytes. Users who want typed `ScanToken` or `SummaryResult.Table` data must decode the bytes manually.
+### 15. No typed decoding for ScanResult / SummaryResult — ✅ Fixed
+`ScanResult` and `SummaryResult` are no longer in `skip_names`. Their V struct types and protobuf decode functions are generated. `scan()` and `summary()` now return fully decoded typed results (`ScanResult{version, tokens}` and `SummaryResult{tables, aliases, cte_names, functions, filter_columns, statement_types, truncated_query}`).
 
-**Fix needed:** Remove these from `skip_names` and generate proper decode functions. Requires handling `SummaryResult`'s nested enum/message types and `map<string, string>` field.
+### 16. Map fields not supported — ✅ Fixed
+The proto parser now handles `map<K, V>` field syntax, storing key/value type info. A `read_map_string_entry` helper decodes protobuf map entry submessages. The generated decode builds V `map[string]string` fields lazily.
 
-### 16. Map fields not supported
-The proto parser cannot parse `map<K, V>` field syntax. Only one field in the entire schema uses this (`SummaryResult.aliases`), but it blocks typed decoding of `SummaryResult`. The parser sees `map<string,` as the field type and fails to parse subsequent fields correctly.
-
-**Fix needed:** Extend the proto parser to handle `map<K, V>` syntax, either by treating it as a special field type or by expanding it to the equivalent `repeated MapEntry` pattern.
-
-### 17. Nested type definitions not supported
-The proto parser expects flat message and enum definitions. `SummaryResult` contains embedded types (`enum Context`, `message Table`) which the parser cannot handle. These types are skipped entirely.
-
-**Fix needed:** Extend the proto parser to collect nested types and flatten them with qualified names (e.g. `SummaryResult_Context`, `SummaryResult_Table`).
+### 17. Nested type definitions not supported — ✅ Fixed
+The proto parser now handles nested `enum` and `message` definitions inside messages. Nested types are qualified with the parent message name (e.g. `SummaryResult_Context`, `SummaryResult_Table`). Field type references within the parent scope are automatically resolved to qualified names.
 
 ### 18. Proto parser is minimal
 The hand-written proto parser in `tools/gen_ast.v` handles the pg_query.proto schema but doesn't support:

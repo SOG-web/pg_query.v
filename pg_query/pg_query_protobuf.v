@@ -180,3 +180,32 @@ fn read_packed_svarints(buf []u8, offset int) ([]i64, int) {
 	}
 	return vals, consumed
 }
+
+// read_map_string_entry decodes a single protobuf map entry submessage
+// for map<string, string>. Returns (key, value) strings.
+fn read_map_string_entry(buf []u8) (string, string) {
+	mut key := ''
+	mut val := ''
+	mut off := 0
+	for off < buf.len {
+		field_num, wire_type, c := read_tag(buf, off)
+		off += c
+		match field_num {
+			1 {
+				s, c2 := read_string(buf, off)
+				key = s
+				off += c2
+			}
+			2 {
+				s, c2 := read_string(buf, off)
+				val = s
+				off += c2
+			}
+			else {
+				c2 := skip_field(buf, off, wire_type)
+				off += c2
+			}
+		}
+	}
+	return key, val
+}

@@ -1283,12 +1283,18 @@ pub enum Token {
 	uminus = 778
 }
 
-pub enum SummaryContext {
+pub enum SummaryResultContext {
 	none = 0
 	select = 1
 	dml = 2
 	ddl = 3
 	call = 4
+}
+
+pub struct ScanResult {
+pub mut:
+	version int
+	tokens []ScanToken
 }
 
 pub struct Integer {
@@ -3758,6 +3764,40 @@ pub mut:
 	end int
 	token Token
 	keyword_kind KeywordKind
+}
+
+pub struct SummaryResultTable {
+pub mut:
+	name string
+	schema_name string
+	table_name string
+	context SummaryResultContext
+}
+
+pub struct SummaryResultFunction {
+pub mut:
+	name string
+	function_name string
+	schema_name string
+	context SummaryResultContext
+}
+
+pub struct SummaryResultFilterColumn {
+pub mut:
+	schema_name string
+	table_name string
+	column string
+}
+
+pub struct SummaryResult {
+pub mut:
+	tables []SummaryResultTable
+	aliases map[string]string
+	cte_names []string
+	functions []SummaryResultFunction
+	filter_columns []SummaryResultFilterColumn
+	statement_types []string
+	truncated_query string
 }
 
 // UnrecognizedNode holds raw data for an unknown Node variant.
