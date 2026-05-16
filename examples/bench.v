@@ -84,4 +84,31 @@ fn main() {
 	}
 	elapsed = time.since(start)
 	println('  normalize() → anonymized SQL       ${f64(elapsed.microseconds()) / f64(total_ops):8.2f} us/op  (${elapsed.milliseconds()} ms)')
+
+	// --- V-native protobuf encode (pure V, no C) ---
+	start = time.now()
+	for _ in 0 .. n {
+		for q in queries {
+			res := pg_query.parse_protobuf_ast(q) or { panic(err) }
+			pb := pg_query.encode_parse_result(res)
+			_ = pb
+		}
+	}
+	elapsed = time.since(start)
+	println('  encode_parse_result() → protobuf    ${f64(elapsed.microseconds()) / f64(total_ops):8.2f} us/op  (${elapsed.milliseconds()} ms)')
+
+	// --- Deparse roundtrip (V encode + C deparse) ---
+	start = time.now()
+	for _ in 0 .. n {
+		for q in queries {
+			s := pg_query.deparse_ast(pg_query.parse_protobuf_ast(q) or { panic(err) }) or { panic(err) }
+			_ = s
+		}
+	}
+	elapsed = time.since(start)
+	println('  deparse_ast() → SQL (encode+deparse) ${f64(elapsed.microseconds()) / f64(total_ops):8.2f} us/op  (${elapsed.milliseconds()} ms)')
+
+	println('')
+	println('Note: deparse_ast() calls encode_parse_result() internally,')
+	println('so deparse_ast latency = encode + C deparse overhead.')
 }
