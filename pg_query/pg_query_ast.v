@@ -4035,7 +4035,7 @@ pub struct JsonNode {
 	a_const ?AConst
 }
 
-fn decode_node(jn JsonNode) !Node {
+fn decode_node_json(jn JsonNode) !Node {
 	if n := jn.alias {
 		return n
 	}
@@ -4879,7 +4879,7 @@ pub fn parse_ast(input_sql string) !ParseAstResult {
 		stmts << AstRawStmt{
 			stmt_location: s.stmt_location
 			stmt_len: s.stmt_len
-			stmt: decode_node(s.stmt)!
+			stmt: decode_node_json(s.stmt)!
 		}
 	}
 	return ParseAstResult{

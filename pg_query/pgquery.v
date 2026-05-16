@@ -195,6 +195,30 @@ pub fn parse_protobuf(input string) !ParseResultProtobuf {
 	}
 }
 
+// Parse SQL and return a typed V AST (protobuf decode path, no JSON).
+pub fn parse_protobuf_ast(input string) !ParseAstResult {
+	res := C.pg_query_parse_protobuf(input.str)
+	if pe := pg_error_from(res.error) {
+		C.pg_query_free_protobuf_parse_result(res)
+		return pe
+	}
+	buf := protobuf_to_bytes(res.parse_tree)
+	C.pg_query_free_protobuf_parse_result(res)
+	return decode_parse_result(buf)
+}
+
+// Parse SQL with options and return a typed V AST (protobuf decode path, no JSON).
+pub fn parse_protobuf_ast_opts(input string, parser_options int) !ParseAstResult {
+	res := C.pg_query_parse_protobuf_opts(input.str, parser_options)
+	if pe := pg_error_from(res.error) {
+		C.pg_query_free_protobuf_parse_result(res)
+		return pe
+	}
+	buf := protobuf_to_bytes(res.parse_tree)
+	C.pg_query_free_protobuf_parse_result(res)
+	return decode_parse_result(buf)
+}
+
 // Parse SQL with options and return Protobuf parse tree.
 pub fn parse_protobuf_opts(input string, parser_options int) !ParseResultProtobuf {
 	res := C.pg_query_parse_protobuf_opts(input.str, parser_options)
@@ -444,6 +468,17 @@ pub fn pg_version_num() int {
 }
 
 // --- internal helpers ---
+
+fn protobuf_to_bytes(cpb C.PgQueryProtobuf) []u8 {
+	if cpb.len == 0 || cpb.data == unsafe { nil } {
+		return []
+	}
+	mut bytes := []u8{len: int(cpb.len)}
+	for i in 0 .. cpb.len {
+		bytes[i] = u8(unsafe { cpb.data[i] })
+	}
+	return bytes
+}
 
 fn protobuf_from_c(cpb C.PgQueryProtobuf) Protobuf {
 	if cpb.len == 0 || cpb.data == unsafe { nil } {

@@ -21,7 +21,7 @@ fn main() {
 	for _ in 0 .. 10 {
 		pg_query.parse('SELECT 1') or { panic(err) }
 		pg_query.parse_protobuf('SELECT 1') or { panic(err) }
-		pg_query.parse_ast_direct('SELECT 1') or { panic(err) }
+		pg_query.parse_protobuf_ast('SELECT 1') or { panic(err) }
 	}
 
 	// --- JSON path ---
@@ -44,15 +44,15 @@ fn main() {
 	elapsed = time.since(start)
 	println('  parse_protobuf() → raw bytes       ${f64(elapsed.microseconds()) / f64(total_ops):8.2f} us/op  (${elapsed.milliseconds()} ms)')
 
-	// --- Typed AST path (C bridge) ---
-	start = time.now()
-	for _ in 0 .. n {
-		for q in queries {
-			pg_query.parse_ast_direct(q) or { panic(err) }
+		// --- Typed AST path (V-native protobuf decode) ---
+		start = time.now()
+		for _ in 0 .. n {
+			for q in queries {
+				pg_query.parse_protobuf_ast(q) or { panic(err) }
+			}
 		}
-	}
-	elapsed = time.since(start)
-	println('  parse_ast_direct() → typed AST     ${f64(elapsed.microseconds()) / f64(total_ops):8.2f} us/op  (${elapsed.milliseconds()} ms)')
+		elapsed = time.since(start)
+		println('  parse_protobuf_ast() → typed AST    ${f64(elapsed.microseconds()) / f64(total_ops):8.2f} us/op  (${elapsed.milliseconds()} ms)')
 
 	// --- Fingerprint (fastest path) ---
 	start = time.now()

@@ -17,7 +17,7 @@ V wrapper for [libpg_query](https://github.com/pganalyze/libpg_query) — a C li
 - ✅ **Utility statement** detection
 - ✅ **Summary** extraction
 - ✅ Structured errors with full Postgres parser metadata
-- ✅ **Typed AST** — walks the full protobuf tree and converts every node to V sum types
+- ✅ **Typed AST** — V-native protobuf wire decoder converts every node to V sum types (no C bridge)
 
 ## Requirements
 
@@ -35,7 +35,7 @@ cd pg_query.v
 # Build the static C library (requires Internet — downloads Postgres 17.7 source)
 make -C libpg_query build
 
-# Build C bridge objects
+# Build the C helper object
 make build
 
 # Verify everything works
@@ -48,8 +48,8 @@ v test pg_query/
 import pg_query
 
 fn main() {
-    // Parse SQL to typed V AST (no JSON/protobuf intermediates)
-    result := pg_query.parse_ast_direct('SELECT id, name FROM users WHERE age > 21') or {
+    // Parse SQL to typed V AST (no JSON intermediates — pure protobuf decode)
+    result := pg_query.parse_protobuf_ast('SELECT id, name FROM users WHERE age > 21') or {
         eprintln('Parse error: ${err}')
         return
     }
@@ -76,14 +76,14 @@ A dedicated concurrency stress test is at [examples/concurrent_parse.v](examples
 | `parse_protobuf_opts(input, opts)` | `!ParseResultProtobuf` | Same with options |
 | `parse_plpgsql(input)` | `!PlpgsqlParseResult` | Parse PL/pgSQL function |
 
-### Parsing — typed AST (new)
+### Parsing — typed AST (V-native protobuf decode)
 
 | Function | Returns | Description |
 |---|---|---|
-| `parse_ast_direct(input)` | `!ParseAstResult` | Parse SQL → typed V AST structs |
-| `parse_ast_direct_opts(input, opts)` | `!ParseAstResult` | Same with parser options |
+| `parse_protobuf_ast(input)` | `!ParseAstResult` | Parse SQL → typed V AST structs |
+| `parse_protobuf_ast_opts(input, opts)` | `!ParseAstResult` | Same with parser options |
 
-These skip JSON/protobuf entirely — the C bridge converts directly to V-compatible C structs, and the V pluck layer wraps them into typed `Node` sum types. Every node in the Postgres grammar (272 message types) is converted.
+These call `pg_query_parse_protobuf()` from C and decode the protobuf bytes entirely in V — no intermediate JSON, no C bridge structs. The generated decoder (`pg_query_decode.v`) walks the wire format directly for all 272+ message types.
 
 ### Normalize & Fingerprint
 
@@ -146,7 +146,7 @@ parse('SELECT $$$') or {
 # Build C library
 make -C libpg_query build
 
-# Build C bridge objects
+# Build the C helper object (only c_bridge.c remains)
 make build
 
 # Run tests
@@ -155,31 +155,31 @@ v test pg_query/
 # Run examples
 v run examples/parse_sql.v
 
-# Or for faster builds, compile once with -o (avoids recompiling the large generated C bridge):
+# Or pre-compile for faster startup:
 v -o examples/parse_sql examples/parse_sql.v && ./examples/parse_sql
 v -o examples/concurrent_parse examples/concurrent_parse.v && ./examples/concurrent_parse
 v -o examples/bench examples/bench.v && ./examples/bench
 
-# Rebuild C bridge (after editing c_bridge.c or protobuf_bridge.c)
+# Rebuild C helper (after editing c_bridge.c)
 cc -c -I libpg_query pg_query/c_bridge.c -o pg_query/c_bridge.o
-cc -c -I libpg_query -I libpg_query/vendor pg_query/protobuf_bridge.c -o pg_query/protobuf_bridge.o
 ```
 
 ## How it works
 
-The library bundles [libpg_query](https://github.com/pganalyze/libpg_query) (version 6.2.2, wrapping PostgreSQL 17.7), pre-built as a static archive (`libpg_query.a`). The V wrapper in `pg_query/` has four layers:
+The library bundles [libpg_query](https://github.com/pganalyze/libpg_query) (version 6.2.2, wrapping PostgreSQL 17.7), pre-built as a static archive (`libpg_query.a`). The V wrapper in `pg_query/` has these layers:
 
 | Layer | Files | Role |
 |---|---|---|
 | **C bindings** | `pgquery.c.v` | `#flag` / `#include` declarations for the C ABI |
-| **V wrapper** | `pgquery.v` | Safe `!` result types for JSON, protobuf, normalise, fingerprint, etc. |
-| **C bridge** | `c_bridge.c`, `protobuf_bridge.c` | Unpack protobuf into V-compatible C structs |
-| **V pluck layer** | `pg_query_pluck.v` (generated) | 272 `c_to_*` functions converting C structs → typed `Node` sum types |
+| **V wrapper** | `pgquery.v` | Safe `!` result types for JSON, protobuf, normalize, fingerprint, etc. |
+| **C helpers** | `c_bridge.c` | Thin C helpers for deparse opts, split, version strings |
+| **Protobuf decoder** | `pg_query_protobuf.v` | V-native protobuf wire-format helpers (varint, tag, fixed32/64) |
+| **Generated decoders** | `pg_query_decode.v` (generated) | 270+ per-message `decode_*` functions walking the protobuf wire format directly |
 
-All AST struct definitions, the C header, the C bridge, and the V pluck layer are **code-generated** from the protobuf schema by `tools/gen_ast.v`.
+All AST struct definitions (`pg_query_ast.v`) and the protobuf decoders (`pg_query_decode.v`) are **code-generated** from the protobuf schema by `tools/gen_ast.v`.
 
 ```
-SQL → libpg_query → protobuf → C bridge → V-compatible C structs → V pluck → typed Node
+SQL → libpg_query → protobuf bytes → V-native wire decoder → typed Node
 ```
 
 See [v-and-c-integration.md](v-and-c-integration.md) for more on V/C interop patterns used.
@@ -197,13 +197,16 @@ See [v-and-c-integration.md](v-and-c-integration.md) for more on V/C interop pat
 Thread safety has been verified at 120k parses across 10 concurrent workers with 0 errors
 (see [examples/concurrent_parse.v](examples/concurrent_parse.v) and [docs/design.md](docs/design.md)).
 
-Performance comparison (6-query mix, M2 MacBook Air):
+Performance comparison (6-query mix × 1000, M2 MacBook Air):
 
 | Path | Latency | Use |
 |---|---|---|
-| `normalize()` | 10 us/op | Anonymize for logging |
-| `fingerprint()` | 24 us/op | Route by query structure hash |
-| `parse_ast_direct()` | 135 us/op | Shard key / table extraction |
+| `normalize()` | ~4 us/op | Anonymize for logging |
+| `fingerprint()` | ~10 us/op | Route by query structure hash |
+| `parse()` (JSON) | ~6 us/op | Full parse tree as string |
+| `parse_protobuf_ast()` (typed) | ~35 us/op | Shard key / table extraction |
+
+The V-native protobuf decoder is ~**2× faster** than the old JSON+ast path and eliminates the C bridge entirely — no `protobuf_bridge.c`, no `pg_query_pluck.v`, no intermediate C structs.
 
 You would still need to build the networking (TLS, PostgreSQL wire protocol), connection pooling, and load-balancing layers yourself — `pg_query.v` is the parser component, not a proxy.
 

@@ -8,7 +8,7 @@ const queries = ['SELECT 1', 'SELECT 2; SELECT 3', 'CREATE TABLE t (id int)',
 	'SELECT * FROM t WHERE id = 42 AND name = $1']
 
 fn parse_single(input string) string {
-	res := pg_query.parse_ast_direct(input) or { return 'ERROR: ${err}' }
+	res := pg_query.parse_protobuf_ast(input) or { return 'ERROR: ${err}' }
 	return '${input} -> ${res.stmts.len} stmt(s)'
 }
 
@@ -18,7 +18,7 @@ fn worker(id int, n int) string {
 	start := time.now()
 	for _ in 0 .. n {
 		for q in queries {
-			res := pg_query.parse_ast_direct(q) or {
+			res := pg_query.parse_protobuf_ast(q) or {
 				errs++
 				continue
 			}

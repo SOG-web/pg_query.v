@@ -5,11 +5,8 @@ module pg_query
 #flag -I @VMODROOT/libpg_query/vendor
 #flag @VMODROOT/libpg_query/libpg_query.a
 #flag @VMODROOT/pg_query/c_bridge.o
-#flag @VMODROOT/pg_query/protobuf_bridge.o
 #include "pg_query.h"
-#include "pg_query_ast_c.h"
 #include "c_bridge.h"
-#include "protobuf_bridge.h"
 
 @[typedef]
 pub struct C.PgQueryError {

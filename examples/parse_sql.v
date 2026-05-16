@@ -55,13 +55,13 @@ fn print_select(s pg_query.SelectStmt) {
 }
 
 fn parse_single(input string) string {
-	res := pg_query.parse_ast_direct(input) or { return 'ERROR: ${err}' }
+	res := pg_query.parse_protobuf_ast(input) or { return 'ERROR: ${err}' }
 	return '${input} -> ${res.stmts.len} statement(s)'
 }
 
 fn main() {
 	// ── 1. Typed AST with tree traversal ──
-	result := pg_query.parse_ast_direct('SELECT id, name FROM users WHERE age > 21') or {
+	result := pg_query.parse_protobuf_ast('SELECT id, name FROM users WHERE age > 21') or {
 		eprintln('Parse error: ${err}')
 		return
 	}

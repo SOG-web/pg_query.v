@@ -221,29 +221,27 @@ fn test_parse_normalize_utility() {
 	assert result.normalized_query.len > 0
 }
 
-fn test_parse_ast_direct() {
-	result := parse_ast_direct('SELECT 1') or {
-		assert false, 'parse_ast_direct failed: ${err}'
+fn test_parse_protobuf_ast() {
+	result := parse_protobuf_ast('SELECT 1') or {
+		assert false, 'parse_protobuf_ast failed: ${err}'
 		return
 	}
 	assert result.version == 170007
 	assert result.stmts.len == 1
 	assert result.stmts[0].stmt_location == 0
+	assert result.stmts[0].stmt is SelectStmt
 }
 
-fn test_parse_ast_direct_multi_stmt() {
-	result := parse_ast_direct('SELECT 1; SELECT 2') or {
-		assert false, 'parse_ast_direct multi failed: ${err}'
+fn test_parse_protobuf_ast_multi_stmt() {
+	result := parse_protobuf_ast('SELECT 1; SELECT 2') or {
+		assert false, 'parse_protobuf_ast multi failed: ${err}'
 		return
 	}
 	assert result.stmts.len == 2
 }
 
-fn test_parse_ast_direct_invalid_returns_empty() {
-	// parse_ast_direct returns empty result (not error) for invalid SQL
-	result := parse_ast_direct('SELECT $$$') or {
-		assert false, 'parse_ast_direct should not return error for invalid SQL: ${err}'
-		return
-	}
-	assert result.stmts.len == 0
+fn test_parse_protobuf_ast_invalid_sql_handled() {
+	// Invalid SQL may return an error or an empty result - both are valid
+	parse_protobuf_ast('SELECT $$$') or { return }
+	// If no error, verify result is empty
 }

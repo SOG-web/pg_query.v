@@ -20,8 +20,8 @@ fn bench(label string, n int, fn_name string) {
 			'parse_json' {
 				pg_query.parse(sql_select1) or { continue }
 			}
-			'parse_ast_direct' {
-				pg_query.parse_ast_direct(sql_select1) or { continue }
+			'parse_protobuf_ast' {
+				pg_query.parse_protobuf_ast(sql_select1) or { continue }
 			}
 			'fingerprint_select2' {
 				pg_query.fingerprint("SELECT 1 FROM x WHERE y IN ('a', 'b', 'c')") or { continue }
@@ -32,8 +32,8 @@ fn bench(label string, n int, fn_name string) {
 			'parse_json_select2' {
 				pg_query.parse("SELECT 1 FROM x WHERE y IN ('a', 'b', 'c')") or { continue }
 			}
-			'parse_ast_direct_select2' {
-				pg_query.parse_ast_direct("SELECT 1 FROM x WHERE y IN ('a', 'b', 'c')") or { continue }
+			'parse_protobuf_ast_select2' {
+				pg_query.parse_protobuf_ast("SELECT 1 FROM x WHERE y IN ('a', 'b', 'c')") or { continue }
 			}
 			else {}
 		}
@@ -51,11 +51,11 @@ fn main() {
 	bench('fingerprint      ', n_iter, 'fingerprint')
 	bench('normalize        ', n_iter, 'normalize')
 	bench('parse (JSON)     ', n_iter, 'parse_json')
-	bench('parse_ast_direct ', n_iter, 'parse_ast_direct')
+	bench('parse_protobuf_ast ', n_iter, 'parse_protobuf_ast')
 
 	println('\n=== SELECT with WHERE+IN ===')
 	bench('fingerprint      ', n_iter, 'fingerprint_select2')
 	bench('normalize        ', n_iter, 'normalize_select2')
 	bench('parse (JSON)     ', n_iter, 'parse_json_select2')
-	bench('parse_ast_direct ', n_iter, 'parse_ast_direct_select2')
+	bench('parse_protobuf_ast ', n_iter, 'parse_protobuf_ast_select2')
 }
