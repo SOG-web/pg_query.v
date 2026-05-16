@@ -33,6 +33,28 @@ pub fn (pb Protobuf) bytes() []u8 {
 	return pb.data.bytes()
 }
 
+// encode_ast serializes a ParseAstResult back to protobuf wire format.
+// The returned Protobuf can be passed to deparse_protobuf() for SQL deparsing.
+pub fn encode_ast(result ParseAstResult) Protobuf {
+	buf := encode_parse_result(result)
+	return protobuf_from_bytes(buf)
+}
+
+// deparse_ast encodes a ParseAstResult to protobuf and deparses it back to SQL.
+// Returns the deparsed SQL string on success.
+pub fn deparse_ast(result ParseAstResult) !string {
+	pb := encode_ast(result)
+	res := deparse_protobuf(pb) or { return err }
+	return res.query
+}
+
+fn protobuf_from_bytes(buf []u8) Protobuf {
+	return Protobuf{
+		len: usize(buf.len)
+		data: buf.bytestr()
+	}
+}
+
 pub struct NormalizeResult {
 pub:
 	normalized_query string

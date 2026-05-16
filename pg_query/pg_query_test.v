@@ -9,6 +9,95 @@ fn test_parse_simple() {
 	assert result.parse_tree.contains('SelectStmt')
 }
 
+fn test_encode_roundtrip() {
+	queries := ['SELECT 1', 'SELECT a + b FROM t WHERE c = 1', 'CREATE TABLE t (id int)',
+		'INSERT INTO t VALUES (1, 2, 3)', 'SELECT * FROM t1 JOIN t2 ON t1.id = t2.id']
+	for q in queries {
+		result := parse_protobuf_ast(q) or {
+			assert false, 'parse failed: ${err}'
+			return
+		}
+		buf := encode_parse_result(result)
+		assert buf.len > 0
+		result2 := decode_parse_result(buf)
+		assert result2.stmts.len == result.stmts.len
+	}
+}
+
+fn test_encode_decode_roundtrip() {
+	queries := ['SELECT 1', 'SELECT a + b FROM t WHERE c = 1', 'CREATE TABLE t (id int)',
+		'INSERT INTO t VALUES (1, 2, 3)']
+	for q in queries {
+		parse_pb := parse_protobuf(q) or {
+			assert false, 'parse failed: ${err}'
+			return
+		}
+		result := decode_parse_result(parse_pb.parse_tree.bytes())
+		buf := encode_parse_result(result)
+		// V round-trip: decode the encoded bytes
+		result2 := decode_parse_result(buf)
+		assert result2.stmts.len == result.stmts.len
+	}
+}
+
+
+
+fn test_deparse_select1() {
+	result := parse_protobuf_ast('SELECT 1') or { assert false; return }
+	deparsed := deparse_ast(result) or { assert false; return }
+	assert deparsed.len > 0
+}
+
+fn test_deparse_select_plus() {
+	result := parse_protobuf_ast('SELECT a + b FROM t WHERE c = 1') or { assert false; return }
+	buf := encode_parse_result(result)
+	v_pb := Protobuf{len: usize(buf.len), data: buf.bytestr()}
+	deparsed := deparse_protobuf(v_pb) or { assert false; return }
+	assert deparsed.query.len > 0
+}
+
+fn test_deparse_create_table() {
+	result := parse_protobuf_ast('CREATE TABLE t (id int)') or { assert false; return }
+	deparsed := deparse_ast(result) or { assert false; return }
+	assert deparsed.len > 0
+}
+
+fn test_deparse_insert() {
+	result := parse_protobuf_ast('INSERT INTO t VALUES (1, 2, 3)') or { assert false; return }
+	deparsed := deparse_ast(result) or { assert false; return }
+	assert deparsed.len > 0
+}
+
+fn test_deparse_join() {
+	result := parse_protobuf_ast('SELECT * FROM t1 JOIN t2 ON t1.id = t2.id') or { assert false; return }
+	deparsed := deparse_ast(result) or { assert false; return }
+	assert deparsed.len > 0
+}
+
+fn test_deparse_update() {
+	result := parse_protobuf_ast('UPDATE t SET a = 1 WHERE b = 2') or { assert false; return }
+	deparsed := deparse_ast(result) or { assert false; return }
+	assert deparsed.len > 0
+}
+
+fn test_deparse_delete() {
+	result := parse_protobuf_ast('DELETE FROM t WHERE id = 1') or { assert false; return }
+	deparsed := deparse_ast(result) or { assert false; return }
+	assert deparsed.len > 0
+}
+
+fn test_deparse_ast_select1() {
+	result := parse_protobuf_ast('SELECT 1') or {
+		assert false, 'parse failed: ${err}'
+		return
+	}
+	deparsed := deparse_ast(result) or {
+		assert false, 'deparse failed: ${err}'
+		return
+	}
+	assert deparsed.len > 0
+}
+
 fn test_parse_invalid() {
 	result := parse('SELECT $$$') or {
 		if err is PgError {

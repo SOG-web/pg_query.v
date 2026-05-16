@@ -181,6 +181,132 @@ fn read_packed_svarints(buf []u8, offset int) ([]i64, int) {
 	return vals, consumed
 }
 
+// ---------------------------------------------------------------------------
+// Protobuf wire format write helpers (used by generated pg_query_encode.v)
+// ---------------------------------------------------------------------------
+
+// write_tag returns the encoded tag bytes for a field number and wire type.
+fn write_tag(field_num int, wire_type int) []u8 {
+	return write_varint((u64(field_num) << 3) | u64(wire_type))
+}
+
+// write_varint encodes a u64 as a protobuf varint.
+fn write_varint(v u64) []u8 {
+	mut val := v
+	mut buf := []u8{}
+	for {
+		mut b := u8(val & 0x7F)
+		val >>= 7
+		if val != 0 {
+			b |= 0x80
+		}
+		buf << b
+		if val == 0 {
+			break
+		}
+	}
+	return buf
+}
+
+// write_svarint encodes an i64 as a signed zigzag varint.
+fn write_svarint(v i64) []u8 {
+	// zigzag encode: (v << 1) ^ (v >> 63)
+	encoded := (u64(v) << 1) ^ u64(v >> 63)
+	return write_varint(encoded)
+}
+
+// write_fixed32 encodes a u32 as little-endian 4 bytes.
+fn write_fixed32(val u32) []u8 {
+	return [u8(val), u8(val >> 8), u8(val >> 16), u8(val >> 24)]
+}
+
+// write_fixed64 encodes a u64 as little-endian 8 bytes.
+fn write_fixed64(val u64) []u8 {
+	return [u8(val), u8(val >> 8), u8(val >> 16), u8(val >> 24),
+		u8(val >> 32), u8(val >> 40), u8(val >> 48), u8(val >> 56)]
+}
+
+// write_float encodes a f32 as 4 bytes.
+fn write_float(val f32) []u8 {
+	mut bits := u32(0)
+	unsafe { C.memcpy(&bits, &val, 4) }
+	return write_fixed32(bits)
+}
+
+// write_double encodes a f64 as 8 bytes.
+fn write_double(val f64) []u8 {
+	mut bits := u64(0)
+	unsafe { C.memcpy(&bits, &val, 8) }
+	return write_fixed64(bits)
+}
+
+// write_bool encodes a bool as a varint (0 or 1).
+fn write_bool(val bool) []u8 {
+	if val { return [u8(1)] }
+	return [u8(0)]
+}
+
+// write_string encodes a string as length-delimited bytes.
+fn write_string(s string) []u8 {
+	len_bytes := write_varint(u64(s.len))
+	mut buf := len_bytes.clone()
+	buf << s.bytes()
+	return buf
+}
+
+// write_bytes encodes a []u8 as length-delimited bytes.
+fn write_bytes(b []u8) []u8 {
+	len_bytes := write_varint(u64(b.len))
+	mut buf := len_bytes.clone()
+	buf << b
+	return buf
+}
+
+// write_length_delimited wraps submessage/bytes with a length prefix.
+fn write_length_delimited(sub []u8) []u8 {
+	len_bytes := write_varint(u64(sub.len))
+	mut buf := len_bytes.clone()
+	buf << sub
+	return buf
+}
+
+// write_packed_varints packs multiple varints into a length-delimited wrapper.
+fn write_packed_varints(vals []u64) []u8 {
+	mut payload := []u8{}
+	for v in vals {
+		payload << write_varint(v)
+	}
+	len_bytes := write_varint(u64(payload.len))
+	mut buf := len_bytes.clone()
+	buf << payload
+	return buf
+}
+
+// write_packed_svarints packs multiple zigzag varints into a length-delimited wrapper.
+fn write_packed_svarints(vals []i64) []u8 {
+	mut payload := []u8{}
+	for v in vals {
+		payload << write_svarint(v)
+	}
+	len_bytes := write_varint(u64(payload.len))
+	mut buf := len_bytes.clone()
+	buf << payload
+	return buf
+}
+
+// write_map_string_entry encodes a single map<string, string> entry as a submessage.
+fn write_map_string_entry(key string, val string) []u8 {
+	mut entry := []u8{}
+	entry << write_tag(1, wt_len)
+	entry << write_string(key)
+	entry << write_tag(2, wt_len)
+	entry << write_string(val)
+	len_bytes := write_varint(u64(entry.len))
+	mut buf := len_bytes.clone()
+	buf << entry
+	return buf
+}
+
 // read_map_string_entry decodes a single protobuf map entry submessage
 // for map<string, string>. Returns (key, value) strings.
 fn read_map_string_entry(buf []u8) (string, string) {

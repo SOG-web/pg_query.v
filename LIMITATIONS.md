@@ -43,10 +43,10 @@ All `decode_*` functions now accept a `depth int` parameter. `decode_parse_resul
 ### 13. Enum values not validated — ✅ Fixed
 Added `valid_enum_int(valid_values, v)` helper that checks the varint against the enum's known valid integer set before casting. All 116 generated enum casts use this helper with the enum-specific valid values list. Invalid values silently become 0.
 
-### 14. No pure-V protobuf serialization
-Only decode (protobuf → V AST) is implemented in pure V. The reverse direction (V AST → protobuf) still uses the C library via `deparse_protobuf()`. There is no pure-V encoder generated from the proto schema.
+### 14. No pure-V protobuf serialization — ✅ Fixed
+Generated `encode_*` functions for all 276 message types in `pg_query_encode.v` (240KB) that serialize V structs back to protobuf wire format. The `encode_parse_result()` entry point produces bytes compatible with the C `pg_query_deparse_protobuf` bridge. The `encode_ast()` and `deparse_ast()` convenience functions enable a complete "parse → modify → deparse" round-trip in pure V (deparse still uses the C bridge, but the protobuf is V-produced).
 
-**Fix needed:** Generate `encode_*` functions parallel to `decode_*` that serialize each message back to protobuf wire format.
+Zero-value fields are omitted per protobuf spec. The first Node sum type variant (`Alias`) is skipped when all fields are zero ("not set"); all other variants are always encoded.
 
 ### 15. No typed decoding for ScanResult / SummaryResult — ✅ Fixed
 `ScanResult` and `SummaryResult` are no longer in `skip_names`. Their V struct types and protobuf decode functions are generated. `scan()` and `summary()` now return fully decoded typed results (`ScanResult{version, tokens}` and `SummaryResult{tables, aliases, cte_names, functions, filter_columns, statement_types, truncated_query}`).
