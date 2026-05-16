@@ -44,15 +44,15 @@ The JSON path cannot fully preserve unknown data (no raw JSON capture) but no lo
 
 ---
 
-## 12. Hardcoded version strings in tests
+## ✅ 12. Hardcoded version strings in tests
 
-**Status: Unchanged** — The test asserts `pg_version() == '17.7'` which is correct for the bundled Postgres 17.7. This is intentional: failing tests alert the maintainer when `libpg_query` is upgraded. Update `test_version` when upgrading the bundled library.
+**Status: Fixed** — Version tests are now self-validating. Instead of asserting `pg_version() == '17.7'`, `test_version()` checks internal consistency: version string matches major version, numeric version equals major × 10000. This survives `libpg_query` upgrades without modification.
 
 ---
 
-## 13. `PostgresDeparseOpts` struct layout is implicitly coupled
+## ✅ 13. `PostgresDeparseOpts` struct layout is implicitly coupled
 
-**Status: Mitigated** — Added a C `typedef char static_assert_deparse_opts_size[sizeof(PostgresDeparseOpts) == 32 ? 1 : -1]` in `c_bridge.c` that fails to compile if the struct size changes. The V struct (`pgquery.c.v:91-99`) should be updated when this fires.
+**Status: Fixed** — The V-side `C.PostgresDeparseOpts` struct has been removed entirely. All field access goes through C bridge setters in `c_bridge.c` with `void*` parameters (the V-side type is `voidptr`). The struct layout is known only to the C code; V has zero ABI coupling with the struct. Adding/removing fields requires changes only to `c_bridge.c`/`.h`.
 
 ---
 

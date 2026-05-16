@@ -20,6 +20,8 @@ V wrapper for [libpg_query](https://github.com/pganalyze/libpg_query) — a C li
 - ✅ **Typed AST** — V-native protobuf wire decoder converts every node to V sum types (no C bridge)
 - ✅ **AST serialization** — `encode_parse_result()` produces protobuf bytes from V structs (pure V)
 - ✅ **Query rewriting** — parse → modify V AST structs → serialize → deparse back to SQL
+- ✅ **Debug printing** — every AST node has `str()` via generated methods; `println(node.stmt)` works on any Node
+- ✅ **Forward-compatible decoding** — unknown node types produce `UnrecognizedNode{field_num, data}` instead of errors
 - ✅ **JSON-to-AST** — `parse_json_ast()` decodes any JSON parse tree into typed V structs
 
 ## Requirements
@@ -112,7 +114,7 @@ See [examples/query_rewrite.v](examples/query_rewrite.v) for table rename, WHERE
 |---|---|---|
 | `parse_protobuf_ast(input)` | `!ParseAstResult` | Parse SQL → typed V AST (protobuf decode path) |
 | `parse_protobuf_ast_opts(input, opts)` | `!ParseAstResult` | Same with parser options |
-| `parse_ast(input)` | `!ParseAstResult` | Parse SQL → typed V AST (JSON decode path) |
+| `parse_ast(input)` | `!ParseAstResult` | Deprecated: use `parse_protobuf_ast()` (~3× faster) |
 | `parse_json_ast(json)` | `!ParseAstResult` | Decode any JSON parse tree → typed V AST |
 
 The protobuf-ast functions call `pg_query_parse_protobuf()` from C and decode bytes entirely in V — no intermediate JSON, no C bridge structs. 270+ generated `decode_*` functions walk the wire format directly.
@@ -123,6 +125,8 @@ The protobuf-ast functions call `pg_query_parse_protobuf()` from C and decode by
 |---|---|---|
 | `encode_parse_result(val)` | `[]u8` | Serialize AST to protobuf bytes (pure V) |
 | `encode_ast(result)` | `Protobuf` | Wrapper returning a `Protobuf` for `deparse_protobuf` |
+| `encode_scan(result)` | `Protobuf` | Serialize ScanResult to protobuf bytes (pure V) |
+| `encode_summary(result)` | `Protobuf` | Serialize SummaryResult to protobuf bytes (pure V) |
 | `deparse_ast(result)` | `!string` | Shortcut: encode + deparse in one call |
 | `deparse_protobuf(pb)` | `!DeparseResult` | Protobuf → SQL string |
 | `deparse_protobuf_opts(pb, opts)` | `!DeparseResult` | With formatting options |
@@ -151,13 +155,17 @@ The protobuf-ast functions call `pg_query_parse_protobuf()` from C and decode by
 | `is_utility_stmt(query)` | `!IsUtilityResult` | Check if DDL |
 | `summary(input, opts, limit)` | `!SummaryParseResult` | Query summary |
 
-### Protobuf helpers
+### Protobuf & enum helpers
 
 ```v
 pb := result.parse_tree
 pb.hex()    // hex dump, e.g. "0897b00a121c..."
 pb.bytes()  // raw []u8 bytes
 pb.len      // byte count
+
+// Validate decoded enum values
+pg_query.valid_enum_int([0, 1, 2], val)    // coerces invalid → 0
+pg_query.valid_enum_int_strict([0, 1, 2], val)! // returns error on invalid
 ```
 
 ### Structured errors
