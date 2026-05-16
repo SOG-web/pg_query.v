@@ -553,7 +553,7 @@ fn generate_str_method(m ProtoMessage, pf ProtoFile) string {
 		} else if f.is_map {
 			out += '\tif m.${vfname}.len > 0 { parts << "${vfname}: \${m.${vfname}}" }\n'
 		} else if is_recursive {
-			out += '\tif !isnil(m.${vfname}) { parts << "${vfname}: \${m.${vfname}}" }\n'
+			out += '\tif m.${vfname} != none { parts << "${vfname}: \${m.${vfname}}" }\n'
 		} else if is_primitive_proto(f.typ) {
 			if f.typ == 'bool' {
 				out += '\tif m.${vfname} { parts << "${vfname}: true" }\n'
@@ -623,7 +623,7 @@ fn generate_v_ast(pf ProtoFile, node_oneof_fields []ProtoField) {
 			is_recursive := f.typ == m.name
 			mut v_field_type := vtype
 			if is_recursive {
-				v_field_type = '&${vtype}'
+				v_field_type = '?&${vtype}'
 			}
 			if f.repeated {
 				v_field_type = '[]${v_field_type}'
@@ -818,7 +818,7 @@ fn topological_sort_messages(pf ProtoFile) []ProtoMessage {
 		for f in m.fields {
 			if f.is_oneof { continue }
 			if f.repeated { continue }
-			if f.typ == m.name { continue } // self-ref uses pointer
+			if f.typ == m.name { continue } // self-ref uses optional pointer
 			if f.typ == 'Node' { continue } // VNode already defined
 			if f.typ == 'Context' { continue }
 			if is_primitive_proto(f.typ) { continue }
@@ -942,7 +942,7 @@ fn generate_v_protobuf_decode(pf ProtoFile, node_oneof_fields []ProtoField) {
 				mut inner := ''
 				for irfn in direct_ref_types[f.typ] {
 					if inner.len > 0 { inner += '\n' }
-					inner += '\t\t\t${irfn}: unsafe { nil }'
+					inner += '\t\t\t${irfn}: none'
 				}
 				transitive_init << '\t\t${vfname}: ${vftype}{\n${inner}\n\t\t}'
 			}
@@ -960,7 +960,7 @@ fn generate_v_protobuf_decode(pf ProtoFile, node_oneof_fields []ProtoField) {
 		if needs_unsafe_init || has_maps {
 			out += '\tif depth <= 0 { return ${vname}{\n'
 			for rfn in ref_field_names {
-				out += '\t\t${rfn}: unsafe { nil }\n'
+				out += '\t\t${rfn}: none\n'
 			}
 			for ti in transitive_init {
 				out += '\t\t' + ti.trim_left('\t') + '\n'
@@ -971,7 +971,7 @@ fn generate_v_protobuf_decode(pf ProtoFile, node_oneof_fields []ProtoField) {
 			out += '\t}, 0 }\n'
 			out += '\tmut r := ${vname}{\n'
 			for rfn in ref_field_names {
-				out += '\t\t${rfn}: unsafe { nil }\n'
+				out += '\t\t${rfn}: none\n'
 			}
 			for ti in transitive_init {
 				out += '\t' + ti + '\n'
@@ -1426,72 +1426,98 @@ fn generate_v_protobuf_encode(pf ProtoFile, node_oneof_fields []ProtoField) {
 		if m.name in skip_names { continue }
 		vname := proto_field_to_v_type(m.name)
 		dfn := snake_case(vname)
-		out += 'pub fn encode_${dfn}(val ${vname}) []u8 {\n'
-		out += '\tmut buf := []u8{}\n'
-		// Sort fields by field number
+		// Sort fields by field number once
 		mut sorted_fields := m.fields.clone()
 		sorted_fields.sort(a.field_num < b.field_num)
+
+		// Zero-alloc _into variant: writes directly into caller's buffer.
+		out += 'fn encode_${dfn}_into(mut buf []u8, val ${vname}) {\n'
 		for f in sorted_fields {
 			vfname := snake_case(f.name)
 			if f.is_oneof {
-				out += proto_encode_oneof_field(f, vfname, pf, node_oneof_fields, m.name)
+				out += proto_encode_oneof_field_into(f, vfname, pf, node_oneof_fields, m.name)
 			} else if f.repeated {
-				out += proto_encode_repeated_field(f, vfname, pf, node_oneof_fields)
+				out += proto_encode_repeated_field_into(f, vfname, pf, node_oneof_fields)
 			} else if f.is_map {
-				out += proto_encode_map_field(f, vfname)
+				out += proto_encode_map_field(f, vfname) // maps are rare; keep as-is
 			} else {
-				out += proto_encode_singular_field(f, vfname, pf, node_oneof_fields, m.name)
+				out += proto_encode_singular_field_into(f, vfname, pf, node_oneof_fields, m.name)
 			}
 		}
+		out += '}\n\n'
+
+		// Public wrapper kept for external callers.
+		out += 'pub fn encode_${dfn}(val ${vname}) []u8 {\n'
+		out += '\tmut buf := []u8{}\n'
+		out += '\tencode_${dfn}_into(mut buf, val)\n'
 		out += '\treturn buf\n'
 		out += '}\n\n'
 	}
 
-	// encode_node dispatcher
-	// Alias is the zero-value default for the Node sum type (first variant).
-	// When an Alias with no non-zero fields is encoded, we skip the tag +
-	// submessage wrapper to avoid creating a spurious empty node.
-	// All other variants are always encoded (they were explicitly constructed).
-	out += 'fn encode_node(val_ Node) []u8 {\n'
+	// encode_node_into: zero-alloc Node dispatcher using backpatch varint.
+	// Writes tag + padded-4-byte-len + content directly into caller's buf.
+	// Alias is the zero-value default — backtrack if it encodes to nothing.
+	out += 'fn encode_node_into(mut buf []u8, val_ Node) {\n'
 	out += '\tmatch val_ {\n'
 	for f in node_oneof_fields {
 		vname := proto_field_to_v_type(f.typ)
 		out += '\t\t${vname} {\n'
-		out += '\t\t\tinner := encode_${snake_case(vname)}(val_)\n'
 		if vname == 'Alias' {
-			out += '\t\t\tif inner.len == 0 { return []u8{} }\n'
+			// Alias may be zero-value default; backtrack if empty.
+			out += '\t\t\ttag_start_ := buf.len\n'
+			out += '\t\t\twrite_tag_into(mut buf, ${f.field_num}, 2)\n'
+			out += '\t\t\tlen_pos_ := buf.len\n'
+			out += '\t\t\twrite_u32_placeholder(mut buf)\n'
+			out += '\t\t\tcs_ := buf.len\n'
+			out += '\t\t\tencode_${snake_case(vname)}_into(mut buf, val_)\n'
+			out += '\t\t\tif buf.len == cs_ { unsafe { buf = buf[..tag_start_] } } else { backpatch_varint4(mut buf, len_pos_, buf.len - cs_) }\n'
+		} else {
+			out += '\t\t\twrite_tag_into(mut buf, ${f.field_num}, 2)\n'
+			out += '\t\t\tlen_pos_ := buf.len\n'
+			out += '\t\t\twrite_u32_placeholder(mut buf)\n'
+			out += '\t\t\tcs_ := buf.len\n'
+			out += '\t\t\tencode_${snake_case(vname)}_into(mut buf, val_)\n'
+			out += '\t\t\tbackpatch_varint4(mut buf, len_pos_, buf.len - cs_)\n'
 		}
-		out += '\t\t\tmut buf := []u8{}\n'
-		out += '\t\t\twrite_tag_into(mut buf, ${f.field_num}, 2)\n'
-		out += '\t\t\twrite_length_delimited_into(mut buf, inner)\n'
-		out += '\t\t\treturn buf\n'
 		out += '\t\t}\n'
 	}
 	out += '\t\tUnrecognizedNode {\n'
-	out += '\t\t\tmut buf := []u8{}\n'
 	out += '\t\t\twrite_tag_into(mut buf, val_.field_num, 2)\n'
 	out += '\t\t\twrite_length_delimited_into(mut buf, val_.data)\n'
-	out += '\t\t\treturn buf\n'
 	out += '\t\t}\n'
 	out += '\t}\n'
 	out += '}\n\n'
 
-	// encode_parse_result entry point
+	// encode_node: public wrapper calling encode_node_into.
+	out += 'fn encode_node(val_ Node) []u8 {\n'
+	out += '\tmut buf := []u8{}\n'
+	out += '\tencode_node_into(mut buf, val_)\n'
+	out += '\treturn buf\n'
+	out += '}\n\n'
+
+	// encode_parse_result: zero-alloc entry point using backpatch.
 	// RawStmt fields: stmt=1 (Node), stmt_location=2 (int32), stmt_len=3 (int32)
 	out += 'pub fn encode_parse_result(val ParseAstResult) []u8 {\n'
-	out += '\tmut buf := []u8{}\n'
+	out += '\tmut buf := []u8{cap: 2048}\n'
 	out += '\twrite_tag_into(mut buf, 1, 0)\n'
 	out += '\twrite_varint_into(mut buf, u64(val.version))\n'
 	out += '\tfor s in val.stmts {\n'
-	out += '\t\tmut inner := []u8{}\n'
-	out += '\t\twrite_tag_into(mut inner, 1, 2)\n'
-	out += '\t\twrite_length_delimited_into(mut inner, encode_node(s.stmt))\n'
-	out += '\t\twrite_tag_into(mut inner, 2, 0)\n'
-	out += '\t\twrite_varint_into(mut inner, u64(s.stmt_location))\n'
-	out += '\t\twrite_tag_into(mut inner, 3, 0)\n'
-	out += '\t\twrite_varint_into(mut inner, u64(s.stmt_len))\n'
 	out += '\t\twrite_tag_into(mut buf, 2, 2)\n'
-	out += '\t\twrite_length_delimited_into(mut buf, inner)\n'
+	out += '\t\touter_len_pos_ := buf.len\n'
+	out += '\t\twrite_u32_placeholder(mut buf)\n'
+	out += '\t\touter_cs_ := buf.len\n'
+	out += '\t\tstmt_tag_start_ := buf.len\n'
+	out += '\t\twrite_tag_into(mut buf, 1, 2)\n'
+	out += '\t\tstmt_len_pos_ := buf.len\n'
+	out += '\t\twrite_u32_placeholder(mut buf)\n'
+	out += '\t\tstmt_cs_ := buf.len\n'
+	out += '\t\tencode_node_into(mut buf, s.stmt)\n'
+		out += '\t\tif buf.len == stmt_cs_ { unsafe { buf = buf[..stmt_tag_start_] } } else { backpatch_varint4(mut buf, stmt_len_pos_, buf.len - stmt_cs_) }\n'
+	out += '\t\twrite_tag_into(mut buf, 2, 0)\n'
+	out += '\t\twrite_varint_into(mut buf, u64(s.stmt_location))\n'
+	out += '\t\twrite_tag_into(mut buf, 3, 0)\n'
+	out += '\t\twrite_varint_into(mut buf, u64(s.stmt_len))\n'
+	out += '\t\tbackpatch_varint4(mut buf, outer_len_pos_, buf.len - outer_cs_)\n'
 	out += '\t}\n'
 	out += '\treturn buf\n'
 	out += '}\n\n'
@@ -1561,8 +1587,9 @@ fn proto_encode_singular_field(f ProtoField, vfname string, pf ProtoFile, node_o
 		out += '\t}\n'
 	} else if is_self_ref(f, msg_name) {
 		sr_inner := 'sr_${f.name}'
-		out += '\tif val.${vfname} != unsafe { nil } {\n'
-		out += '\t\t${sr_inner} := encode_${snake_case(proto_field_to_v_type(f.typ))}(*val.${vfname})\n'
+		sr_val := 'sr_val_${f.name}'
+		out += '\tif ${sr_val} := val.${vfname} {\n'
+		out += '\t\t${sr_inner} := encode_${snake_case(proto_field_to_v_type(f.typ))}(${sr_val})\n'
 		out += '\t\twrite_tag_into(mut buf, ${f.field_num}, 2)\n'
 		out += '\t\twrite_length_delimited_into(mut buf, ${sr_inner})\n'
 		out += '\t}\n'
@@ -1688,6 +1715,145 @@ fn proto_encode_map_field(f ProtoField, vfname string) string {
 	out += '\t\t\twrite_tag_into(mut buf, ${f.field_num}, 2)\n'
 	out += '\t\t\twrite_length_delimited_into(mut buf, map_enc_)\n'
 	out += '\t\t}\n'
+	out += '\t}\n'
+	return out
+}
+
+// ---------------------------------------------------------------------------
+// _into variants: emit code that writes directly into a caller-provided buf,
+// using the backpatch-varint technique for submessage length prefixes.
+// ---------------------------------------------------------------------------
+
+fn proto_encode_singular_field_into(f ProtoField, vfname string, pf ProtoFile, node_oneof_fields []ProtoField, msg_name string) string {
+	mut out := ''
+	if f.typ == 'Node' {
+		out += '\t{\n'
+		out += '\t\ttag_start_ := buf.len\n'
+		out += '\t\twrite_tag_into(mut buf, ${f.field_num}, 2)\n'
+		out += '\t\tlen_pos_ := buf.len\n'
+		out += '\t\twrite_u32_placeholder(mut buf)\n'
+		out += '\t\tcs_ := buf.len\n'
+		out += '\t\tencode_node_into(mut buf, val.${vfname})\n'
+		out += '\t\tif buf.len == cs_ { unsafe { buf = buf[..tag_start_] } } else { backpatch_varint4(mut buf, len_pos_, buf.len - cs_) }\n'
+		out += '\t}\n'
+	} else if is_self_ref(f, msg_name) {
+		sub_dfn := snake_case(proto_field_to_v_type(f.typ))
+		out += '\tif ${vfname}_ := val.${vfname} {\n'
+		out += '\t\twrite_tag_into(mut buf, ${f.field_num}, 2)\n'
+		out += '\t\tlen_pos_ := buf.len\n'
+		out += '\t\twrite_u32_placeholder(mut buf)\n'
+		out += '\t\tcs_ := buf.len\n'
+		out += '\t\tencode_${sub_dfn}_into(mut buf, ${vfname}_)\n'
+		out += '\t\tbackpatch_varint4(mut buf, len_pos_, buf.len - cs_)\n'
+		out += '\t}\n'
+	} else if f.typ == 'Context' {
+		out += '\tif u64(val.${vfname}) != 0 {\n'
+		out += '\t\twrite_tag_into(mut buf, ${f.field_num}, 0)\n'
+		out += '\t\twrite_varint_into(mut buf, u64(val.${vfname}))\n'
+		out += '\t}\n'
+	} else if is_primitive_proto(f.typ) || f.typ == 'string' || f.typ == 'bytes' {
+		wt, into_expr := proto_type_write_into(f.typ, 'val.${vfname}', 'buf')
+		cond := proto_zero_check(f.typ, 'val.${vfname}')
+		out += '\tif ${cond} {\n'
+		out += '\t\twrite_tag_into(mut buf, ${f.field_num}, ${wt})\n'
+		out += '\t\t${into_expr}\n'
+		out += '\t}\n'
+	} else if is_enum_type(pf, f.typ) {
+		out += '\tif u64(val.${vfname}) != 0 {\n'
+		out += '\t\twrite_tag_into(mut buf, ${f.field_num}, 0)\n'
+		out += '\t\twrite_varint_into(mut buf, u64(val.${vfname}))\n'
+		out += '\t}\n'
+	} else {
+		subtype := proto_field_to_v_type(f.typ)
+		sub_dfn := snake_case(subtype)
+		out += '\t{\n'
+		out += '\t\ttag_start_ := buf.len\n'
+		out += '\t\twrite_tag_into(mut buf, ${f.field_num}, 2)\n'
+		out += '\t\tlen_pos_ := buf.len\n'
+		out += '\t\twrite_u32_placeholder(mut buf)\n'
+		out += '\t\tcs_ := buf.len\n'
+		out += '\t\tencode_${sub_dfn}_into(mut buf, val.${vfname})\n'
+		out += '\t\tif buf.len == cs_ { unsafe { buf = buf[..tag_start_] } } else { backpatch_varint4(mut buf, len_pos_, buf.len - cs_) }\n'
+		out += '\t}\n'
+	}
+	return out
+}
+
+fn proto_encode_repeated_field_into(f ProtoField, vfname string, pf ProtoFile, node_oneof_fields []ProtoField) string {
+	mut out := ''
+	out += '\tif val.${vfname}.len > 0 {\n'
+	if f.typ == 'Node' {
+		out += '\t\tfor v in val.${vfname} {\n'
+		out += '\t\t\ttag_start_ := buf.len\n'
+		out += '\t\t\twrite_tag_into(mut buf, ${f.field_num}, 2)\n'
+		out += '\t\t\tlen_pos_ := buf.len\n'
+		out += '\t\t\twrite_u32_placeholder(mut buf)\n'
+		out += '\t\t\tcs_ := buf.len\n'
+		out += '\t\t\tencode_node_into(mut buf, v)\n'
+			out += '\t\t\tif buf.len == cs_ { unsafe { buf = buf[..tag_start_] } } else { backpatch_varint4(mut buf, len_pos_, buf.len - cs_) }\n'
+		out += '\t\t}\n'
+	} else if f.typ == 'string' || f.typ == 'bytes' {
+		wt, into_expr := proto_type_write_into(f.typ, 'v', 'buf')
+		out += '\t\tfor v in val.${vfname} {\n'
+		out += '\t\t\twrite_tag_into(mut buf, ${f.field_num}, ${wt})\n'
+		out += '\t\t\t${into_expr}\n'
+		out += '\t\t}\n'
+	} else if is_primitive_proto(f.typ) || is_enum_type(pf, f.typ) {
+		_, into_expr := proto_type_write_into(f.typ, 'v', 'packed_')
+		mut iexpr := into_expr
+		if is_enum_type(pf, f.typ) {
+			iexpr = 'write_varint_into(mut packed_, u64(v))'
+		}
+		out += '\t\tmut packed_ := []u8{}\n'
+		out += '\t\tfor v in val.${vfname} {\n'
+		out += '\t\t\t${iexpr}\n'
+		out += '\t\t}\n'
+		out += '\t\twrite_tag_into(mut buf, ${f.field_num}, 2)\n'
+		out += '\t\twrite_length_delimited_into(mut buf, packed_)\n'
+	} else {
+		subtype := proto_field_to_v_type(f.typ)
+		sub_dfn := snake_case(subtype)
+		out += '\t\tfor v in val.${vfname} {\n'
+		out += '\t\t\twrite_tag_into(mut buf, ${f.field_num}, 2)\n'
+		out += '\t\t\tlen_pos_ := buf.len\n'
+		out += '\t\t\twrite_u32_placeholder(mut buf)\n'
+		out += '\t\t\tcs_ := buf.len\n'
+		out += '\t\t\tencode_${sub_dfn}_into(mut buf, v)\n'
+		out += '\t\t\tbackpatch_varint4(mut buf, len_pos_, buf.len - cs_)\n'
+		out += '\t\t}\n'
+	}
+	out += '\t}\n'
+	return out
+}
+
+fn proto_encode_oneof_field_into(f ProtoField, vfname string, pf ProtoFile, node_oneof_fields []ProtoField, msg_name string) string {
+	mut out := ''
+	out += '\tif v := val.${vfname} {\n'
+	if f.typ == 'Node' {
+		out += '\t\ttag_start_ := buf.len\n'
+		out += '\t\twrite_tag_into(mut buf, ${f.field_num}, 2)\n'
+		out += '\t\tlen_pos_ := buf.len\n'
+		out += '\t\twrite_u32_placeholder(mut buf)\n'
+		out += '\t\tcs_ := buf.len\n'
+		out += '\t\tencode_node_into(mut buf, v)\n'
+		out += '\t\tif buf.len == cs_ { unsafe { buf = buf[..tag_start_] } } else { backpatch_varint4(mut buf, len_pos_, buf.len - cs_) }\n'
+	} else if is_primitive_proto(f.typ) || f.typ == 'string' || f.typ == 'bytes' {
+		wt, into_expr := proto_type_write_into(f.typ, 'v', 'buf')
+		out += '\t\twrite_tag_into(mut buf, ${f.field_num}, ${wt})\n'
+		out += '\t\t${into_expr}\n'
+	} else if is_enum_type(pf, f.typ) {
+		out += '\t\twrite_tag_into(mut buf, ${f.field_num}, 0)\n'
+		out += '\t\twrite_varint_into(mut buf, u64(v))\n'
+	} else {
+		subtype := proto_field_to_v_type(f.typ)
+		sub_dfn := snake_case(subtype)
+		out += '\t\twrite_tag_into(mut buf, ${f.field_num}, 2)\n'
+		out += '\t\tlen_pos_ := buf.len\n'
+		out += '\t\twrite_u32_placeholder(mut buf)\n'
+		out += '\t\tcs_ := buf.len\n'
+		out += '\t\tencode_${sub_dfn}_into(mut buf, v)\n'
+		out += '\t\tbackpatch_varint4(mut buf, len_pos_, buf.len - cs_)\n'
+	}
 	out += '\t}\n'
 	return out
 }

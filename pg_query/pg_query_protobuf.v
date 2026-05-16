@@ -261,8 +261,8 @@ fn write_bool(val bool) []u8 {
 // write_string encodes a string as length-delimited bytes.
 fn write_string(s string) []u8 {
 	mut buf := write_varint(u64(s.len))
-	for c in s {
-		buf << c
+	if s.len > 0 {
+		buf << unsafe { (&u8(s.str)).vbytes(s.len) }
 	}
 	return buf
 }
@@ -320,6 +320,7 @@ fn write_map_string_entry(key string, val string) []u8 {
 // Used by generated pg_query_encode.v to avoid per-field heap allocations.
 // ---------------------------------------------------------------------------
 
+@[inline]
 fn write_varint_into(mut buf []u8, v u64) {
 	mut val := v
 	for {
@@ -339,6 +340,7 @@ fn write_svarint_into(mut buf []u8, v i64) {
 	write_varint_into(mut buf, (u64(v) << 1) ^ u64(v >> 63))
 }
 
+@[inline]
 fn write_tag_into(mut buf []u8, field_num int, wire_type int) {
 	write_varint_into(mut buf, (u64(field_num) << 3) | u64(wire_type))
 }
@@ -347,10 +349,11 @@ fn write_bool_into(mut buf []u8, val bool) {
 	buf << if val { u8(1) } else { u8(0) }
 }
 
+@[inline]
 fn write_string_into(mut buf []u8, s string) {
 	write_varint_into(mut buf, u64(s.len))
-	for c in s {
-		buf << c
+	if s.len > 0 {
+		buf << unsafe { (&u8(s.str)).vbytes(s.len) }
 	}
 }
 
@@ -392,6 +395,27 @@ fn write_double_into(mut buf []u8, val f64) {
 fn write_length_delimited_into(mut buf []u8, sub []u8) {
 	write_varint_into(mut buf, u64(sub.len))
 	buf << sub
+}
+
+// write_u32_placeholder appends 4 zero bytes as a length placeholder.
+// The caller must later call backpatch_varint4 at the returned position.
+fn write_u32_placeholder(mut buf []u8) {
+	buf << u8(0)
+	buf << u8(0)
+	buf << u8(0)
+	buf << u8(0)
+}
+
+// backpatch_varint4 writes a padded 4-byte protobuf varint for `length` at
+// buf[pos..pos+4]. Padded varints are valid wire format — all standard decoders
+// accept multi-byte encodings of any value. Constraint: length < 2^28 (~268 MB).
+@[direct_array_access]
+fn backpatch_varint4(mut buf []u8, pos int, length int) {
+	v := u32(length)
+	buf[pos]     = u8(v & 0x7F) | 0x80
+	buf[pos + 1] = u8((v >> 7) & 0x7F) | 0x80
+	buf[pos + 2] = u8((v >> 14) & 0x7F) | 0x80
+	buf[pos + 3] = u8((v >> 21) & 0x7F)
 }
 
 // read_map_string_entry decodes a single protobuf map entry submessage

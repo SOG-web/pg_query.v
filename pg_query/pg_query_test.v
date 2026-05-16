@@ -343,3 +343,75 @@ fn test_parse_protobuf_ast_invalid_sql_handled() {
 	parse_protobuf_ast('SELECT $$$') or { return }
 	// If no error, verify result is empty
 }
+
+fn test_deparse_comments_extract_single_line() {
+	result := deparse_comments_for_query('SELECT 1 -- a single-line comment') or {
+		assert false, 'deparse_comments_for_query failed: ${err}'
+		return
+	}
+	assert result.comments.len == 1
+	assert result.comments[0].str.contains('--')
+	assert result.comments[0].str.contains('a single-line comment')
+}
+
+fn test_deparse_comments_extract_block() {
+	result := deparse_comments_for_query('SELECT 1 /* a block comment */') or {
+		assert false, 'deparse_comments_for_query failed: ${err}'
+		return
+	}
+	assert result.comments.len == 1
+	assert result.comments[0].str.contains('/*')
+	assert result.comments[0].str.contains('a block comment')
+}
+
+fn test_deparse_comments_extract_mixed() {
+	result := deparse_comments_for_query('SELECT 1; -- line comment\nSELECT 2 /* block */') or {
+		assert false, 'deparse_comments_for_query failed: ${err}'
+		return
+	}
+	assert result.comments.len >= 2
+}
+
+fn test_deparse_comments_no_comments() {
+	result := deparse_comments_for_query('SELECT 1') or {
+		assert false, 'deparse_comments_for_query failed: ${err}'
+		return
+	}
+	assert result.comments.len == 0
+}
+
+fn test_deparse_comments_roundtrip() {
+	// Inline comments between AST nodes are preserved.
+	// Trailing comments at the end of a statement are not (C lib limitation).
+	query := 'SELECT a, /* my comment */ b FROM t'
+	pb := parse_protobuf(query) or {
+		assert false, 'parse_protobuf failed: ${err}'
+		return
+	}
+	comments_res := deparse_comments_for_query(query) or {
+		assert false, 'deparse_comments_for_query failed: ${err}'
+		return
+	}
+	assert comments_res.comments.len == 1
+	opts := DeparseOpts{
+		comments: comments_res.comments
+	}
+	result := deparse_protobuf_opts(pb.parse_tree, opts) or {
+		assert false, 'deparse_protobuf_opts failed: ${err}'
+		return
+	}
+	assert result.query.contains('/* my comment */')
+	assert result.query.contains('SELECT')
+	assert result.query.contains('FROM')
+}
+
+fn test_deparse_comments_multiline_block() {
+	query := 'SELECT 1 /*\nmulti\nline\n*/'
+	result := deparse_comments_for_query(query) or {
+		assert false, 'deparse_comments_for_query failed: ${err}'
+		return
+	}
+	assert result.comments.len == 1
+	assert result.comments[0].str.contains('multi')
+	assert result.comments[0].str.contains('line')
+}

@@ -3,7 +3,9 @@
 module pg_query
 
 fn decode_scan_result(buf []u8, depth int) (ScanResult, int) {
-	if depth <= 0 { return ScanResult{}, 0 }
+	if depth <= 0 {
+		return ScanResult{}, 0
+	}
 	mut r := ScanResult{}
 	mut off := 0
 	for off < buf.len {
@@ -30,7 +32,9 @@ fn decode_scan_result(buf []u8, depth int) (ScanResult, int) {
 }
 
 fn decode_integer(buf []u8, depth int) (Integer, int) {
-	if depth <= 0 { return Integer{}, 0 }
+	if depth <= 0 {
+		return Integer{}, 0
+	}
 	mut r := Integer{}
 	mut off := 0
 	for off < buf.len {
@@ -51,7 +55,9 @@ fn decode_integer(buf []u8, depth int) (Integer, int) {
 }
 
 fn decode_float(buf []u8, depth int) (Float, int) {
-	if depth <= 0 { return Float{}, 0 }
+	if depth <= 0 {
+		return Float{}, 0
+	}
 	mut r := Float{}
 	mut off := 0
 	for off < buf.len {
@@ -72,7 +78,9 @@ fn decode_float(buf []u8, depth int) (Float, int) {
 }
 
 fn decode_boolean(buf []u8, depth int) (Boolean, int) {
-	if depth <= 0 { return Boolean{}, 0 }
+	if depth <= 0 {
+		return Boolean{}, 0
+	}
 	mut r := Boolean{}
 	mut off := 0
 	for off < buf.len {
@@ -93,7 +101,9 @@ fn decode_boolean(buf []u8, depth int) (Boolean, int) {
 }
 
 fn decode_string(buf []u8, depth int) (String, int) {
-	if depth <= 0 { return String{}, 0 }
+	if depth <= 0 {
+		return String{}, 0
+	}
 	mut r := String{}
 	mut off := 0
 	for off < buf.len {
@@ -114,7 +124,9 @@ fn decode_string(buf []u8, depth int) (String, int) {
 }
 
 fn decode_bit_string(buf []u8, depth int) (BitString, int) {
-	if depth <= 0 { return BitString{}, 0 }
+	if depth <= 0 {
+		return BitString{}, 0
+	}
 	mut r := BitString{}
 	mut off := 0
 	for off < buf.len {
@@ -135,7 +147,9 @@ fn decode_bit_string(buf []u8, depth int) (BitString, int) {
 }
 
 fn decode_list(buf []u8, depth int) (List, int) {
-	if depth <= 0 { return List{}, 0 }
+	if depth <= 0 {
+		return List{}, 0
+	}
 	mut r := List{}
 	mut off := 0
 	for off < buf.len {
@@ -157,7 +171,9 @@ fn decode_list(buf []u8, depth int) (List, int) {
 }
 
 fn decode_oid_list(buf []u8, depth int) (OidList, int) {
-	if depth <= 0 { return OidList{}, 0 }
+	if depth <= 0 {
+		return OidList{}, 0
+	}
 	mut r := OidList{}
 	mut off := 0
 	for off < buf.len {
@@ -179,7 +195,9 @@ fn decode_oid_list(buf []u8, depth int) (OidList, int) {
 }
 
 fn decode_int_list(buf []u8, depth int) (IntList, int) {
-	if depth <= 0 { return IntList{}, 0 }
+	if depth <= 0 {
+		return IntList{}, 0
+	}
 	mut r := IntList{}
 	mut off := 0
 	for off < buf.len {
@@ -201,7 +219,9 @@ fn decode_int_list(buf []u8, depth int) (IntList, int) {
 }
 
 fn decode_a_const(buf []u8, depth int) (AConst, int) {
-	if depth <= 0 { return AConst{}, 0 }
+	if depth <= 0 {
+		return AConst{}, 0
+	}
 	mut r := AConst{}
 	mut off := 0
 	for off < buf.len {
@@ -257,7 +277,9 @@ fn decode_a_const(buf []u8, depth int) (AConst, int) {
 }
 
 fn decode_alias(buf []u8, depth int) (Alias, int) {
-	if depth <= 0 { return Alias{}, 0 }
+	if depth <= 0 {
+		return Alias{}, 0
+	}
 	mut r := Alias{}
 	mut off := 0
 	for off < buf.len {
@@ -284,7 +306,9 @@ fn decode_alias(buf []u8, depth int) (Alias, int) {
 }
 
 fn decode_table_func(buf []u8, depth int) (TableFunc, int) {
-	if depth <= 0 { return TableFunc{}, 0 }
+	if depth <= 0 {
+		return TableFunc{}, 0
+	}
 	mut r := TableFunc{}
 	mut off := 0
 	for off < buf.len {
@@ -409,7 +433,9 @@ fn decode_table_func(buf []u8, depth int) (TableFunc, int) {
 }
 
 fn decode_var(buf []u8, depth int) (Var, int) {
-	if depth <= 0 { return Var{}, 0 }
+	if depth <= 0 {
+		return Var{}, 0
+	}
 	mut r := Var{}
 	mut off := 0
 	for off < buf.len {
@@ -482,7 +508,9 @@ fn decode_var(buf []u8, depth int) (Var, int) {
 }
 
 fn decode_param(buf []u8, depth int) (Param, int) {
-	if depth <= 0 { return Param{}, 0 }
+	if depth <= 0 {
+		return Param{}, 0
+	}
 	mut r := Param{}
 	mut off := 0
 	for off < buf.len {
@@ -534,7 +562,9 @@ fn decode_param(buf []u8, depth int) (Param, int) {
 }
 
 fn decode_aggref(buf []u8, depth int) (Aggref, int) {
-	if depth <= 0 { return Aggref{}, 0 }
+	if depth <= 0 {
+		return Aggref{}, 0
+	}
 	mut r := Aggref{}
 	mut off := 0
 	for off < buf.len {
@@ -652,7 +682,9 @@ fn decode_aggref(buf []u8, depth int) (Aggref, int) {
 }
 
 fn decode_grouping_func(buf []u8, depth int) (GroupingFunc, int) {
-	if depth <= 0 { return GroupingFunc{}, 0 }
+	if depth <= 0 {
+		return GroupingFunc{}, 0
+	}
 	mut r := GroupingFunc{}
 	mut off := 0
 	for off < buf.len {
@@ -696,7 +728,9 @@ fn decode_grouping_func(buf []u8, depth int) (GroupingFunc, int) {
 }
 
 fn decode_window_func(buf []u8, depth int) (WindowFunc, int) {
-	if depth <= 0 { return WindowFunc{}, 0 }
+	if depth <= 0 {
+		return WindowFunc{}, 0
+	}
 	mut r := WindowFunc{}
 	mut off := 0
 	for off < buf.len {
@@ -776,7 +810,9 @@ fn decode_window_func(buf []u8, depth int) (WindowFunc, int) {
 }
 
 fn decode_window_func_run_condition(buf []u8, depth int) (WindowFuncRunCondition, int) {
-	if depth <= 0 { return WindowFuncRunCondition{}, 0 }
+	if depth <= 0 {
+		return WindowFuncRunCondition{}, 0
+	}
 	mut r := WindowFuncRunCondition{}
 	mut off := 0
 	for off < buf.len {
@@ -819,7 +855,9 @@ fn decode_window_func_run_condition(buf []u8, depth int) (WindowFuncRunCondition
 }
 
 fn decode_merge_support_func(buf []u8, depth int) (MergeSupportFunc, int) {
-	if depth <= 0 { return MergeSupportFunc{}, 0 }
+	if depth <= 0 {
+		return MergeSupportFunc{}, 0
+	}
 	mut r := MergeSupportFunc{}
 	mut off := 0
 	for off < buf.len {
@@ -856,7 +894,9 @@ fn decode_merge_support_func(buf []u8, depth int) (MergeSupportFunc, int) {
 }
 
 fn decode_subscripting_ref(buf []u8, depth int) (SubscriptingRef, int) {
-	if depth <= 0 { return SubscriptingRef{}, 0 }
+	if depth <= 0 {
+		return SubscriptingRef{}, 0
+	}
 	mut r := SubscriptingRef{}
 	mut off := 0
 	for off < buf.len {
@@ -927,7 +967,9 @@ fn decode_subscripting_ref(buf []u8, depth int) (SubscriptingRef, int) {
 }
 
 fn decode_func_expr(buf []u8, depth int) (FuncExpr, int) {
-	if depth <= 0 { return FuncExpr{}, 0 }
+	if depth <= 0 {
+		return FuncExpr{}, 0
+	}
 	mut r := FuncExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -995,7 +1037,9 @@ fn decode_func_expr(buf []u8, depth int) (FuncExpr, int) {
 }
 
 fn decode_named_arg_expr(buf []u8, depth int) (NamedArgExpr, int) {
-	if depth <= 0 { return NamedArgExpr{}, 0 }
+	if depth <= 0 {
+		return NamedArgExpr{}, 0
+	}
 	mut r := NamedArgExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -1038,7 +1082,9 @@ fn decode_named_arg_expr(buf []u8, depth int) (NamedArgExpr, int) {
 }
 
 fn decode_op_expr(buf []u8, depth int) (OpExpr, int) {
-	if depth <= 0 { return OpExpr{}, 0 }
+	if depth <= 0 {
+		return OpExpr{}, 0
+	}
 	mut r := OpExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -1096,7 +1142,9 @@ fn decode_op_expr(buf []u8, depth int) (OpExpr, int) {
 }
 
 fn decode_distinct_expr(buf []u8, depth int) (DistinctExpr, int) {
-	if depth <= 0 { return DistinctExpr{}, 0 }
+	if depth <= 0 {
+		return DistinctExpr{}, 0
+	}
 	mut r := DistinctExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -1154,7 +1202,9 @@ fn decode_distinct_expr(buf []u8, depth int) (DistinctExpr, int) {
 }
 
 fn decode_null_if_expr(buf []u8, depth int) (NullIfExpr, int) {
-	if depth <= 0 { return NullIfExpr{}, 0 }
+	if depth <= 0 {
+		return NullIfExpr{}, 0
+	}
 	mut r := NullIfExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -1212,7 +1262,9 @@ fn decode_null_if_expr(buf []u8, depth int) (NullIfExpr, int) {
 }
 
 fn decode_scalar_array_op_expr(buf []u8, depth int) (ScalarArrayOpExpr, int) {
-	if depth <= 0 { return ScalarArrayOpExpr{}, 0 }
+	if depth <= 0 {
+		return ScalarArrayOpExpr{}, 0
+	}
 	mut r := ScalarArrayOpExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -1260,7 +1312,9 @@ fn decode_scalar_array_op_expr(buf []u8, depth int) (ScalarArrayOpExpr, int) {
 }
 
 fn decode_bool_expr(buf []u8, depth int) (BoolExpr, int) {
-	if depth <= 0 { return BoolExpr{}, 0 }
+	if depth <= 0 {
+		return BoolExpr{}, 0
+	}
 	mut r := BoolExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -1298,7 +1352,9 @@ fn decode_bool_expr(buf []u8, depth int) (BoolExpr, int) {
 }
 
 fn decode_sub_link(buf []u8, depth int) (SubLink, int) {
-	if depth <= 0 { return SubLink{}, 0 }
+	if depth <= 0 {
+		return SubLink{}, 0
+	}
 	mut r := SubLink{}
 	mut off := 0
 	for off < buf.len {
@@ -1313,7 +1369,8 @@ fn decode_sub_link(buf []u8, depth int) (SubLink, int) {
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.sub_link_type = unsafe { SubLinkType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8], v)) }
+				r.sub_link_type = unsafe { SubLinkType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7,
+					8], v)) }
 				off += c2
 			}
 			3 {
@@ -1353,7 +1410,9 @@ fn decode_sub_link(buf []u8, depth int) (SubLink, int) {
 }
 
 fn decode_sub_plan(buf []u8, depth int) (SubPlan, int) {
-	if depth <= 0 { return SubPlan{}, 0 }
+	if depth <= 0 {
+		return SubPlan{}, 0
+	}
 	mut r := SubPlan{}
 	mut off := 0
 	for off < buf.len {
@@ -1368,7 +1427,8 @@ fn decode_sub_plan(buf []u8, depth int) (SubPlan, int) {
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.sub_link_type = unsafe { SubLinkType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8], v)) }
+				r.sub_link_type = unsafe { SubLinkType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7,
+					8], v)) }
 				off += c2
 			}
 			3 {
@@ -1460,7 +1520,9 @@ fn decode_sub_plan(buf []u8, depth int) (SubPlan, int) {
 }
 
 fn decode_alternative_sub_plan(buf []u8, depth int) (AlternativeSubPlan, int) {
-	if depth <= 0 { return AlternativeSubPlan{}, 0 }
+	if depth <= 0 {
+		return AlternativeSubPlan{}, 0
+	}
 	mut r := AlternativeSubPlan{}
 	mut off := 0
 	for off < buf.len {
@@ -1488,7 +1550,9 @@ fn decode_alternative_sub_plan(buf []u8, depth int) (AlternativeSubPlan, int) {
 }
 
 fn decode_field_select(buf []u8, depth int) (FieldSelect, int) {
-	if depth <= 0 { return FieldSelect{}, 0 }
+	if depth <= 0 {
+		return FieldSelect{}, 0
+	}
 	mut r := FieldSelect{}
 	mut off := 0
 	for off < buf.len {
@@ -1536,7 +1600,9 @@ fn decode_field_select(buf []u8, depth int) (FieldSelect, int) {
 }
 
 fn decode_field_store(buf []u8, depth int) (FieldStore, int) {
-	if depth <= 0 { return FieldStore{}, 0 }
+	if depth <= 0 {
+		return FieldStore{}, 0
+	}
 	mut r := FieldStore{}
 	mut off := 0
 	for off < buf.len {
@@ -1581,7 +1647,9 @@ fn decode_field_store(buf []u8, depth int) (FieldStore, int) {
 }
 
 fn decode_relabel_type(buf []u8, depth int) (RelabelType, int) {
-	if depth <= 0 { return RelabelType{}, 0 }
+	if depth <= 0 {
+		return RelabelType{}, 0
+	}
 	mut r := RelabelType{}
 	mut off := 0
 	for off < buf.len {
@@ -1617,7 +1685,8 @@ fn decode_relabel_type(buf []u8, depth int) (RelabelType, int) {
 			}
 			6 {
 				v, c2 := read_varint(buf, off)
-				r.relabelformat = unsafe { CoercionForm(valid_enum_int([0, 1, 2, 3, 4], v)) }
+				r.relabelformat = unsafe { CoercionForm(valid_enum_int([0, 1, 2, 3, 4],
+					v)) }
 				off += c2
 			}
 			7 {
@@ -1634,7 +1703,9 @@ fn decode_relabel_type(buf []u8, depth int) (RelabelType, int) {
 }
 
 fn decode_coerce_via_i_o(buf []u8, depth int) (CoerceViaIO, int) {
-	if depth <= 0 { return CoerceViaIO{}, 0 }
+	if depth <= 0 {
+		return CoerceViaIO{}, 0
+	}
 	mut r := CoerceViaIO{}
 	mut off := 0
 	for off < buf.len {
@@ -1665,7 +1736,8 @@ fn decode_coerce_via_i_o(buf []u8, depth int) (CoerceViaIO, int) {
 			}
 			5 {
 				v, c2 := read_varint(buf, off)
-				r.coerceformat = unsafe { CoercionForm(valid_enum_int([0, 1, 2, 3, 4], v)) }
+				r.coerceformat = unsafe { CoercionForm(valid_enum_int([0, 1, 2, 3, 4],
+					v)) }
 				off += c2
 			}
 			6 {
@@ -1682,7 +1754,9 @@ fn decode_coerce_via_i_o(buf []u8, depth int) (CoerceViaIO, int) {
 }
 
 fn decode_array_coerce_expr(buf []u8, depth int) (ArrayCoerceExpr, int) {
-	if depth <= 0 { return ArrayCoerceExpr{}, 0 }
+	if depth <= 0 {
+		return ArrayCoerceExpr{}, 0
+	}
 	mut r := ArrayCoerceExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -1724,7 +1798,8 @@ fn decode_array_coerce_expr(buf []u8, depth int) (ArrayCoerceExpr, int) {
 			}
 			7 {
 				v, c2 := read_varint(buf, off)
-				r.coerceformat = unsafe { CoercionForm(valid_enum_int([0, 1, 2, 3, 4], v)) }
+				r.coerceformat = unsafe { CoercionForm(valid_enum_int([0, 1, 2, 3, 4],
+					v)) }
 				off += c2
 			}
 			8 {
@@ -1741,7 +1816,9 @@ fn decode_array_coerce_expr(buf []u8, depth int) (ArrayCoerceExpr, int) {
 }
 
 fn decode_convert_rowtype_expr(buf []u8, depth int) (ConvertRowtypeExpr, int) {
-	if depth <= 0 { return ConvertRowtypeExpr{}, 0 }
+	if depth <= 0 {
+		return ConvertRowtypeExpr{}, 0
+	}
 	mut r := ConvertRowtypeExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -1767,7 +1844,8 @@ fn decode_convert_rowtype_expr(buf []u8, depth int) (ConvertRowtypeExpr, int) {
 			}
 			4 {
 				v, c2 := read_varint(buf, off)
-				r.convertformat = unsafe { CoercionForm(valid_enum_int([0, 1, 2, 3, 4], v)) }
+				r.convertformat = unsafe { CoercionForm(valid_enum_int([0, 1, 2, 3, 4],
+					v)) }
 				off += c2
 			}
 			5 {
@@ -1784,7 +1862,9 @@ fn decode_convert_rowtype_expr(buf []u8, depth int) (ConvertRowtypeExpr, int) {
 }
 
 fn decode_collate_expr(buf []u8, depth int) (CollateExpr, int) {
-	if depth <= 0 { return CollateExpr{}, 0 }
+	if depth <= 0 {
+		return CollateExpr{}, 0
+	}
 	mut r := CollateExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -1822,7 +1902,9 @@ fn decode_collate_expr(buf []u8, depth int) (CollateExpr, int) {
 }
 
 fn decode_case_expr(buf []u8, depth int) (CaseExpr, int) {
-	if depth <= 0 { return CaseExpr{}, 0 }
+	if depth <= 0 {
+		return CaseExpr{}, 0
+	}
 	mut r := CaseExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -1877,7 +1959,9 @@ fn decode_case_expr(buf []u8, depth int) (CaseExpr, int) {
 }
 
 fn decode_case_when(buf []u8, depth int) (CaseWhen, int) {
-	if depth <= 0 { return CaseWhen{}, 0 }
+	if depth <= 0 {
+		return CaseWhen{}, 0
+	}
 	mut r := CaseWhen{}
 	mut off := 0
 	for off < buf.len {
@@ -1916,7 +2000,9 @@ fn decode_case_when(buf []u8, depth int) (CaseWhen, int) {
 }
 
 fn decode_case_test_expr(buf []u8, depth int) (CaseTestExpr, int) {
-	if depth <= 0 { return CaseTestExpr{}, 0 }
+	if depth <= 0 {
+		return CaseTestExpr{}, 0
+	}
 	mut r := CaseTestExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -1953,7 +2039,9 @@ fn decode_case_test_expr(buf []u8, depth int) (CaseTestExpr, int) {
 }
 
 fn decode_array_expr(buf []u8, depth int) (ArrayExpr, int) {
-	if depth <= 0 { return ArrayExpr{}, 0 }
+	if depth <= 0 {
+		return ArrayExpr{}, 0
+	}
 	mut r := ArrayExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -2006,7 +2094,9 @@ fn decode_array_expr(buf []u8, depth int) (ArrayExpr, int) {
 }
 
 fn decode_row_expr(buf []u8, depth int) (RowExpr, int) {
-	if depth <= 0 { return RowExpr{}, 0 }
+	if depth <= 0 {
+		return RowExpr{}, 0
+	}
 	mut r := RowExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -2055,7 +2145,9 @@ fn decode_row_expr(buf []u8, depth int) (RowExpr, int) {
 }
 
 fn decode_row_compare_expr(buf []u8, depth int) (RowCompareExpr, int) {
-	if depth <= 0 { return RowCompareExpr{}, 0 }
+	if depth <= 0 {
+		return RowCompareExpr{}, 0
+	}
 	mut r := RowCompareExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -2070,7 +2162,8 @@ fn decode_row_compare_expr(buf []u8, depth int) (RowCompareExpr, int) {
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.rctype = unsafe { RowCompareType(valid_enum_int([0, 1, 2, 3, 4, 5, 6], v)) }
+				r.rctype = unsafe { RowCompareType(valid_enum_int([0, 1, 2, 3, 4, 5, 6],
+					v)) }
 				off += c2
 			}
 			3 {
@@ -2112,7 +2205,9 @@ fn decode_row_compare_expr(buf []u8, depth int) (RowCompareExpr, int) {
 }
 
 fn decode_coalesce_expr(buf []u8, depth int) (CoalesceExpr, int) {
-	if depth <= 0 { return CoalesceExpr{}, 0 }
+	if depth <= 0 {
+		return CoalesceExpr{}, 0
+	}
 	mut r := CoalesceExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -2155,7 +2250,9 @@ fn decode_coalesce_expr(buf []u8, depth int) (CoalesceExpr, int) {
 }
 
 fn decode_min_max_expr(buf []u8, depth int) (MinMaxExpr, int) {
-	if depth <= 0 { return MinMaxExpr{}, 0 }
+	if depth <= 0 {
+		return MinMaxExpr{}, 0
+	}
 	mut r := MinMaxExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -2208,7 +2305,9 @@ fn decode_min_max_expr(buf []u8, depth int) (MinMaxExpr, int) {
 }
 
 fn decode_s_q_l_value_function(buf []u8, depth int) (SQLValueFunction, int) {
-	if depth <= 0 { return SQLValueFunction{}, 0 }
+	if depth <= 0 {
+		return SQLValueFunction{}, 0
+	}
 	mut r := SQLValueFunction{}
 	mut off := 0
 	for off < buf.len {
@@ -2223,7 +2322,8 @@ fn decode_s_q_l_value_function(buf []u8, depth int) (SQLValueFunction, int) {
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.op = unsafe { SQLValueFunctionOp(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], v)) }
+				r.op = unsafe { SQLValueFunctionOp(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+					10, 11, 12, 13, 14, 15], v)) }
 				off += c2
 			}
 			3 {
@@ -2250,7 +2350,9 @@ fn decode_s_q_l_value_function(buf []u8, depth int) (SQLValueFunction, int) {
 }
 
 fn decode_xml_expr(buf []u8, depth int) (XmlExpr, int) {
-	if depth <= 0 { return XmlExpr{}, 0 }
+	if depth <= 0 {
+		return XmlExpr{}, 0
+	}
 	mut r := XmlExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -2265,7 +2367,8 @@ fn decode_xml_expr(buf []u8, depth int) (XmlExpr, int) {
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.op = unsafe { XmlExprOp(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8], v)) }
+				r.op = unsafe { XmlExprOp(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8],
+					v)) }
 				off += c2
 			}
 			3 {
@@ -2325,7 +2428,9 @@ fn decode_xml_expr(buf []u8, depth int) (XmlExpr, int) {
 }
 
 fn decode_json_format(buf []u8, depth int) (JsonFormat, int) {
-	if depth <= 0 { return JsonFormat{}, 0 }
+	if depth <= 0 {
+		return JsonFormat{}, 0
+	}
 	mut r := JsonFormat{}
 	mut off := 0
 	for off < buf.len {
@@ -2356,7 +2461,9 @@ fn decode_json_format(buf []u8, depth int) (JsonFormat, int) {
 }
 
 fn decode_json_behavior(buf []u8, depth int) (JsonBehavior, int) {
-	if depth <= 0 { return JsonBehavior{}, 0 }
+	if depth <= 0 {
+		return JsonBehavior{}, 0
+	}
 	mut r := JsonBehavior{}
 	mut off := 0
 	for off < buf.len {
@@ -2365,7 +2472,8 @@ fn decode_json_behavior(buf []u8, depth int) (JsonBehavior, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.btype = unsafe { JsonBehaviorType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], v)) }
+				r.btype = unsafe { JsonBehaviorType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8,
+					9], v)) }
 				off += c2
 			}
 			2 {
@@ -2393,7 +2501,9 @@ fn decode_json_behavior(buf []u8, depth int) (JsonBehavior, int) {
 }
 
 fn decode_json_table_path(buf []u8, depth int) (JsonTablePath, int) {
-	if depth <= 0 { return JsonTablePath{}, 0 }
+	if depth <= 0 {
+		return JsonTablePath{}, 0
+	}
 	mut r := JsonTablePath{}
 	mut off := 0
 	for off < buf.len {
@@ -2414,7 +2524,9 @@ fn decode_json_table_path(buf []u8, depth int) (JsonTablePath, int) {
 }
 
 fn decode_json_table_sibling_join(buf []u8, depth int) (JsonTableSiblingJoin, int) {
-	if depth <= 0 { return JsonTableSiblingJoin{}, 0 }
+	if depth <= 0 {
+		return JsonTableSiblingJoin{}, 0
+	}
 	mut r := JsonTableSiblingJoin{}
 	mut off := 0
 	for off < buf.len {
@@ -2448,7 +2560,9 @@ fn decode_json_table_sibling_join(buf []u8, depth int) (JsonTableSiblingJoin, in
 }
 
 fn decode_null_test(buf []u8, depth int) (NullTest, int) {
-	if depth <= 0 { return NullTest{}, 0 }
+	if depth <= 0 {
+		return NullTest{}, 0
+	}
 	mut r := NullTest{}
 	mut off := 0
 	for off < buf.len {
@@ -2491,7 +2605,9 @@ fn decode_null_test(buf []u8, depth int) (NullTest, int) {
 }
 
 fn decode_boolean_test(buf []u8, depth int) (BooleanTest, int) {
-	if depth <= 0 { return BooleanTest{}, 0 }
+	if depth <= 0 {
+		return BooleanTest{}, 0
+	}
 	mut r := BooleanTest{}
 	mut off := 0
 	for off < buf.len {
@@ -2512,7 +2628,8 @@ fn decode_boolean_test(buf []u8, depth int) (BooleanTest, int) {
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.booltesttype = unsafe { BoolTestType(valid_enum_int([0, 1, 2, 3, 4, 5, 6], v)) }
+				r.booltesttype = unsafe { BoolTestType(valid_enum_int([0, 1, 2, 3, 4, 5, 6],
+					v)) }
 				off += c2
 			}
 			4 {
@@ -2529,7 +2646,9 @@ fn decode_boolean_test(buf []u8, depth int) (BooleanTest, int) {
 }
 
 fn decode_merge_action(buf []u8, depth int) (MergeAction, int) {
-	if depth <= 0 { return MergeAction{}, 0 }
+	if depth <= 0 {
+		return MergeAction{}, 0
+	}
 	mut r := MergeAction{}
 	mut off := 0
 	for off < buf.len {
@@ -2543,7 +2662,8 @@ fn decode_merge_action(buf []u8, depth int) (MergeAction, int) {
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.command_type = unsafe { CmdType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8], v)) }
+				r.command_type = unsafe { CmdType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8],
+					v)) }
 				off += c2
 			}
 			3 {
@@ -2578,7 +2698,9 @@ fn decode_merge_action(buf []u8, depth int) (MergeAction, int) {
 }
 
 fn decode_coerce_to_domain(buf []u8, depth int) (CoerceToDomain, int) {
-	if depth <= 0 { return CoerceToDomain{}, 0 }
+	if depth <= 0 {
+		return CoerceToDomain{}, 0
+	}
 	mut r := CoerceToDomain{}
 	mut off := 0
 	for off < buf.len {
@@ -2614,7 +2736,8 @@ fn decode_coerce_to_domain(buf []u8, depth int) (CoerceToDomain, int) {
 			}
 			6 {
 				v, c2 := read_varint(buf, off)
-				r.coercionformat = unsafe { CoercionForm(valid_enum_int([0, 1, 2, 3, 4], v)) }
+				r.coercionformat = unsafe { CoercionForm(valid_enum_int([0, 1, 2, 3, 4],
+					v)) }
 				off += c2
 			}
 			7 {
@@ -2631,7 +2754,9 @@ fn decode_coerce_to_domain(buf []u8, depth int) (CoerceToDomain, int) {
 }
 
 fn decode_coerce_to_domain_value(buf []u8, depth int) (CoerceToDomainValue, int) {
-	if depth <= 0 { return CoerceToDomainValue{}, 0 }
+	if depth <= 0 {
+		return CoerceToDomainValue{}, 0
+	}
 	mut r := CoerceToDomainValue{}
 	mut off := 0
 	for off < buf.len {
@@ -2673,7 +2798,9 @@ fn decode_coerce_to_domain_value(buf []u8, depth int) (CoerceToDomainValue, int)
 }
 
 fn decode_set_to_default(buf []u8, depth int) (SetToDefault, int) {
-	if depth <= 0 { return SetToDefault{}, 0 }
+	if depth <= 0 {
+		return SetToDefault{}, 0
+	}
 	mut r := SetToDefault{}
 	mut off := 0
 	for off < buf.len {
@@ -2715,7 +2842,9 @@ fn decode_set_to_default(buf []u8, depth int) (SetToDefault, int) {
 }
 
 fn decode_current_of_expr(buf []u8, depth int) (CurrentOfExpr, int) {
-	if depth <= 0 { return CurrentOfExpr{}, 0 }
+	if depth <= 0 {
+		return CurrentOfExpr{}, 0
+	}
 	mut r := CurrentOfExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -2752,7 +2881,9 @@ fn decode_current_of_expr(buf []u8, depth int) (CurrentOfExpr, int) {
 }
 
 fn decode_next_value_expr(buf []u8, depth int) (NextValueExpr, int) {
-	if depth <= 0 { return NextValueExpr{}, 0 }
+	if depth <= 0 {
+		return NextValueExpr{}, 0
+	}
 	mut r := NextValueExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -2784,7 +2915,9 @@ fn decode_next_value_expr(buf []u8, depth int) (NextValueExpr, int) {
 }
 
 fn decode_inference_elem(buf []u8, depth int) (InferenceElem, int) {
-	if depth <= 0 { return InferenceElem{}, 0 }
+	if depth <= 0 {
+		return InferenceElem{}, 0
+	}
 	mut r := InferenceElem{}
 	mut off := 0
 	for off < buf.len {
@@ -2822,7 +2955,9 @@ fn decode_inference_elem(buf []u8, depth int) (InferenceElem, int) {
 }
 
 fn decode_target_entry(buf []u8, depth int) (TargetEntry, int) {
-	if depth <= 0 { return TargetEntry{}, 0 }
+	if depth <= 0 {
+		return TargetEntry{}, 0
+	}
 	mut r := TargetEntry{}
 	mut off := 0
 	for off < buf.len {
@@ -2880,7 +3015,9 @@ fn decode_target_entry(buf []u8, depth int) (TargetEntry, int) {
 }
 
 fn decode_range_tbl_ref(buf []u8, depth int) (RangeTblRef, int) {
-	if depth <= 0 { return RangeTblRef{}, 0 }
+	if depth <= 0 {
+		return RangeTblRef{}, 0
+	}
 	mut r := RangeTblRef{}
 	mut off := 0
 	for off < buf.len {
@@ -2901,7 +3038,9 @@ fn decode_range_tbl_ref(buf []u8, depth int) (RangeTblRef, int) {
 }
 
 fn decode_from_expr(buf []u8, depth int) (FromExpr, int) {
-	if depth <= 0 { return FromExpr{}, 0 }
+	if depth <= 0 {
+		return FromExpr{}, 0
+	}
 	mut r := FromExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -2929,7 +3068,9 @@ fn decode_from_expr(buf []u8, depth int) (FromExpr, int) {
 }
 
 fn decode_on_conflict_expr(buf []u8, depth int) (OnConflictExpr, int) {
-	if depth <= 0 { return OnConflictExpr{}, 0 }
+	if depth <= 0 {
+		return OnConflictExpr{}, 0
+	}
 	mut r := OnConflictExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -2990,7 +3131,9 @@ fn decode_on_conflict_expr(buf []u8, depth int) (OnConflictExpr, int) {
 }
 
 fn decode_type_name(buf []u8, depth int) (TypeName, int) {
-	if depth <= 0 { return TypeName{}, 0 }
+	if depth <= 0 {
+		return TypeName{}, 0
+	}
 	mut r := TypeName{}
 	mut off := 0
 	for off < buf.len {
@@ -3049,7 +3192,9 @@ fn decode_type_name(buf []u8, depth int) (TypeName, int) {
 }
 
 fn decode_column_ref(buf []u8, depth int) (ColumnRef, int) {
-	if depth <= 0 { return ColumnRef{}, 0 }
+	if depth <= 0 {
+		return ColumnRef{}, 0
+	}
 	mut r := ColumnRef{}
 	mut off := 0
 	for off < buf.len {
@@ -3076,7 +3221,9 @@ fn decode_column_ref(buf []u8, depth int) (ColumnRef, int) {
 }
 
 fn decode_param_ref(buf []u8, depth int) (ParamRef, int) {
-	if depth <= 0 { return ParamRef{}, 0 }
+	if depth <= 0 {
+		return ParamRef{}, 0
+	}
 	mut r := ParamRef{}
 	mut off := 0
 	for off < buf.len {
@@ -3102,7 +3249,9 @@ fn decode_param_ref(buf []u8, depth int) (ParamRef, int) {
 }
 
 fn decode_a_expr(buf []u8, depth int) (AExpr, int) {
-	if depth <= 0 { return AExpr{}, 0 }
+	if depth <= 0 {
+		return AExpr{}, 0
+	}
 	mut r := AExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -3111,7 +3260,8 @@ fn decode_a_expr(buf []u8, depth int) (AExpr, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.kind = unsafe { AExprKind(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], v)) }
+				r.kind = unsafe { AExprKind(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+					12, 13, 14], v)) }
 				off += c2
 			}
 			2 {
@@ -3146,7 +3296,9 @@ fn decode_a_expr(buf []u8, depth int) (AExpr, int) {
 }
 
 fn decode_collate_clause(buf []u8, depth int) (CollateClause, int) {
-	if depth <= 0 { return CollateClause{}, 0 }
+	if depth <= 0 {
+		return CollateClause{}, 0
+	}
 	mut r := CollateClause{}
 	mut off := 0
 	for off < buf.len {
@@ -3179,7 +3331,9 @@ fn decode_collate_clause(buf []u8, depth int) (CollateClause, int) {
 }
 
 fn decode_role_spec(buf []u8, depth int) (RoleSpec, int) {
-	if depth <= 0 { return RoleSpec{}, 0 }
+	if depth <= 0 {
+		return RoleSpec{}, 0
+	}
 	mut r := RoleSpec{}
 	mut off := 0
 	for off < buf.len {
@@ -3188,7 +3342,8 @@ fn decode_role_spec(buf []u8, depth int) (RoleSpec, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.roletype = unsafe { RoleSpecType(valid_enum_int([0, 1, 2, 3, 4, 5], v)) }
+				r.roletype = unsafe { RoleSpecType(valid_enum_int([0, 1, 2, 3, 4, 5],
+					v)) }
 				off += c2
 			}
 			2 {
@@ -3210,13 +3365,17 @@ fn decode_role_spec(buf []u8, depth int) (RoleSpec, int) {
 }
 
 fn decode_a_star(buf []u8, depth int) (AStar, int) {
-	if depth <= 0 { return AStar{}, 0 }
+	if depth <= 0 {
+		return AStar{}, 0
+	}
 	mut r := AStar{}
 	return r, buf.len
 }
 
 fn decode_a_indices(buf []u8, depth int) (AIndices, int) {
-	if depth <= 0 { return AIndices{}, 0 }
+	if depth <= 0 {
+		return AIndices{}, 0
+	}
 	mut r := AIndices{}
 	mut off := 0
 	for off < buf.len {
@@ -3249,7 +3408,9 @@ fn decode_a_indices(buf []u8, depth int) (AIndices, int) {
 }
 
 fn decode_a_indirection(buf []u8, depth int) (AIndirection, int) {
-	if depth <= 0 { return AIndirection{}, 0 }
+	if depth <= 0 {
+		return AIndirection{}, 0
+	}
 	mut r := AIndirection{}
 	mut off := 0
 	for off < buf.len {
@@ -3277,7 +3438,9 @@ fn decode_a_indirection(buf []u8, depth int) (AIndirection, int) {
 }
 
 fn decode_a_array_expr(buf []u8, depth int) (AArrayExpr, int) {
-	if depth <= 0 { return AArrayExpr{}, 0 }
+	if depth <= 0 {
+		return AArrayExpr{}, 0
+	}
 	mut r := AArrayExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -3304,7 +3467,9 @@ fn decode_a_array_expr(buf []u8, depth int) (AArrayExpr, int) {
 }
 
 fn decode_res_target(buf []u8, depth int) (ResTarget, int) {
-	if depth <= 0 { return ResTarget{}, 0 }
+	if depth <= 0 {
+		return ResTarget{}, 0
+	}
 	mut r := ResTarget{}
 	mut off := 0
 	for off < buf.len {
@@ -3342,7 +3507,9 @@ fn decode_res_target(buf []u8, depth int) (ResTarget, int) {
 }
 
 fn decode_multi_assign_ref(buf []u8, depth int) (MultiAssignRef, int) {
-	if depth <= 0 { return MultiAssignRef{}, 0 }
+	if depth <= 0 {
+		return MultiAssignRef{}, 0
+	}
 	mut r := MultiAssignRef{}
 	mut off := 0
 	for off < buf.len {
@@ -3374,7 +3541,9 @@ fn decode_multi_assign_ref(buf []u8, depth int) (MultiAssignRef, int) {
 }
 
 fn decode_sort_by(buf []u8, depth int) (SortBy, int) {
-	if depth <= 0 { return SortBy{}, 0 }
+	if depth <= 0 {
+		return SortBy{}, 0
+	}
 	mut r := SortBy{}
 	mut off := 0
 	for off < buf.len {
@@ -3417,7 +3586,9 @@ fn decode_sort_by(buf []u8, depth int) (SortBy, int) {
 }
 
 fn decode_window_def(buf []u8, depth int) (WindowDef, int) {
-	if depth <= 0 { return WindowDef{}, 0 }
+	if depth <= 0 {
+		return WindowDef{}, 0
+	}
 	mut r := WindowDef{}
 	mut off := 0
 	for off < buf.len {
@@ -3477,7 +3648,9 @@ fn decode_window_def(buf []u8, depth int) (WindowDef, int) {
 }
 
 fn decode_range_table_sample(buf []u8, depth int) (RangeTableSample, int) {
-	if depth <= 0 { return RangeTableSample{}, 0 }
+	if depth <= 0 {
+		return RangeTableSample{}, 0
+	}
 	mut r := RangeTableSample{}
 	mut off := 0
 	for off < buf.len {
@@ -3522,7 +3695,9 @@ fn decode_range_table_sample(buf []u8, depth int) (RangeTableSample, int) {
 }
 
 fn decode_index_elem(buf []u8, depth int) (IndexElem, int) {
-	if depth <= 0 { return IndexElem{}, 0 }
+	if depth <= 0 {
+		return IndexElem{}, 0
+	}
 	mut r := IndexElem{}
 	mut off := 0
 	for off < buf.len {
@@ -3582,7 +3757,9 @@ fn decode_index_elem(buf []u8, depth int) (IndexElem, int) {
 }
 
 fn decode_def_elem(buf []u8, depth int) (DefElem, int) {
-	if depth <= 0 { return DefElem{}, 0 }
+	if depth <= 0 {
+		return DefElem{}, 0
+	}
 	mut r := DefElem{}
 	mut off := 0
 	for off < buf.len {
@@ -3624,7 +3801,9 @@ fn decode_def_elem(buf []u8, depth int) (DefElem, int) {
 }
 
 fn decode_locking_clause(buf []u8, depth int) (LockingClause, int) {
-	if depth <= 0 { return LockingClause{}, 0 }
+	if depth <= 0 {
+		return LockingClause{}, 0
+	}
 	mut r := LockingClause{}
 	mut off := 0
 	for off < buf.len {
@@ -3639,7 +3818,8 @@ fn decode_locking_clause(buf []u8, depth int) (LockingClause, int) {
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.strength = unsafe { LockClauseStrength(valid_enum_int([0, 1, 2, 3, 4, 5], v)) }
+				r.strength = unsafe { LockClauseStrength(valid_enum_int([0, 1, 2, 3, 4, 5],
+					v)) }
 				off += c2
 			}
 			3 {
@@ -3656,7 +3836,9 @@ fn decode_locking_clause(buf []u8, depth int) (LockingClause, int) {
 }
 
 fn decode_partition_elem(buf []u8, depth int) (PartitionElem, int) {
-	if depth <= 0 { return PartitionElem{}, 0 }
+	if depth <= 0 {
+		return PartitionElem{}, 0
+	}
 	mut r := PartitionElem{}
 	mut off := 0
 	for off < buf.len {
@@ -3700,7 +3882,9 @@ fn decode_partition_elem(buf []u8, depth int) (PartitionElem, int) {
 }
 
 fn decode_partition_spec(buf []u8, depth int) (PartitionSpec, int) {
-	if depth <= 0 { return PartitionSpec{}, 0 }
+	if depth <= 0 {
+		return PartitionSpec{}, 0
+	}
 	mut r := PartitionSpec{}
 	mut off := 0
 	for off < buf.len {
@@ -3732,7 +3916,9 @@ fn decode_partition_spec(buf []u8, depth int) (PartitionSpec, int) {
 }
 
 fn decode_partition_bound_spec(buf []u8, depth int) (PartitionBoundSpec, int) {
-	if depth <= 0 { return PartitionBoundSpec{}, 0 }
+	if depth <= 0 {
+		return PartitionBoundSpec{}, 0
+	}
 	mut r := PartitionBoundSpec{}
 	mut off := 0
 	for off < buf.len {
@@ -3791,7 +3977,9 @@ fn decode_partition_bound_spec(buf []u8, depth int) (PartitionBoundSpec, int) {
 }
 
 fn decode_partition_range_datum(buf []u8, depth int) (PartitionRangeDatum, int) {
-	if depth <= 0 { return PartitionRangeDatum{}, 0 }
+	if depth <= 0 {
+		return PartitionRangeDatum{}, 0
+	}
 	mut r := PartitionRangeDatum{}
 	mut off := 0
 	for off < buf.len {
@@ -3800,7 +3988,8 @@ fn decode_partition_range_datum(buf []u8, depth int) (PartitionRangeDatum, int) 
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.kind = unsafe { PartitionRangeDatumKind(valid_enum_int([0, 1, 2, 3], v)) }
+				r.kind = unsafe { PartitionRangeDatumKind(valid_enum_int([0, 1, 2, 3],
+					v)) }
 				off += c2
 			}
 			2 {
@@ -3823,13 +4012,17 @@ fn decode_partition_range_datum(buf []u8, depth int) (PartitionRangeDatum, int) 
 }
 
 fn decode_single_partition_spec(buf []u8, depth int) (SinglePartitionSpec, int) {
-	if depth <= 0 { return SinglePartitionSpec{}, 0 }
+	if depth <= 0 {
+		return SinglePartitionSpec{}, 0
+	}
 	mut r := SinglePartitionSpec{}
 	return r, buf.len
 }
 
 fn decode_r_t_e_permission_info(buf []u8, depth int) (RTEPermissionInfo, int) {
-	if depth <= 0 { return RTEPermissionInfo{}, 0 }
+	if depth <= 0 {
+		return RTEPermissionInfo{}, 0
+	}
 	mut r := RTEPermissionInfo{}
 	mut off := 0
 	for off < buf.len {
@@ -3913,7 +4106,9 @@ fn decode_r_t_e_permission_info(buf []u8, depth int) (RTEPermissionInfo, int) {
 }
 
 fn decode_range_tbl_function(buf []u8, depth int) (RangeTblFunction, int) {
-	if depth <= 0 { return RangeTblFunction{}, 0 }
+	if depth <= 0 {
+		return RangeTblFunction{}, 0
+	}
 	mut r := RangeTblFunction{}
 	mut off := 0
 	for off < buf.len {
@@ -3980,7 +4175,9 @@ fn decode_range_tbl_function(buf []u8, depth int) (RangeTblFunction, int) {
 }
 
 fn decode_table_sample_clause(buf []u8, depth int) (TableSampleClause, int) {
-	if depth <= 0 { return TableSampleClause{}, 0 }
+	if depth <= 0 {
+		return TableSampleClause{}, 0
+	}
 	mut r := TableSampleClause{}
 	mut off := 0
 	for off < buf.len {
@@ -4013,7 +4210,9 @@ fn decode_table_sample_clause(buf []u8, depth int) (TableSampleClause, int) {
 }
 
 fn decode_with_check_option(buf []u8, depth int) (WithCheckOption, int) {
-	if depth <= 0 { return WithCheckOption{}, 0 }
+	if depth <= 0 {
+		return WithCheckOption{}, 0
+	}
 	mut r := WithCheckOption{}
 	mut off := 0
 	for off < buf.len {
@@ -4055,7 +4254,9 @@ fn decode_with_check_option(buf []u8, depth int) (WithCheckOption, int) {
 }
 
 fn decode_sort_group_clause(buf []u8, depth int) (SortGroupClause, int) {
-	if depth <= 0 { return SortGroupClause{}, 0 }
+	if depth <= 0 {
+		return SortGroupClause{}, 0
+	}
 	mut r := SortGroupClause{}
 	mut off := 0
 	for off < buf.len {
@@ -4096,7 +4297,9 @@ fn decode_sort_group_clause(buf []u8, depth int) (SortGroupClause, int) {
 }
 
 fn decode_grouping_set(buf []u8, depth int) (GroupingSet, int) {
-	if depth <= 0 { return GroupingSet{}, 0 }
+	if depth <= 0 {
+		return GroupingSet{}, 0
+	}
 	mut r := GroupingSet{}
 	mut off := 0
 	for off < buf.len {
@@ -4128,7 +4331,9 @@ fn decode_grouping_set(buf []u8, depth int) (GroupingSet, int) {
 }
 
 fn decode_window_clause(buf []u8, depth int) (WindowClause, int) {
-	if depth <= 0 { return WindowClause{}, 0 }
+	if depth <= 0 {
+		return WindowClause{}, 0
+	}
 	mut r := WindowClause{}
 	mut off := 0
 	for off < buf.len {
@@ -4218,7 +4423,9 @@ fn decode_window_clause(buf []u8, depth int) (WindowClause, int) {
 }
 
 fn decode_row_mark_clause(buf []u8, depth int) (RowMarkClause, int) {
-	if depth <= 0 { return RowMarkClause{}, 0 }
+	if depth <= 0 {
+		return RowMarkClause{}, 0
+	}
 	mut r := RowMarkClause{}
 	mut off := 0
 	for off < buf.len {
@@ -4232,7 +4439,8 @@ fn decode_row_mark_clause(buf []u8, depth int) (RowMarkClause, int) {
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.strength = unsafe { LockClauseStrength(valid_enum_int([0, 1, 2, 3, 4, 5], v)) }
+				r.strength = unsafe { LockClauseStrength(valid_enum_int([0, 1, 2, 3, 4, 5],
+					v)) }
 				off += c2
 			}
 			3 {
@@ -4254,7 +4462,9 @@ fn decode_row_mark_clause(buf []u8, depth int) (RowMarkClause, int) {
 }
 
 fn decode_with_clause(buf []u8, depth int) (WithClause, int) {
-	if depth <= 0 { return WithClause{}, 0 }
+	if depth <= 0 {
+		return WithClause{}, 0
+	}
 	mut r := WithClause{}
 	mut off := 0
 	for off < buf.len {
@@ -4286,7 +4496,9 @@ fn decode_with_clause(buf []u8, depth int) (WithClause, int) {
 }
 
 fn decode_infer_clause(buf []u8, depth int) (InferClause, int) {
-	if depth <= 0 { return InferClause{}, 0 }
+	if depth <= 0 {
+		return InferClause{}, 0
+	}
 	mut r := InferClause{}
 	mut off := 0
 	for off < buf.len {
@@ -4324,7 +4536,9 @@ fn decode_infer_clause(buf []u8, depth int) (InferClause, int) {
 }
 
 fn decode_c_t_e_search_clause(buf []u8, depth int) (CTESearchClause, int) {
-	if depth <= 0 { return CTESearchClause{}, 0 }
+	if depth <= 0 {
+		return CTESearchClause{}, 0
+	}
 	mut r := CTESearchClause{}
 	mut off := 0
 	for off < buf.len {
@@ -4361,7 +4575,9 @@ fn decode_c_t_e_search_clause(buf []u8, depth int) (CTESearchClause, int) {
 }
 
 fn decode_c_t_e_cycle_clause(buf []u8, depth int) (CTECycleClause, int) {
-	if depth <= 0 { return CTECycleClause{}, 0 }
+	if depth <= 0 {
+		return CTECycleClause{}, 0
+	}
 	mut r := CTECycleClause{}
 	mut off := 0
 	for off < buf.len {
@@ -4430,7 +4646,9 @@ fn decode_c_t_e_cycle_clause(buf []u8, depth int) (CTECycleClause, int) {
 }
 
 fn decode_merge_when_clause(buf []u8, depth int) (MergeWhenClause, int) {
-	if depth <= 0 { return MergeWhenClause{}, 0 }
+	if depth <= 0 {
+		return MergeWhenClause{}, 0
+	}
 	mut r := MergeWhenClause{}
 	mut off := 0
 	for off < buf.len {
@@ -4444,7 +4662,8 @@ fn decode_merge_when_clause(buf []u8, depth int) (MergeWhenClause, int) {
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.command_type = unsafe { CmdType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8], v)) }
+				r.command_type = unsafe { CmdType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8],
+					v)) }
 				off += c2
 			}
 			3 {
@@ -4479,7 +4698,9 @@ fn decode_merge_when_clause(buf []u8, depth int) (MergeWhenClause, int) {
 }
 
 fn decode_trigger_transition(buf []u8, depth int) (TriggerTransition, int) {
-	if depth <= 0 { return TriggerTransition{}, 0 }
+	if depth <= 0 {
+		return TriggerTransition{}, 0
+	}
 	mut r := TriggerTransition{}
 	mut off := 0
 	for off < buf.len {
@@ -4510,7 +4731,9 @@ fn decode_trigger_transition(buf []u8, depth int) (TriggerTransition, int) {
 }
 
 fn decode_json_table_path_spec(buf []u8, depth int) (JsonTablePathSpec, int) {
-	if depth <= 0 { return JsonTablePathSpec{}, 0 }
+	if depth <= 0 {
+		return JsonTablePathSpec{}, 0
+	}
 	mut r := JsonTablePathSpec{}
 	mut off := 0
 	for off < buf.len {
@@ -4547,7 +4770,9 @@ fn decode_json_table_path_spec(buf []u8, depth int) (JsonTablePathSpec, int) {
 }
 
 fn decode_raw_stmt(buf []u8, depth int) (RawStmt, int) {
-	if depth <= 0 { return RawStmt{}, 0 }
+	if depth <= 0 {
+		return RawStmt{}, 0
+	}
 	mut r := RawStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4579,7 +4804,9 @@ fn decode_raw_stmt(buf []u8, depth int) (RawStmt, int) {
 }
 
 fn decode_set_operation_stmt(buf []u8, depth int) (SetOperationStmt, int) {
-	if depth <= 0 { return SetOperationStmt{}, 0 }
+	if depth <= 0 {
+		return SetOperationStmt{}, 0
+	}
 	mut r := SetOperationStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4641,7 +4868,9 @@ fn decode_set_operation_stmt(buf []u8, depth int) (SetOperationStmt, int) {
 }
 
 fn decode_return_stmt(buf []u8, depth int) (ReturnStmt, int) {
-	if depth <= 0 { return ReturnStmt{}, 0 }
+	if depth <= 0 {
+		return ReturnStmt{}, 0
+	}
 	mut r := ReturnStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4663,7 +4892,9 @@ fn decode_return_stmt(buf []u8, depth int) (ReturnStmt, int) {
 }
 
 fn decode_replica_identity_stmt(buf []u8, depth int) (ReplicaIdentityStmt, int) {
-	if depth <= 0 { return ReplicaIdentityStmt{}, 0 }
+	if depth <= 0 {
+		return ReplicaIdentityStmt{}, 0
+	}
 	mut r := ReplicaIdentityStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4689,7 +4920,9 @@ fn decode_replica_identity_stmt(buf []u8, depth int) (ReplicaIdentityStmt, int) 
 }
 
 fn decode_alter_collation_stmt(buf []u8, depth int) (AlterCollationStmt, int) {
-	if depth <= 0 { return AlterCollationStmt{}, 0 }
+	if depth <= 0 {
+		return AlterCollationStmt{}, 0
+	}
 	mut r := AlterCollationStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4711,7 +4944,9 @@ fn decode_alter_collation_stmt(buf []u8, depth int) (AlterCollationStmt, int) {
 }
 
 fn decode_alter_domain_stmt(buf []u8, depth int) (AlterDomainStmt, int) {
-	if depth <= 0 { return AlterDomainStmt{}, 0 }
+	if depth <= 0 {
+		return AlterDomainStmt{}, 0
+	}
 	mut r := AlterDomainStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4759,7 +4994,9 @@ fn decode_alter_domain_stmt(buf []u8, depth int) (AlterDomainStmt, int) {
 }
 
 fn decode_object_with_args(buf []u8, depth int) (ObjectWithArgs, int) {
-	if depth <= 0 { return ObjectWithArgs{}, 0 }
+	if depth <= 0 {
+		return ObjectWithArgs{}, 0
+	}
 	mut r := ObjectWithArgs{}
 	mut off := 0
 	for off < buf.len {
@@ -4798,7 +5035,9 @@ fn decode_object_with_args(buf []u8, depth int) (ObjectWithArgs, int) {
 }
 
 fn decode_access_priv(buf []u8, depth int) (AccessPriv, int) {
-	if depth <= 0 { return AccessPriv{}, 0 }
+	if depth <= 0 {
+		return AccessPriv{}, 0
+	}
 	mut r := AccessPriv{}
 	mut off := 0
 	for off < buf.len {
@@ -4825,7 +5064,9 @@ fn decode_access_priv(buf []u8, depth int) (AccessPriv, int) {
 }
 
 fn decode_variable_set_stmt(buf []u8, depth int) (VariableSetStmt, int) {
-	if depth <= 0 { return VariableSetStmt{}, 0 }
+	if depth <= 0 {
+		return VariableSetStmt{}, 0
+	}
 	mut r := VariableSetStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4834,7 +5075,8 @@ fn decode_variable_set_stmt(buf []u8, depth int) (VariableSetStmt, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.kind = unsafe { VariableSetKind(valid_enum_int([0, 1, 2, 3, 4, 5, 6], v)) }
+				r.kind = unsafe { VariableSetKind(valid_enum_int([0, 1, 2, 3, 4, 5, 6],
+					v)) }
 				off += c2
 			}
 			2 {
@@ -4862,7 +5104,9 @@ fn decode_variable_set_stmt(buf []u8, depth int) (VariableSetStmt, int) {
 }
 
 fn decode_variable_show_stmt(buf []u8, depth int) (VariableShowStmt, int) {
-	if depth <= 0 { return VariableShowStmt{}, 0 }
+	if depth <= 0 {
+		return VariableShowStmt{}, 0
+	}
 	mut r := VariableShowStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4883,7 +5127,9 @@ fn decode_variable_show_stmt(buf []u8, depth int) (VariableShowStmt, int) {
 }
 
 fn decode_drop_table_space_stmt(buf []u8, depth int) (DropTableSpaceStmt, int) {
-	if depth <= 0 { return DropTableSpaceStmt{}, 0 }
+	if depth <= 0 {
+		return DropTableSpaceStmt{}, 0
+	}
 	mut r := DropTableSpaceStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4909,7 +5155,9 @@ fn decode_drop_table_space_stmt(buf []u8, depth int) (DropTableSpaceStmt, int) {
 }
 
 fn decode_alter_table_space_options_stmt(buf []u8, depth int) (AlterTableSpaceOptionsStmt, int) {
-	if depth <= 0 { return AlterTableSpaceOptionsStmt{}, 0 }
+	if depth <= 0 {
+		return AlterTableSpaceOptionsStmt{}, 0
+	}
 	mut r := AlterTableSpaceOptionsStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4941,7 +5189,9 @@ fn decode_alter_table_space_options_stmt(buf []u8, depth int) (AlterTableSpaceOp
 }
 
 fn decode_alter_table_move_all_stmt(buf []u8, depth int) (AlterTableMoveAllStmt, int) {
-	if depth <= 0 { return AlterTableMoveAllStmt{}, 0 }
+	if depth <= 0 {
+		return AlterTableMoveAllStmt{}, 0
+	}
 	mut r := AlterTableMoveAllStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -4955,7 +5205,10 @@ fn decode_alter_table_move_all_stmt(buf []u8, depth int) (AlterTableMoveAllStmt,
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.objtype = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
+				r.objtype = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+					11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+					30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48,
+					49, 50, 51, 52], v)) }
 				off += c2
 			}
 			3 {
@@ -4983,7 +5236,9 @@ fn decode_alter_table_move_all_stmt(buf []u8, depth int) (AlterTableMoveAllStmt,
 }
 
 fn decode_create_extension_stmt(buf []u8, depth int) (CreateExtensionStmt, int) {
-	if depth <= 0 { return CreateExtensionStmt{}, 0 }
+	if depth <= 0 {
+		return CreateExtensionStmt{}, 0
+	}
 	mut r := CreateExtensionStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5015,7 +5270,9 @@ fn decode_create_extension_stmt(buf []u8, depth int) (CreateExtensionStmt, int) 
 }
 
 fn decode_alter_extension_stmt(buf []u8, depth int) (AlterExtensionStmt, int) {
-	if depth <= 0 { return AlterExtensionStmt{}, 0 }
+	if depth <= 0 {
+		return AlterExtensionStmt{}, 0
+	}
 	mut r := AlterExtensionStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5042,7 +5299,9 @@ fn decode_alter_extension_stmt(buf []u8, depth int) (AlterExtensionStmt, int) {
 }
 
 fn decode_alter_extension_contents_stmt(buf []u8, depth int) (AlterExtensionContentsStmt, int) {
-	if depth <= 0 { return AlterExtensionContentsStmt{}, 0 }
+	if depth <= 0 {
+		return AlterExtensionContentsStmt{}, 0
+	}
 	mut r := AlterExtensionContentsStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5061,7 +5320,10 @@ fn decode_alter_extension_contents_stmt(buf []u8, depth int) (AlterExtensionCont
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.objtype = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
+				r.objtype = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+					11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+					30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48,
+					49, 50, 51, 52], v)) }
 				off += c2
 			}
 			4 {
@@ -5079,7 +5341,9 @@ fn decode_alter_extension_contents_stmt(buf []u8, depth int) (AlterExtensionCont
 }
 
 fn decode_create_fdw_stmt(buf []u8, depth int) (CreateFdwStmt, int) {
-	if depth <= 0 { return CreateFdwStmt{}, 0 }
+	if depth <= 0 {
+		return CreateFdwStmt{}, 0
+	}
 	mut r := CreateFdwStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5112,7 +5376,9 @@ fn decode_create_fdw_stmt(buf []u8, depth int) (CreateFdwStmt, int) {
 }
 
 fn decode_alter_fdw_stmt(buf []u8, depth int) (AlterFdwStmt, int) {
-	if depth <= 0 { return AlterFdwStmt{}, 0 }
+	if depth <= 0 {
+		return AlterFdwStmt{}, 0
+	}
 	mut r := AlterFdwStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5145,7 +5411,9 @@ fn decode_alter_fdw_stmt(buf []u8, depth int) (AlterFdwStmt, int) {
 }
 
 fn decode_create_foreign_server_stmt(buf []u8, depth int) (CreateForeignServerStmt, int) {
-	if depth <= 0 { return CreateForeignServerStmt{}, 0 }
+	if depth <= 0 {
+		return CreateForeignServerStmt{}, 0
+	}
 	mut r := CreateForeignServerStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5192,7 +5460,9 @@ fn decode_create_foreign_server_stmt(buf []u8, depth int) (CreateForeignServerSt
 }
 
 fn decode_alter_foreign_server_stmt(buf []u8, depth int) (AlterForeignServerStmt, int) {
-	if depth <= 0 { return AlterForeignServerStmt{}, 0 }
+	if depth <= 0 {
+		return AlterForeignServerStmt{}, 0
+	}
 	mut r := AlterForeignServerStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5229,7 +5499,9 @@ fn decode_alter_foreign_server_stmt(buf []u8, depth int) (AlterForeignServerStmt
 }
 
 fn decode_import_foreign_schema_stmt(buf []u8, depth int) (ImportForeignSchemaStmt, int) {
-	if depth <= 0 { return ImportForeignSchemaStmt{}, 0 }
+	if depth <= 0 {
+		return ImportForeignSchemaStmt{}, 0
+	}
 	mut r := ImportForeignSchemaStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5253,7 +5525,8 @@ fn decode_import_foreign_schema_stmt(buf []u8, depth int) (ImportForeignSchemaSt
 			}
 			4 {
 				v, c2 := read_varint(buf, off)
-				r.list_type = unsafe { ImportForeignSchemaType(valid_enum_int([0, 1, 2, 3], v)) }
+				r.list_type = unsafe { ImportForeignSchemaType(valid_enum_int([0, 1, 2, 3],
+					v)) }
 				off += c2
 			}
 			5 {
@@ -5277,7 +5550,9 @@ fn decode_import_foreign_schema_stmt(buf []u8, depth int) (ImportForeignSchemaSt
 }
 
 fn decode_create_am_stmt(buf []u8, depth int) (CreateAmStmt, int) {
-	if depth <= 0 { return CreateAmStmt{}, 0 }
+	if depth <= 0 {
+		return CreateAmStmt{}, 0
+	}
 	mut r := CreateAmStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5309,7 +5584,9 @@ fn decode_create_am_stmt(buf []u8, depth int) (CreateAmStmt, int) {
 }
 
 fn decode_create_event_trig_stmt(buf []u8, depth int) (CreateEventTrigStmt, int) {
-	if depth <= 0 { return CreateEventTrigStmt{}, 0 }
+	if depth <= 0 {
+		return CreateEventTrigStmt{}, 0
+	}
 	mut r := CreateEventTrigStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5347,7 +5624,9 @@ fn decode_create_event_trig_stmt(buf []u8, depth int) (CreateEventTrigStmt, int)
 }
 
 fn decode_alter_event_trig_stmt(buf []u8, depth int) (AlterEventTrigStmt, int) {
-	if depth <= 0 { return AlterEventTrigStmt{}, 0 }
+	if depth <= 0 {
+		return AlterEventTrigStmt{}, 0
+	}
 	mut r := AlterEventTrigStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5373,7 +5652,9 @@ fn decode_alter_event_trig_stmt(buf []u8, depth int) (AlterEventTrigStmt, int) {
 }
 
 fn decode_create_p_lang_stmt(buf []u8, depth int) (CreatePLangStmt, int) {
-	if depth <= 0 { return CreatePLangStmt{}, 0 }
+	if depth <= 0 {
+		return CreatePLangStmt{}, 0
+	}
 	mut r := CreatePLangStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5422,7 +5703,9 @@ fn decode_create_p_lang_stmt(buf []u8, depth int) (CreatePLangStmt, int) {
 }
 
 fn decode_create_role_stmt(buf []u8, depth int) (CreateRoleStmt, int) {
-	if depth <= 0 { return CreateRoleStmt{}, 0 }
+	if depth <= 0 {
+		return CreateRoleStmt{}, 0
+	}
 	mut r := CreateRoleStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5454,7 +5737,9 @@ fn decode_create_role_stmt(buf []u8, depth int) (CreateRoleStmt, int) {
 }
 
 fn decode_drop_role_stmt(buf []u8, depth int) (DropRoleStmt, int) {
-	if depth <= 0 { return DropRoleStmt{}, 0 }
+	if depth <= 0 {
+		return DropRoleStmt{}, 0
+	}
 	mut r := DropRoleStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5481,7 +5766,9 @@ fn decode_drop_role_stmt(buf []u8, depth int) (DropRoleStmt, int) {
 }
 
 fn decode_define_stmt(buf []u8, depth int) (DefineStmt, int) {
-	if depth <= 0 { return DefineStmt{}, 0 }
+	if depth <= 0 {
+		return DefineStmt{}, 0
+	}
 	mut r := DefineStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5490,7 +5777,10 @@ fn decode_define_stmt(buf []u8, depth int) (DefineStmt, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.kind = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
+				r.kind = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+					11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+					30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48,
+					49, 50, 51, 52], v)) }
 				off += c2
 			}
 			2 {
@@ -5535,7 +5825,9 @@ fn decode_define_stmt(buf []u8, depth int) (DefineStmt, int) {
 }
 
 fn decode_create_op_family_stmt(buf []u8, depth int) (CreateOpFamilyStmt, int) {
-	if depth <= 0 { return CreateOpFamilyStmt{}, 0 }
+	if depth <= 0 {
+		return CreateOpFamilyStmt{}, 0
+	}
 	mut r := CreateOpFamilyStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5562,7 +5854,9 @@ fn decode_create_op_family_stmt(buf []u8, depth int) (CreateOpFamilyStmt, int) {
 }
 
 fn decode_alter_op_family_stmt(buf []u8, depth int) (AlterOpFamilyStmt, int) {
-	if depth <= 0 { return AlterOpFamilyStmt{}, 0 }
+	if depth <= 0 {
+		return AlterOpFamilyStmt{}, 0
+	}
 	mut r := AlterOpFamilyStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5600,7 +5894,9 @@ fn decode_alter_op_family_stmt(buf []u8, depth int) (AlterOpFamilyStmt, int) {
 }
 
 fn decode_drop_stmt(buf []u8, depth int) (DropStmt, int) {
-	if depth <= 0 { return DropStmt{}, 0 }
+	if depth <= 0 {
+		return DropStmt{}, 0
+	}
 	mut r := DropStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5615,7 +5911,10 @@ fn decode_drop_stmt(buf []u8, depth int) (DropStmt, int) {
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.remove_type = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
+				r.remove_type = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8,
+					9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
+					28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46,
+					47, 48, 49, 50, 51, 52], v)) }
 				off += c2
 			}
 			3 {
@@ -5642,7 +5941,9 @@ fn decode_drop_stmt(buf []u8, depth int) (DropStmt, int) {
 }
 
 fn decode_truncate_stmt(buf []u8, depth int) (TruncateStmt, int) {
-	if depth <= 0 { return TruncateStmt{}, 0 }
+	if depth <= 0 {
+		return TruncateStmt{}, 0
+	}
 	mut r := TruncateStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5674,7 +5975,9 @@ fn decode_truncate_stmt(buf []u8, depth int) (TruncateStmt, int) {
 }
 
 fn decode_comment_stmt(buf []u8, depth int) (CommentStmt, int) {
-	if depth <= 0 { return CommentStmt{}, 0 }
+	if depth <= 0 {
+		return CommentStmt{}, 0
+	}
 	mut r := CommentStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5683,7 +5986,10 @@ fn decode_comment_stmt(buf []u8, depth int) (CommentStmt, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.objtype = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
+				r.objtype = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+					11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+					30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48,
+					49, 50, 51, 52], v)) }
 				off += c2
 			}
 			2 {
@@ -5706,7 +6012,9 @@ fn decode_comment_stmt(buf []u8, depth int) (CommentStmt, int) {
 }
 
 fn decode_sec_label_stmt(buf []u8, depth int) (SecLabelStmt, int) {
-	if depth <= 0 { return SecLabelStmt{}, 0 }
+	if depth <= 0 {
+		return SecLabelStmt{}, 0
+	}
 	mut r := SecLabelStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5715,7 +6023,10 @@ fn decode_sec_label_stmt(buf []u8, depth int) (SecLabelStmt, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.objtype = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
+				r.objtype = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+					11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+					30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48,
+					49, 50, 51, 52], v)) }
 				off += c2
 			}
 			2 {
@@ -5743,7 +6054,9 @@ fn decode_sec_label_stmt(buf []u8, depth int) (SecLabelStmt, int) {
 }
 
 fn decode_declare_cursor_stmt(buf []u8, depth int) (DeclareCursorStmt, int) {
-	if depth <= 0 { return DeclareCursorStmt{}, 0 }
+	if depth <= 0 {
+		return DeclareCursorStmt{}, 0
+	}
 	mut r := DeclareCursorStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5775,7 +6088,9 @@ fn decode_declare_cursor_stmt(buf []u8, depth int) (DeclareCursorStmt, int) {
 }
 
 fn decode_close_portal_stmt(buf []u8, depth int) (ClosePortalStmt, int) {
-	if depth <= 0 { return ClosePortalStmt{}, 0 }
+	if depth <= 0 {
+		return ClosePortalStmt{}, 0
+	}
 	mut r := ClosePortalStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5796,7 +6111,9 @@ fn decode_close_portal_stmt(buf []u8, depth int) (ClosePortalStmt, int) {
 }
 
 fn decode_fetch_stmt(buf []u8, depth int) (FetchStmt, int) {
-	if depth <= 0 { return FetchStmt{}, 0 }
+	if depth <= 0 {
+		return FetchStmt{}, 0
+	}
 	mut r := FetchStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5805,7 +6122,8 @@ fn decode_fetch_stmt(buf []u8, depth int) (FetchStmt, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.direction = unsafe { FetchDirection(valid_enum_int([0, 1, 2, 3, 4], v)) }
+				r.direction = unsafe { FetchDirection(valid_enum_int([0, 1, 2, 3, 4],
+					v)) }
 				off += c2
 			}
 			2 {
@@ -5832,7 +6150,9 @@ fn decode_fetch_stmt(buf []u8, depth int) (FetchStmt, int) {
 }
 
 fn decode_create_stats_stmt(buf []u8, depth int) (CreateStatsStmt, int) {
-	if depth <= 0 { return CreateStatsStmt{}, 0 }
+	if depth <= 0 {
+		return CreateStatsStmt{}, 0
+	}
 	mut r := CreateStatsStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5887,7 +6207,9 @@ fn decode_create_stats_stmt(buf []u8, depth int) (CreateStatsStmt, int) {
 }
 
 fn decode_stats_elem(buf []u8, depth int) (StatsElem, int) {
-	if depth <= 0 { return StatsElem{}, 0 }
+	if depth <= 0 {
+		return StatsElem{}, 0
+	}
 	mut r := StatsElem{}
 	mut off := 0
 	for off < buf.len {
@@ -5914,7 +6236,9 @@ fn decode_stats_elem(buf []u8, depth int) (StatsElem, int) {
 }
 
 fn decode_alter_stats_stmt(buf []u8, depth int) (AlterStatsStmt, int) {
-	if depth <= 0 { return AlterStatsStmt{}, 0 }
+	if depth <= 0 {
+		return AlterStatsStmt{}, 0
+	}
 	mut r := AlterStatsStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5947,7 +6271,9 @@ fn decode_alter_stats_stmt(buf []u8, depth int) (AlterStatsStmt, int) {
 }
 
 fn decode_do_stmt(buf []u8, depth int) (DoStmt, int) {
-	if depth <= 0 { return DoStmt{}, 0 }
+	if depth <= 0 {
+		return DoStmt{}, 0
+	}
 	mut r := DoStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -5969,7 +6295,9 @@ fn decode_do_stmt(buf []u8, depth int) (DoStmt, int) {
 }
 
 fn decode_inline_code_block(buf []u8, depth int) (InlineCodeBlock, int) {
-	if depth <= 0 { return InlineCodeBlock{}, 0 }
+	if depth <= 0 {
+		return InlineCodeBlock{}, 0
+	}
 	mut r := InlineCodeBlock{}
 	mut off := 0
 	for off < buf.len {
@@ -6005,7 +6333,9 @@ fn decode_inline_code_block(buf []u8, depth int) (InlineCodeBlock, int) {
 }
 
 fn decode_call_context(buf []u8, depth int) (CallContext, int) {
-	if depth <= 0 { return CallContext{}, 0 }
+	if depth <= 0 {
+		return CallContext{}, 0
+	}
 	mut r := CallContext{}
 	mut off := 0
 	for off < buf.len {
@@ -6026,7 +6356,9 @@ fn decode_call_context(buf []u8, depth int) (CallContext, int) {
 }
 
 fn decode_alter_type_stmt(buf []u8, depth int) (AlterTypeStmt, int) {
-	if depth <= 0 { return AlterTypeStmt{}, 0 }
+	if depth <= 0 {
+		return AlterTypeStmt{}, 0
+	}
 	mut r := AlterTypeStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6054,7 +6386,9 @@ fn decode_alter_type_stmt(buf []u8, depth int) (AlterTypeStmt, int) {
 }
 
 fn decode_notify_stmt(buf []u8, depth int) (NotifyStmt, int) {
-	if depth <= 0 { return NotifyStmt{}, 0 }
+	if depth <= 0 {
+		return NotifyStmt{}, 0
+	}
 	mut r := NotifyStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6080,7 +6414,9 @@ fn decode_notify_stmt(buf []u8, depth int) (NotifyStmt, int) {
 }
 
 fn decode_listen_stmt(buf []u8, depth int) (ListenStmt, int) {
-	if depth <= 0 { return ListenStmt{}, 0 }
+	if depth <= 0 {
+		return ListenStmt{}, 0
+	}
 	mut r := ListenStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6101,7 +6437,9 @@ fn decode_listen_stmt(buf []u8, depth int) (ListenStmt, int) {
 }
 
 fn decode_unlisten_stmt(buf []u8, depth int) (UnlistenStmt, int) {
-	if depth <= 0 { return UnlistenStmt{}, 0 }
+	if depth <= 0 {
+		return UnlistenStmt{}, 0
+	}
 	mut r := UnlistenStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6122,7 +6460,9 @@ fn decode_unlisten_stmt(buf []u8, depth int) (UnlistenStmt, int) {
 }
 
 fn decode_transaction_stmt(buf []u8, depth int) (TransactionStmt, int) {
-	if depth <= 0 { return TransactionStmt{}, 0 }
+	if depth <= 0 {
+		return TransactionStmt{}, 0
+	}
 	mut r := TransactionStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6131,7 +6471,8 @@ fn decode_transaction_stmt(buf []u8, depth int) (TransactionStmt, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.kind = unsafe { TransactionStmtKind(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], v)) }
+				r.kind = unsafe { TransactionStmtKind(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8,
+					9, 10], v)) }
 				off += c2
 			}
 			2 {
@@ -6169,7 +6510,9 @@ fn decode_transaction_stmt(buf []u8, depth int) (TransactionStmt, int) {
 }
 
 fn decode_create_enum_stmt(buf []u8, depth int) (CreateEnumStmt, int) {
-	if depth <= 0 { return CreateEnumStmt{}, 0 }
+	if depth <= 0 {
+		return CreateEnumStmt{}, 0
+	}
 	mut r := CreateEnumStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6197,7 +6540,9 @@ fn decode_create_enum_stmt(buf []u8, depth int) (CreateEnumStmt, int) {
 }
 
 fn decode_create_range_stmt(buf []u8, depth int) (CreateRangeStmt, int) {
-	if depth <= 0 { return CreateRangeStmt{}, 0 }
+	if depth <= 0 {
+		return CreateRangeStmt{}, 0
+	}
 	mut r := CreateRangeStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6225,7 +6570,9 @@ fn decode_create_range_stmt(buf []u8, depth int) (CreateRangeStmt, int) {
 }
 
 fn decode_alter_enum_stmt(buf []u8, depth int) (AlterEnumStmt, int) {
-	if depth <= 0 { return AlterEnumStmt{}, 0 }
+	if depth <= 0 {
+		return AlterEnumStmt{}, 0
+	}
 	mut r := AlterEnumStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6272,7 +6619,9 @@ fn decode_alter_enum_stmt(buf []u8, depth int) (AlterEnumStmt, int) {
 }
 
 fn decode_load_stmt(buf []u8, depth int) (LoadStmt, int) {
-	if depth <= 0 { return LoadStmt{}, 0 }
+	if depth <= 0 {
+		return LoadStmt{}, 0
+	}
 	mut r := LoadStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6293,7 +6642,9 @@ fn decode_load_stmt(buf []u8, depth int) (LoadStmt, int) {
 }
 
 fn decode_createdb_stmt(buf []u8, depth int) (CreatedbStmt, int) {
-	if depth <= 0 { return CreatedbStmt{}, 0 }
+	if depth <= 0 {
+		return CreatedbStmt{}, 0
+	}
 	mut r := CreatedbStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6320,7 +6671,9 @@ fn decode_createdb_stmt(buf []u8, depth int) (CreatedbStmt, int) {
 }
 
 fn decode_alter_database_stmt(buf []u8, depth int) (AlterDatabaseStmt, int) {
-	if depth <= 0 { return AlterDatabaseStmt{}, 0 }
+	if depth <= 0 {
+		return AlterDatabaseStmt{}, 0
+	}
 	mut r := AlterDatabaseStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6347,7 +6700,9 @@ fn decode_alter_database_stmt(buf []u8, depth int) (AlterDatabaseStmt, int) {
 }
 
 fn decode_alter_database_refresh_coll_stmt(buf []u8, depth int) (AlterDatabaseRefreshCollStmt, int) {
-	if depth <= 0 { return AlterDatabaseRefreshCollStmt{}, 0 }
+	if depth <= 0 {
+		return AlterDatabaseRefreshCollStmt{}, 0
+	}
 	mut r := AlterDatabaseRefreshCollStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6368,7 +6723,9 @@ fn decode_alter_database_refresh_coll_stmt(buf []u8, depth int) (AlterDatabaseRe
 }
 
 fn decode_dropdb_stmt(buf []u8, depth int) (DropdbStmt, int) {
-	if depth <= 0 { return DropdbStmt{}, 0 }
+	if depth <= 0 {
+		return DropdbStmt{}, 0
+	}
 	mut r := DropdbStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6400,7 +6757,9 @@ fn decode_dropdb_stmt(buf []u8, depth int) (DropdbStmt, int) {
 }
 
 fn decode_vacuum_stmt(buf []u8, depth int) (VacuumStmt, int) {
-	if depth <= 0 { return VacuumStmt{}, 0 }
+	if depth <= 0 {
+		return VacuumStmt{}, 0
+	}
 	mut r := VacuumStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6433,7 +6792,9 @@ fn decode_vacuum_stmt(buf []u8, depth int) (VacuumStmt, int) {
 }
 
 fn decode_explain_stmt(buf []u8, depth int) (ExplainStmt, int) {
-	if depth <= 0 { return ExplainStmt{}, 0 }
+	if depth <= 0 {
+		return ExplainStmt{}, 0
+	}
 	mut r := ExplainStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6461,13 +6822,17 @@ fn decode_explain_stmt(buf []u8, depth int) (ExplainStmt, int) {
 }
 
 fn decode_check_point_stmt(buf []u8, depth int) (CheckPointStmt, int) {
-	if depth <= 0 { return CheckPointStmt{}, 0 }
+	if depth <= 0 {
+		return CheckPointStmt{}, 0
+	}
 	mut r := CheckPointStmt{}
 	return r, buf.len
 }
 
 fn decode_discard_stmt(buf []u8, depth int) (DiscardStmt, int) {
-	if depth <= 0 { return DiscardStmt{}, 0 }
+	if depth <= 0 {
+		return DiscardStmt{}, 0
+	}
 	mut r := DiscardStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6488,7 +6853,9 @@ fn decode_discard_stmt(buf []u8, depth int) (DiscardStmt, int) {
 }
 
 fn decode_lock_stmt(buf []u8, depth int) (LockStmt, int) {
-	if depth <= 0 { return LockStmt{}, 0 }
+	if depth <= 0 {
+		return LockStmt{}, 0
+	}
 	mut r := LockStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6520,7 +6887,9 @@ fn decode_lock_stmt(buf []u8, depth int) (LockStmt, int) {
 }
 
 fn decode_constraints_set_stmt(buf []u8, depth int) (ConstraintsSetStmt, int) {
-	if depth <= 0 { return ConstraintsSetStmt{}, 0 }
+	if depth <= 0 {
+		return ConstraintsSetStmt{}, 0
+	}
 	mut r := ConstraintsSetStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6547,7 +6916,9 @@ fn decode_constraints_set_stmt(buf []u8, depth int) (ConstraintsSetStmt, int) {
 }
 
 fn decode_create_conversion_stmt(buf []u8, depth int) (CreateConversionStmt, int) {
-	if depth <= 0 { return CreateConversionStmt{}, 0 }
+	if depth <= 0 {
+		return CreateConversionStmt{}, 0
+	}
 	mut r := CreateConversionStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6590,7 +6961,9 @@ fn decode_create_conversion_stmt(buf []u8, depth int) (CreateConversionStmt, int
 }
 
 fn decode_prepare_stmt(buf []u8, depth int) (PrepareStmt, int) {
-	if depth <= 0 { return PrepareStmt{}, 0 }
+	if depth <= 0 {
+		return PrepareStmt{}, 0
+	}
 	mut r := PrepareStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6623,7 +6996,9 @@ fn decode_prepare_stmt(buf []u8, depth int) (PrepareStmt, int) {
 }
 
 fn decode_execute_stmt(buf []u8, depth int) (ExecuteStmt, int) {
-	if depth <= 0 { return ExecuteStmt{}, 0 }
+	if depth <= 0 {
+		return ExecuteStmt{}, 0
+	}
 	mut r := ExecuteStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6650,7 +7025,9 @@ fn decode_execute_stmt(buf []u8, depth int) (ExecuteStmt, int) {
 }
 
 fn decode_deallocate_stmt(buf []u8, depth int) (DeallocateStmt, int) {
-	if depth <= 0 { return DeallocateStmt{}, 0 }
+	if depth <= 0 {
+		return DeallocateStmt{}, 0
+	}
 	mut r := DeallocateStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6681,7 +7058,9 @@ fn decode_deallocate_stmt(buf []u8, depth int) (DeallocateStmt, int) {
 }
 
 fn decode_drop_owned_stmt(buf []u8, depth int) (DropOwnedStmt, int) {
-	if depth <= 0 { return DropOwnedStmt{}, 0 }
+	if depth <= 0 {
+		return DropOwnedStmt{}, 0
+	}
 	mut r := DropOwnedStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6708,7 +7087,9 @@ fn decode_drop_owned_stmt(buf []u8, depth int) (DropOwnedStmt, int) {
 }
 
 fn decode_alter_t_s_dictionary_stmt(buf []u8, depth int) (AlterTSDictionaryStmt, int) {
-	if depth <= 0 { return AlterTSDictionaryStmt{}, 0 }
+	if depth <= 0 {
+		return AlterTSDictionaryStmt{}, 0
+	}
 	mut r := AlterTSDictionaryStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6736,7 +7117,9 @@ fn decode_alter_t_s_dictionary_stmt(buf []u8, depth int) (AlterTSDictionaryStmt,
 }
 
 fn decode_alter_t_s_configuration_stmt(buf []u8, depth int) (AlterTSConfigurationStmt, int) {
-	if depth <= 0 { return AlterTSConfigurationStmt{}, 0 }
+	if depth <= 0 {
+		return AlterTSConfigurationStmt{}, 0
+	}
 	mut r := AlterTSConfigurationStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6745,7 +7128,8 @@ fn decode_alter_t_s_configuration_stmt(buf []u8, depth int) (AlterTSConfiguratio
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.kind = unsafe { AlterTSConfigType(valid_enum_int([0, 1, 2, 3, 4, 5], v)) }
+				r.kind = unsafe { AlterTSConfigType(valid_enum_int([0, 1, 2, 3, 4, 5],
+					v)) }
 				off += c2
 			}
 			2 {
@@ -6790,7 +7174,9 @@ fn decode_alter_t_s_configuration_stmt(buf []u8, depth int) (AlterTSConfiguratio
 }
 
 fn decode_create_publication_stmt(buf []u8, depth int) (CreatePublicationStmt, int) {
-	if depth <= 0 { return CreatePublicationStmt{}, 0 }
+	if depth <= 0 {
+		return CreatePublicationStmt{}, 0
+	}
 	mut r := CreatePublicationStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6828,7 +7214,9 @@ fn decode_create_publication_stmt(buf []u8, depth int) (CreatePublicationStmt, i
 }
 
 fn decode_alter_publication_stmt(buf []u8, depth int) (AlterPublicationStmt, int) {
-	if depth <= 0 { return AlterPublicationStmt{}, 0 }
+	if depth <= 0 {
+		return AlterPublicationStmt{}, 0
+	}
 	mut r := AlterPublicationStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6859,7 +7247,8 @@ fn decode_alter_publication_stmt(buf []u8, depth int) (AlterPublicationStmt, int
 			}
 			5 {
 				v, c2 := read_varint(buf, off)
-				r.action = unsafe { AlterPublicationAction(valid_enum_int([0, 1, 2, 3], v)) }
+				r.action = unsafe { AlterPublicationAction(valid_enum_int([0, 1, 2, 3],
+					v)) }
 				off += c2
 			}
 			else {
@@ -6871,7 +7260,9 @@ fn decode_alter_publication_stmt(buf []u8, depth int) (AlterPublicationStmt, int
 }
 
 fn decode_create_subscription_stmt(buf []u8, depth int) (CreateSubscriptionStmt, int) {
-	if depth <= 0 { return CreateSubscriptionStmt{}, 0 }
+	if depth <= 0 {
+		return CreateSubscriptionStmt{}, 0
+	}
 	mut r := CreateSubscriptionStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6909,7 +7300,9 @@ fn decode_create_subscription_stmt(buf []u8, depth int) (CreateSubscriptionStmt,
 }
 
 fn decode_alter_subscription_stmt(buf []u8, depth int) (AlterSubscriptionStmt, int) {
-	if depth <= 0 { return AlterSubscriptionStmt{}, 0 }
+	if depth <= 0 {
+		return AlterSubscriptionStmt{}, 0
+	}
 	mut r := AlterSubscriptionStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6918,7 +7311,8 @@ fn decode_alter_subscription_stmt(buf []u8, depth int) (AlterSubscriptionStmt, i
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.kind = unsafe { AlterSubscriptionType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8], v)) }
+				r.kind = unsafe { AlterSubscriptionType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7,
+					8], v)) }
 				off += c2
 			}
 			2 {
@@ -6952,7 +7346,9 @@ fn decode_alter_subscription_stmt(buf []u8, depth int) (AlterSubscriptionStmt, i
 }
 
 fn decode_drop_subscription_stmt(buf []u8, depth int) (DropSubscriptionStmt, int) {
-	if depth <= 0 { return DropSubscriptionStmt{}, 0 }
+	if depth <= 0 {
+		return DropSubscriptionStmt{}, 0
+	}
 	mut r := DropSubscriptionStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -6983,7 +7379,9 @@ fn decode_drop_subscription_stmt(buf []u8, depth int) (DropSubscriptionStmt, int
 }
 
 fn decode_scan_token(buf []u8, depth int) (ScanToken, int) {
-	if depth <= 0 { return ScanToken{}, 0 }
+	if depth <= 0 {
+		return ScanToken{}, 0
+	}
 	mut r := ScanToken{}
 	mut off := 0
 	for off < buf.len {
@@ -7002,12 +7400,49 @@ fn decode_scan_token(buf []u8, depth int) (ScanToken, int) {
 			}
 			4 {
 				v, c2 := read_varint(buf, off)
-				r.token = unsafe { Token(valid_enum_int([0, 36, 37, 40, 41, 42, 43, 44, 45, 46, 47, 58, 59, 60, 61, 62, 63, 91, 92, 93, 94, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321, 322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332, 333, 334, 335, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349, 350, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373, 374, 375, 376, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 398, 399, 400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 435, 436, 437, 438, 439, 440, 441, 442, 443, 444, 445, 446, 447, 448, 449, 450, 451, 452, 453, 454, 455, 456, 457, 458, 459, 460, 461, 462, 463, 464, 465, 466, 467, 468, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478, 479, 480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 490, 491, 492, 493, 494, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511, 512, 513, 514, 515, 516, 517, 518, 519, 520, 521, 522, 523, 524, 525, 526, 527, 528, 529, 530, 531, 532, 533, 534, 535, 536, 537, 538, 539, 540, 541, 542, 543, 544, 545, 546, 547, 548, 549, 550, 551, 552, 553, 554, 555, 556, 557, 558, 559, 560, 561, 562, 563, 564, 565, 566, 567, 568, 569, 570, 571, 572, 573, 574, 575, 576, 577, 578, 579, 580, 581, 582, 583, 584, 585, 586, 587, 588, 589, 590, 591, 592, 593, 594, 595, 596, 597, 598, 599, 600, 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654, 655, 656, 657, 658, 659, 660, 661, 662, 663, 664, 665, 666, 667, 668, 669, 670, 671, 672, 673, 674, 675, 676, 677, 678, 679, 680, 681, 682, 683, 684, 685, 686, 687, 688, 689, 690, 691, 692, 693, 694, 695, 696, 697, 698, 699, 700, 701, 702, 703, 704, 705, 706, 707, 708, 709, 710, 711, 712, 713, 714, 715, 716, 717, 718, 719, 720, 721, 722, 723, 724, 725, 726, 727, 728, 729, 730, 731, 732, 733, 734, 735, 736, 737, 738, 739, 740, 741, 742, 743, 744, 745, 746, 747, 748, 749, 750, 751, 752, 753, 754, 755, 756, 757, 758, 759, 760, 761, 762, 763, 764, 765, 766, 767, 768, 769, 770, 771, 772, 773, 774, 775, 776, 777, 778], v)) }
+				r.token = unsafe { Token(valid_enum_int([0, 36, 37, 40, 41, 42, 43, 44, 45, 46,
+					47, 58, 59, 60, 61, 62, 63, 91, 92, 93, 94, 258, 259, 260, 261, 262, 263, 264,
+					265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279,
+					280, 281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294,
+					295, 296, 297, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309,
+					310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321, 322, 323, 324,
+					325, 326, 327, 328, 329, 330, 331, 332, 333, 334, 335, 336, 337, 338, 339,
+					340, 341, 342, 343, 344, 345, 346, 347, 348, 349, 350, 351, 352, 353, 354,
+					355, 356, 357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 368, 369,
+					370, 371, 372, 373, 374, 375, 376, 377, 378, 379, 380, 381, 382, 383, 384,
+					385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 398, 399,
+					400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414,
+					415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429,
+					430, 431, 432, 433, 434, 435, 436, 437, 438, 439, 440, 441, 442, 443, 444,
+					445, 446, 447, 448, 449, 450, 451, 452, 453, 454, 455, 456, 457, 458, 459,
+					460, 461, 462, 463, 464, 465, 466, 467, 468, 469, 470, 471, 472, 473, 474,
+					475, 476, 477, 478, 479, 480, 481, 482, 483, 484, 485, 486, 487, 488, 489,
+					490, 491, 492, 493, 494, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504,
+					505, 506, 507, 508, 509, 510, 511, 512, 513, 514, 515, 516, 517, 518, 519,
+					520, 521, 522, 523, 524, 525, 526, 527, 528, 529, 530, 531, 532, 533, 534,
+					535, 536, 537, 538, 539, 540, 541, 542, 543, 544, 545, 546, 547, 548, 549,
+					550, 551, 552, 553, 554, 555, 556, 557, 558, 559, 560, 561, 562, 563, 564,
+					565, 566, 567, 568, 569, 570, 571, 572, 573, 574, 575, 576, 577, 578, 579,
+					580, 581, 582, 583, 584, 585, 586, 587, 588, 589, 590, 591, 592, 593, 594,
+					595, 596, 597, 598, 599, 600, 601, 602, 603, 604, 605, 606, 607, 608, 609,
+					610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624,
+					625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639,
+					640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654,
+					655, 656, 657, 658, 659, 660, 661, 662, 663, 664, 665, 666, 667, 668, 669,
+					670, 671, 672, 673, 674, 675, 676, 677, 678, 679, 680, 681, 682, 683, 684,
+					685, 686, 687, 688, 689, 690, 691, 692, 693, 694, 695, 696, 697, 698, 699,
+					700, 701, 702, 703, 704, 705, 706, 707, 708, 709, 710, 711, 712, 713, 714,
+					715, 716, 717, 718, 719, 720, 721, 722, 723, 724, 725, 726, 727, 728, 729,
+					730, 731, 732, 733, 734, 735, 736, 737, 738, 739, 740, 741, 742, 743, 744,
+					745, 746, 747, 748, 749, 750, 751, 752, 753, 754, 755, 756, 757, 758, 759,
+					760, 761, 762, 763, 764, 765, 766, 767, 768, 769, 770, 771, 772, 773, 774,
+					775, 776, 777, 778], v)) }
 				off += c2
 			}
 			5 {
 				v, c2 := read_varint(buf, off)
-				r.keyword_kind = unsafe { KeywordKind(valid_enum_int([0, 1, 2, 3, 4], v)) }
+				r.keyword_kind = unsafe { KeywordKind(valid_enum_int([0, 1, 2, 3, 4],
+					v)) }
 				off += c2
 			}
 			else {
@@ -7019,7 +7454,9 @@ fn decode_scan_token(buf []u8, depth int) (ScanToken, int) {
 }
 
 fn decode_summary_result_table(buf []u8, depth int) (SummaryResultTable, int) {
-	if depth <= 0 { return SummaryResultTable{}, 0 }
+	if depth <= 0 {
+		return SummaryResultTable{}, 0
+	}
 	mut r := SummaryResultTable{}
 	mut off := 0
 	for off < buf.len {
@@ -7043,7 +7480,8 @@ fn decode_summary_result_table(buf []u8, depth int) (SummaryResultTable, int) {
 			}
 			4 {
 				v, c2 := read_varint(buf, off)
-				r.context = unsafe { SummaryResultContext(valid_enum_int([0, 1, 2, 3, 4], v)) }
+				r.context = unsafe { SummaryResultContext(valid_enum_int([0, 1, 2, 3, 4],
+					v)) }
 				off += c2
 			}
 			else {
@@ -7055,7 +7493,9 @@ fn decode_summary_result_table(buf []u8, depth int) (SummaryResultTable, int) {
 }
 
 fn decode_summary_result_function(buf []u8, depth int) (SummaryResultFunction, int) {
-	if depth <= 0 { return SummaryResultFunction{}, 0 }
+	if depth <= 0 {
+		return SummaryResultFunction{}, 0
+	}
 	mut r := SummaryResultFunction{}
 	mut off := 0
 	for off < buf.len {
@@ -7079,7 +7519,8 @@ fn decode_summary_result_function(buf []u8, depth int) (SummaryResultFunction, i
 			}
 			4 {
 				v, c2 := read_varint(buf, off)
-				r.context = unsafe { SummaryResultContext(valid_enum_int([0, 1, 2, 3, 4], v)) }
+				r.context = unsafe { SummaryResultContext(valid_enum_int([0, 1, 2, 3, 4],
+					v)) }
 				off += c2
 			}
 			else {
@@ -7091,7 +7532,9 @@ fn decode_summary_result_function(buf []u8, depth int) (SummaryResultFunction, i
 }
 
 fn decode_summary_result_filter_column(buf []u8, depth int) (SummaryResultFilterColumn, int) {
-	if depth <= 0 { return SummaryResultFilterColumn{}, 0 }
+	if depth <= 0 {
+		return SummaryResultFilterColumn{}, 0
+	}
 	mut r := SummaryResultFilterColumn{}
 	mut off := 0
 	for off < buf.len {
@@ -7122,7 +7565,9 @@ fn decode_summary_result_filter_column(buf []u8, depth int) (SummaryResultFilter
 }
 
 fn decode_range_var(buf []u8, depth int) (RangeVar, int) {
-	if depth <= 0 { return RangeVar{}, 0 }
+	if depth <= 0 {
+		return RangeVar{}, 0
+	}
 	mut r := RangeVar{}
 	mut off := 0
 	for off < buf.len {
@@ -7174,7 +7619,9 @@ fn decode_range_var(buf []u8, depth int) (RangeVar, int) {
 }
 
 fn decode_join_expr(buf []u8, depth int) (JoinExpr, int) {
-	if depth <= 0 { return JoinExpr{}, 0 }
+	if depth <= 0 {
+		return JoinExpr{}, 0
+	}
 	mut r := JoinExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -7183,7 +7630,8 @@ fn decode_join_expr(buf []u8, depth int) (JoinExpr, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.jointype = unsafe { JoinType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], v)) }
+				r.jointype = unsafe { JoinType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+					v)) }
 				off += c2
 			}
 			2 {
@@ -7241,7 +7689,9 @@ fn decode_join_expr(buf []u8, depth int) (JoinExpr, int) {
 }
 
 fn decode_range_subselect(buf []u8, depth int) (RangeSubselect, int) {
-	if depth <= 0 { return RangeSubselect{}, 0 }
+	if depth <= 0 {
+		return RangeSubselect{}, 0
+	}
 	mut r := RangeSubselect{}
 	mut off := 0
 	for off < buf.len {
@@ -7274,7 +7724,9 @@ fn decode_range_subselect(buf []u8, depth int) (RangeSubselect, int) {
 }
 
 fn decode_range_function(buf []u8, depth int) (RangeFunction, int) {
-	if depth <= 0 { return RangeFunction{}, 0 }
+	if depth <= 0 {
+		return RangeFunction{}, 0
+	}
 	mut r := RangeFunction{}
 	mut off := 0
 	for off < buf.len {
@@ -7323,7 +7775,9 @@ fn decode_range_function(buf []u8, depth int) (RangeFunction, int) {
 }
 
 fn decode_range_table_func(buf []u8, depth int) (RangeTableFunc, int) {
-	if depth <= 0 { return RangeTableFunc{}, 0 }
+	if depth <= 0 {
+		return RangeTableFunc{}, 0
+	}
 	mut r := RangeTableFunc{}
 	mut off := 0
 	for off < buf.len {
@@ -7379,7 +7833,9 @@ fn decode_range_table_func(buf []u8, depth int) (RangeTableFunc, int) {
 }
 
 fn decode_json_returning(buf []u8, depth int) (JsonReturning, int) {
-	if depth <= 0 { return JsonReturning{}, 0 }
+	if depth <= 0 {
+		return JsonReturning{}, 0
+	}
 	mut r := JsonReturning{}
 	mut off := 0
 	for off < buf.len {
@@ -7411,7 +7867,9 @@ fn decode_json_returning(buf []u8, depth int) (JsonReturning, int) {
 }
 
 fn decode_json_value_expr(buf []u8, depth int) (JsonValueExpr, int) {
-	if depth <= 0 { return JsonValueExpr{}, 0 }
+	if depth <= 0 {
+		return JsonValueExpr{}, 0
+	}
 	mut r := JsonValueExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -7445,7 +7903,9 @@ fn decode_json_value_expr(buf []u8, depth int) (JsonValueExpr, int) {
 }
 
 fn decode_json_is_predicate(buf []u8, depth int) (JsonIsPredicate, int) {
-	if depth <= 0 { return JsonIsPredicate{}, 0 }
+	if depth <= 0 {
+		return JsonIsPredicate{}, 0
+	}
 	mut r := JsonIsPredicate{}
 	mut off := 0
 	for off < buf.len {
@@ -7488,7 +7948,9 @@ fn decode_json_is_predicate(buf []u8, depth int) (JsonIsPredicate, int) {
 }
 
 fn decode_json_table_path_scan(buf []u8, depth int) (JsonTablePathScan, int) {
-	if depth <= 0 { return JsonTablePathScan{}, 0 }
+	if depth <= 0 {
+		return JsonTablePathScan{}, 0
+	}
 	mut r := JsonTablePathScan{}
 	mut off := 0
 	for off < buf.len {
@@ -7537,7 +7999,9 @@ fn decode_json_table_path_scan(buf []u8, depth int) (JsonTablePathScan, int) {
 }
 
 fn decode_query(buf []u8, depth int) (Query, int) {
-	if depth <= 0 { return Query{}, 0 }
+	if depth <= 0 {
+		return Query{}, 0
+	}
 	mut r := Query{}
 	mut off := 0
 	for off < buf.len {
@@ -7546,12 +8010,14 @@ fn decode_query(buf []u8, depth int) (Query, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.command_type = unsafe { CmdType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8], v)) }
+				r.command_type = unsafe { CmdType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8],
+					v)) }
 				off += c2
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.query_source = unsafe { QuerySource(valid_enum_int([0, 1, 2, 3, 4, 5], v)) }
+				r.query_source = unsafe { QuerySource(valid_enum_int([0, 1, 2, 3, 4, 5],
+					v)) }
 				off += c2
 			}
 			3 {
@@ -7785,7 +8251,9 @@ fn decode_query(buf []u8, depth int) (Query, int) {
 }
 
 fn decode_type_cast(buf []u8, depth int) (TypeCast, int) {
-	if depth <= 0 { return TypeCast{}, 0 }
+	if depth <= 0 {
+		return TypeCast{}, 0
+	}
 	mut r := TypeCast{}
 	mut off := 0
 	for off < buf.len {
@@ -7818,7 +8286,9 @@ fn decode_type_cast(buf []u8, depth int) (TypeCast, int) {
 }
 
 fn decode_range_table_func_col(buf []u8, depth int) (RangeTableFuncCol, int) {
-	if depth <= 0 { return RangeTableFuncCol{}, 0 }
+	if depth <= 0 {
+		return RangeTableFuncCol{}, 0
+	}
 	mut r := RangeTableFuncCol{}
 	mut off := 0
 	for off < buf.len {
@@ -7872,7 +8342,9 @@ fn decode_range_table_func_col(buf []u8, depth int) (RangeTableFuncCol, int) {
 }
 
 fn decode_xml_serialize(buf []u8, depth int) (XmlSerialize, int) {
-	if depth <= 0 { return XmlSerialize{}, 0 }
+	if depth <= 0 {
+		return XmlSerialize{}, 0
+	}
 	mut r := XmlSerialize{}
 	mut off := 0
 	for off < buf.len {
@@ -7915,7 +8387,9 @@ fn decode_xml_serialize(buf []u8, depth int) (XmlSerialize, int) {
 }
 
 fn decode_create_op_class_stmt(buf []u8, depth int) (CreateOpClassStmt, int) {
-	if depth <= 0 { return CreateOpClassStmt{}, 0 }
+	if depth <= 0 {
+		return CreateOpClassStmt{}, 0
+	}
 	mut r := CreateOpClassStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -7965,7 +8439,9 @@ fn decode_create_op_class_stmt(buf []u8, depth int) (CreateOpClassStmt, int) {
 }
 
 fn decode_create_function_stmt(buf []u8, depth int) (CreateFunctionStmt, int) {
-	if depth <= 0 { return CreateFunctionStmt{}, 0 }
+	if depth <= 0 {
+		return CreateFunctionStmt{}, 0
+	}
 	mut r := CreateFunctionStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8021,7 +8497,9 @@ fn decode_create_function_stmt(buf []u8, depth int) (CreateFunctionStmt, int) {
 }
 
 fn decode_function_parameter(buf []u8, depth int) (FunctionParameter, int) {
-	if depth <= 0 { return FunctionParameter{}, 0 }
+	if depth <= 0 {
+		return FunctionParameter{}, 0
+	}
 	mut r := FunctionParameter{}
 	mut off := 0
 	for off < buf.len {
@@ -8041,7 +8519,8 @@ fn decode_function_parameter(buf []u8, depth int) (FunctionParameter, int) {
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.mode = unsafe { FunctionParameterMode(valid_enum_int([0, 1, 2, 3, 4, 5, 6], v)) }
+				r.mode = unsafe { FunctionParameterMode(valid_enum_int([0, 1, 2, 3, 4, 5, 6],
+					v)) }
 				off += c2
 			}
 			4 {
@@ -8059,7 +8538,9 @@ fn decode_function_parameter(buf []u8, depth int) (FunctionParameter, int) {
 }
 
 fn decode_create_domain_stmt(buf []u8, depth int) (CreateDomainStmt, int) {
-	if depth <= 0 { return CreateDomainStmt{}, 0 }
+	if depth <= 0 {
+		return CreateDomainStmt{}, 0
+	}
 	mut r := CreateDomainStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8099,7 +8580,9 @@ fn decode_create_domain_stmt(buf []u8, depth int) (CreateDomainStmt, int) {
 }
 
 fn decode_create_schema_stmt(buf []u8, depth int) (CreateSchemaStmt, int) {
-	if depth <= 0 { return CreateSchemaStmt{}, 0 }
+	if depth <= 0 {
+		return CreateSchemaStmt{}, 0
+	}
 	mut r := CreateSchemaStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8137,7 +8620,9 @@ fn decode_create_schema_stmt(buf []u8, depth int) (CreateSchemaStmt, int) {
 }
 
 fn decode_alter_table_cmd(buf []u8, depth int) (AlterTableCmd, int) {
-	if depth <= 0 { return AlterTableCmd{}, 0 }
+	if depth <= 0 {
+		return AlterTableCmd{}, 0
+	}
 	mut r := AlterTableCmd{}
 	mut off := 0
 	for off < buf.len {
@@ -8146,7 +8631,11 @@ fn decode_alter_table_cmd(buf []u8, depth int) (AlterTableCmd, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.subtype = unsafe { AlterTableType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67], v)) }
+				r.subtype = unsafe { AlterTableType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8,
+					9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
+					28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46,
+					47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
+					66, 67], v)) }
 				off += c2
 			}
 			2 {
@@ -8195,7 +8684,9 @@ fn decode_alter_table_cmd(buf []u8, depth int) (AlterTableCmd, int) {
 }
 
 fn decode_grant_stmt(buf []u8, depth int) (GrantStmt, int) {
-	if depth <= 0 { return GrantStmt{}, 0 }
+	if depth <= 0 {
+		return GrantStmt{}, 0
+	}
 	mut r := GrantStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8214,7 +8705,10 @@ fn decode_grant_stmt(buf []u8, depth int) (GrantStmt, int) {
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.objtype = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
+				r.objtype = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+					11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+					30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48,
+					49, 50, 51, 52], v)) }
 				off += c2
 			}
 			4 {
@@ -8260,7 +8754,9 @@ fn decode_grant_stmt(buf []u8, depth int) (GrantStmt, int) {
 }
 
 fn decode_grant_role_stmt(buf []u8, depth int) (GrantRoleStmt, int) {
-	if depth <= 0 { return GrantRoleStmt{}, 0 }
+	if depth <= 0 {
+		return GrantRoleStmt{}, 0
+	}
 	mut r := GrantRoleStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8310,7 +8806,9 @@ fn decode_grant_role_stmt(buf []u8, depth int) (GrantRoleStmt, int) {
 }
 
 fn decode_create_table_space_stmt(buf []u8, depth int) (CreateTableSpaceStmt, int) {
-	if depth <= 0 { return CreateTableSpaceStmt{}, 0 }
+	if depth <= 0 {
+		return CreateTableSpaceStmt{}, 0
+	}
 	mut r := CreateTableSpaceStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8348,7 +8846,9 @@ fn decode_create_table_space_stmt(buf []u8, depth int) (CreateTableSpaceStmt, in
 }
 
 fn decode_create_user_mapping_stmt(buf []u8, depth int) (CreateUserMappingStmt, int) {
-	if depth <= 0 { return CreateUserMappingStmt{}, 0 }
+	if depth <= 0 {
+		return CreateUserMappingStmt{}, 0
+	}
 	mut r := CreateUserMappingStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8386,7 +8886,9 @@ fn decode_create_user_mapping_stmt(buf []u8, depth int) (CreateUserMappingStmt, 
 }
 
 fn decode_alter_user_mapping_stmt(buf []u8, depth int) (AlterUserMappingStmt, int) {
-	if depth <= 0 { return AlterUserMappingStmt{}, 0 }
+	if depth <= 0 {
+		return AlterUserMappingStmt{}, 0
+	}
 	mut r := AlterUserMappingStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8419,7 +8921,9 @@ fn decode_alter_user_mapping_stmt(buf []u8, depth int) (AlterUserMappingStmt, in
 }
 
 fn decode_drop_user_mapping_stmt(buf []u8, depth int) (DropUserMappingStmt, int) {
-	if depth <= 0 { return DropUserMappingStmt{}, 0 }
+	if depth <= 0 {
+		return DropUserMappingStmt{}, 0
+	}
 	mut r := DropUserMappingStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8451,7 +8955,9 @@ fn decode_drop_user_mapping_stmt(buf []u8, depth int) (DropUserMappingStmt, int)
 }
 
 fn decode_alter_role_stmt(buf []u8, depth int) (AlterRoleStmt, int) {
-	if depth <= 0 { return AlterRoleStmt{}, 0 }
+	if depth <= 0 {
+		return AlterRoleStmt{}, 0
+	}
 	mut r := AlterRoleStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8484,7 +8990,9 @@ fn decode_alter_role_stmt(buf []u8, depth int) (AlterRoleStmt, int) {
 }
 
 fn decode_reassign_owned_stmt(buf []u8, depth int) (ReassignOwnedStmt, int) {
-	if depth <= 0 { return ReassignOwnedStmt{}, 0 }
+	if depth <= 0 {
+		return ReassignOwnedStmt{}, 0
+	}
 	mut r := ReassignOwnedStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8512,7 +9020,9 @@ fn decode_reassign_owned_stmt(buf []u8, depth int) (ReassignOwnedStmt, int) {
 }
 
 fn decode_func_call(buf []u8, depth int) (FuncCall, int) {
-	if depth <= 0 { return FuncCall{}, 0 }
+	if depth <= 0 {
+		return FuncCall{}, 0
+	}
 	mut r := FuncCall{}
 	mut off := 0
 	for off < buf.len {
@@ -8588,7 +9098,9 @@ fn decode_func_call(buf []u8, depth int) (FuncCall, int) {
 }
 
 fn decode_on_conflict_clause(buf []u8, depth int) (OnConflictClause, int) {
-	if depth <= 0 { return OnConflictClause{}, 0 }
+	if depth <= 0 {
+		return OnConflictClause{}, 0
+	}
 	mut r := OnConflictClause{}
 	mut off := 0
 	for off < buf.len {
@@ -8632,7 +9144,9 @@ fn decode_on_conflict_clause(buf []u8, depth int) (OnConflictClause, int) {
 }
 
 fn decode_common_table_expr(buf []u8, depth int) (CommonTableExpr, int) {
-	if depth <= 0 { return CommonTableExpr{}, 0 }
+	if depth <= 0 {
+		return CommonTableExpr{}, 0
+	}
 	mut r := CommonTableExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -8652,7 +9166,8 @@ fn decode_common_table_expr(buf []u8, depth int) (CommonTableExpr, int) {
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.ctematerialized = unsafe { CTEMaterialize(valid_enum_int([0, 1, 2, 3], v)) }
+				r.ctematerialized = unsafe { CTEMaterialize(valid_enum_int([0, 1, 2, 3],
+					v)) }
 				off += c2
 			}
 			4 {
@@ -8721,7 +9236,9 @@ fn decode_common_table_expr(buf []u8, depth int) (CommonTableExpr, int) {
 }
 
 fn decode_json_table_column(buf []u8, depth int) (JsonTableColumn, int) {
-	if depth <= 0 { return JsonTableColumn{}, 0 }
+	if depth <= 0 {
+		return JsonTableColumn{}, 0
+	}
 	mut r := JsonTableColumn{}
 	mut off := 0
 	for off < buf.len {
@@ -8730,7 +9247,8 @@ fn decode_json_table_column(buf []u8, depth int) (JsonTableColumn, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.coltype = unsafe { JsonTableColumnType(valid_enum_int([0, 1, 2, 3, 4, 5], v)) }
+				r.coltype = unsafe { JsonTableColumnType(valid_enum_int([0, 1, 2, 3, 4, 5],
+					v)) }
 				off += c2
 			}
 			2 {
@@ -8798,7 +9316,9 @@ fn decode_json_table_column(buf []u8, depth int) (JsonTableColumn, int) {
 }
 
 fn decode_create_op_class_item(buf []u8, depth int) (CreateOpClassItem, int) {
-	if depth <= 0 { return CreateOpClassItem{}, 0 }
+	if depth <= 0 {
+		return CreateOpClassItem{}, 0
+	}
 	mut r := CreateOpClassItem{}
 	mut off := 0
 	for off < buf.len {
@@ -8848,7 +9368,9 @@ fn decode_create_op_class_item(buf []u8, depth int) (CreateOpClassItem, int) {
 }
 
 fn decode_alter_function_stmt(buf []u8, depth int) (AlterFunctionStmt, int) {
-	if depth <= 0 { return AlterFunctionStmt{}, 0 }
+	if depth <= 0 {
+		return AlterFunctionStmt{}, 0
+	}
 	mut r := AlterFunctionStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8857,7 +9379,10 @@ fn decode_alter_function_stmt(buf []u8, depth int) (AlterFunctionStmt, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.objtype = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
+				r.objtype = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+					11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+					30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48,
+					49, 50, 51, 52], v)) }
 				off += c2
 			}
 			2 {
@@ -8881,7 +9406,9 @@ fn decode_alter_function_stmt(buf []u8, depth int) (AlterFunctionStmt, int) {
 }
 
 fn decode_alter_operator_stmt(buf []u8, depth int) (AlterOperatorStmt, int) {
-	if depth <= 0 { return AlterOperatorStmt{}, 0 }
+	if depth <= 0 {
+		return AlterOperatorStmt{}, 0
+	}
 	mut r := AlterOperatorStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8909,7 +9436,9 @@ fn decode_alter_operator_stmt(buf []u8, depth int) (AlterOperatorStmt, int) {
 }
 
 fn decode_create_cast_stmt(buf []u8, depth int) (CreateCastStmt, int) {
-	if depth <= 0 { return CreateCastStmt{}, 0 }
+	if depth <= 0 {
+		return CreateCastStmt{}, 0
+	}
 	mut r := CreateCastStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8953,7 +9482,9 @@ fn decode_create_cast_stmt(buf []u8, depth int) (CreateCastStmt, int) {
 }
 
 fn decode_create_transform_stmt(buf []u8, depth int) (CreateTransformStmt, int) {
-	if depth <= 0 { return CreateTransformStmt{}, 0 }
+	if depth <= 0 {
+		return CreateTransformStmt{}, 0
+	}
 	mut r := CreateTransformStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -8997,7 +9528,9 @@ fn decode_create_transform_stmt(buf []u8, depth int) (CreateTransformStmt, int) 
 }
 
 fn decode_alter_role_set_stmt(buf []u8, depth int) (AlterRoleSetStmt, int) {
-	if depth <= 0 { return AlterRoleSetStmt{}, 0 }
+	if depth <= 0 {
+		return AlterRoleSetStmt{}, 0
+	}
 	mut r := AlterRoleSetStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -9030,7 +9563,9 @@ fn decode_alter_role_set_stmt(buf []u8, depth int) (AlterRoleSetStmt, int) {
 }
 
 fn decode_alter_database_set_stmt(buf []u8, depth int) (AlterDatabaseSetStmt, int) {
-	if depth <= 0 { return AlterDatabaseSetStmt{}, 0 }
+	if depth <= 0 {
+		return AlterDatabaseSetStmt{}, 0
+	}
 	mut r := AlterDatabaseSetStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -9057,7 +9592,9 @@ fn decode_alter_database_set_stmt(buf []u8, depth int) (AlterDatabaseSetStmt, in
 }
 
 fn decode_alter_system_stmt(buf []u8, depth int) (AlterSystemStmt, int) {
-	if depth <= 0 { return AlterSystemStmt{}, 0 }
+	if depth <= 0 {
+		return AlterSystemStmt{}, 0
+	}
 	mut r := AlterSystemStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -9079,7 +9616,9 @@ fn decode_alter_system_stmt(buf []u8, depth int) (AlterSystemStmt, int) {
 }
 
 fn decode_into_clause(buf []u8, depth int) (IntoClause, int) {
-	if depth <= 0 { return IntoClause{}, 0 }
+	if depth <= 0 {
+		return IntoClause{}, 0
+	}
 	mut r := IntoClause{}
 	mut off := 0
 	for off < buf.len {
@@ -9111,7 +9650,8 @@ fn decode_into_clause(buf []u8, depth int) (IntoClause, int) {
 			}
 			5 {
 				v, c2 := read_varint(buf, off)
-				r.on_commit = unsafe { OnCommitAction(valid_enum_int([0, 1, 2, 3, 4], v)) }
+				r.on_commit = unsafe { OnCommitAction(valid_enum_int([0, 1, 2, 3, 4],
+					v)) }
 				off += c2
 			}
 			6 {
@@ -9139,7 +9679,9 @@ fn decode_into_clause(buf []u8, depth int) (IntoClause, int) {
 }
 
 fn decode_column_def(buf []u8, depth int) (ColumnDef, int) {
-	if depth <= 0 { return ColumnDef{}, 0 }
+	if depth <= 0 {
+		return ColumnDef{}, 0
+	}
 	mut r := ColumnDef{}
 	mut off := 0
 	for off < buf.len {
@@ -9257,7 +9799,9 @@ fn decode_column_def(buf []u8, depth int) (ColumnDef, int) {
 }
 
 fn decode_table_like_clause(buf []u8, depth int) (TableLikeClause, int) {
-	if depth <= 0 { return TableLikeClause{}, 0 }
+	if depth <= 0 {
+		return TableLikeClause{}, 0
+	}
 	mut r := TableLikeClause{}
 	mut off := 0
 	for off < buf.len {
@@ -9289,7 +9833,9 @@ fn decode_table_like_clause(buf []u8, depth int) (TableLikeClause, int) {
 }
 
 fn decode_partition_cmd(buf []u8, depth int) (PartitionCmd, int) {
-	if depth <= 0 { return PartitionCmd{}, 0 }
+	if depth <= 0 {
+		return PartitionCmd{}, 0
+	}
 	mut r := PartitionCmd{}
 	mut off := 0
 	for off < buf.len {
@@ -9322,7 +9868,9 @@ fn decode_partition_cmd(buf []u8, depth int) (PartitionCmd, int) {
 }
 
 fn decode_delete_stmt(buf []u8, depth int) (DeleteStmt, int) {
-	if depth <= 0 { return DeleteStmt{}, 0 }
+	if depth <= 0 {
+		return DeleteStmt{}, 0
+	}
 	mut r := DeleteStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -9368,7 +9916,9 @@ fn decode_delete_stmt(buf []u8, depth int) (DeleteStmt, int) {
 }
 
 fn decode_update_stmt(buf []u8, depth int) (UpdateStmt, int) {
-	if depth <= 0 { return UpdateStmt{}, 0 }
+	if depth <= 0 {
+		return UpdateStmt{}, 0
+	}
 	mut r := UpdateStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -9420,7 +9970,9 @@ fn decode_update_stmt(buf []u8, depth int) (UpdateStmt, int) {
 }
 
 fn decode_merge_stmt(buf []u8, depth int) (MergeStmt, int) {
-	if depth <= 0 { return MergeStmt{}, 0 }
+	if depth <= 0 {
+		return MergeStmt{}, 0
+	}
 	mut r := MergeStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -9472,7 +10024,9 @@ fn decode_merge_stmt(buf []u8, depth int) (MergeStmt, int) {
 }
 
 fn decode_alter_table_stmt(buf []u8, depth int) (AlterTableStmt, int) {
-	if depth <= 0 { return AlterTableStmt{}, 0 }
+	if depth <= 0 {
+		return AlterTableStmt{}, 0
+	}
 	mut r := AlterTableStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -9493,7 +10047,10 @@ fn decode_alter_table_stmt(buf []u8, depth int) (AlterTableStmt, int) {
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.objtype = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
+				r.objtype = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+					11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+					30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48,
+					49, 50, 51, 52], v)) }
 				off += c2
 			}
 			4 {
@@ -9510,7 +10067,9 @@ fn decode_alter_table_stmt(buf []u8, depth int) (AlterTableStmt, int) {
 }
 
 fn decode_copy_stmt(buf []u8, depth int) (CopyStmt, int) {
-	if depth <= 0 { return CopyStmt{}, 0 }
+	if depth <= 0 {
+		return CopyStmt{}, 0
+	}
 	mut r := CopyStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -9571,7 +10130,9 @@ fn decode_copy_stmt(buf []u8, depth int) (CopyStmt, int) {
 }
 
 fn decode_create_stmt(buf []u8, depth int) (CreateStmt, int) {
-	if depth <= 0 { return CreateStmt{}, 0 }
+	if depth <= 0 {
+		return CreateStmt{}, 0
+	}
 	mut r := CreateStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -9655,7 +10216,9 @@ fn decode_create_stmt(buf []u8, depth int) (CreateStmt, int) {
 }
 
 fn decode_constraint(buf []u8, depth int) (Constraint, int) {
-	if depth <= 0 { return Constraint{}, 0 }
+	if depth <= 0 {
+		return Constraint{}, 0
+	}
 	mut r := Constraint{}
 	mut off := 0
 	for off < buf.len {
@@ -9664,7 +10227,8 @@ fn decode_constraint(buf []u8, depth int) (Constraint, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.contype = unsafe { ConstrType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], v)) }
+				r.contype = unsafe { ConstrType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+					11, 12, 13, 14], v)) }
 				off += c2
 			}
 			2 {
@@ -9837,7 +10401,9 @@ fn decode_constraint(buf []u8, depth int) (Constraint, int) {
 }
 
 fn decode_create_policy_stmt(buf []u8, depth int) (CreatePolicyStmt, int) {
-	if depth <= 0 { return CreatePolicyStmt{}, 0 }
+	if depth <= 0 {
+		return CreatePolicyStmt{}, 0
+	}
 	mut r := CreatePolicyStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -9892,7 +10458,9 @@ fn decode_create_policy_stmt(buf []u8, depth int) (CreatePolicyStmt, int) {
 }
 
 fn decode_alter_policy_stmt(buf []u8, depth int) (AlterPolicyStmt, int) {
-	if depth <= 0 { return AlterPolicyStmt{}, 0 }
+	if depth <= 0 {
+		return AlterPolicyStmt{}, 0
+	}
 	mut r := AlterPolicyStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -9937,7 +10505,9 @@ fn decode_alter_policy_stmt(buf []u8, depth int) (AlterPolicyStmt, int) {
 }
 
 fn decode_create_trig_stmt(buf []u8, depth int) (CreateTrigStmt, int) {
-	if depth <= 0 { return CreateTrigStmt{}, 0 }
+	if depth <= 0 {
+		return CreateTrigStmt{}, 0
+	}
 	mut r := CreateTrigStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -10035,7 +10605,9 @@ fn decode_create_trig_stmt(buf []u8, depth int) (CreateTrigStmt, int) {
 }
 
 fn decode_create_seq_stmt(buf []u8, depth int) (CreateSeqStmt, int) {
-	if depth <= 0 { return CreateSeqStmt{}, 0 }
+	if depth <= 0 {
+		return CreateSeqStmt{}, 0
+	}
 	mut r := CreateSeqStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -10078,7 +10650,9 @@ fn decode_create_seq_stmt(buf []u8, depth int) (CreateSeqStmt, int) {
 }
 
 fn decode_alter_seq_stmt(buf []u8, depth int) (AlterSeqStmt, int) {
-	if depth <= 0 { return AlterSeqStmt{}, 0 }
+	if depth <= 0 {
+		return AlterSeqStmt{}, 0
+	}
 	mut r := AlterSeqStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -10116,7 +10690,9 @@ fn decode_alter_seq_stmt(buf []u8, depth int) (AlterSeqStmt, int) {
 }
 
 fn decode_index_stmt(buf []u8, depth int) (IndexStmt, int) {
-	if depth <= 0 { return IndexStmt{}, 0 }
+	if depth <= 0 {
+		return IndexStmt{}, 0
+	}
 	mut r := IndexStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -10258,7 +10834,9 @@ fn decode_index_stmt(buf []u8, depth int) (IndexStmt, int) {
 }
 
 fn decode_rename_stmt(buf []u8, depth int) (RenameStmt, int) {
-	if depth <= 0 { return RenameStmt{}, 0 }
+	if depth <= 0 {
+		return RenameStmt{}, 0
+	}
 	mut r := RenameStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -10267,12 +10845,18 @@ fn decode_rename_stmt(buf []u8, depth int) (RenameStmt, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.rename_type = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
+				r.rename_type = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8,
+					9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
+					28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46,
+					47, 48, 49, 50, 51, 52], v)) }
 				off += c2
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.relation_type = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
+				r.relation_type = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8,
+					9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
+					28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46,
+					47, 48, 49, 50, 51, 52], v)) }
 				off += c2
 			}
 			3 {
@@ -10316,7 +10900,9 @@ fn decode_rename_stmt(buf []u8, depth int) (RenameStmt, int) {
 }
 
 fn decode_alter_object_depends_stmt(buf []u8, depth int) (AlterObjectDependsStmt, int) {
-	if depth <= 0 { return AlterObjectDependsStmt{}, 0 }
+	if depth <= 0 {
+		return AlterObjectDependsStmt{}, 0
+	}
 	mut r := AlterObjectDependsStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -10325,7 +10911,10 @@ fn decode_alter_object_depends_stmt(buf []u8, depth int) (AlterObjectDependsStmt
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.object_type = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
+				r.object_type = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8,
+					9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
+					28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46,
+					47, 48, 49, 50, 51, 52], v)) }
 				off += c2
 			}
 			2 {
@@ -10360,7 +10949,9 @@ fn decode_alter_object_depends_stmt(buf []u8, depth int) (AlterObjectDependsStmt
 }
 
 fn decode_alter_object_schema_stmt(buf []u8, depth int) (AlterObjectSchemaStmt, int) {
-	if depth <= 0 { return AlterObjectSchemaStmt{}, 0 }
+	if depth <= 0 {
+		return AlterObjectSchemaStmt{}, 0
+	}
 	mut r := AlterObjectSchemaStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -10369,7 +10960,10 @@ fn decode_alter_object_schema_stmt(buf []u8, depth int) (AlterObjectSchemaStmt, 
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.object_type = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
+				r.object_type = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8,
+					9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
+					28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46,
+					47, 48, 49, 50, 51, 52], v)) }
 				off += c2
 			}
 			2 {
@@ -10403,7 +10997,9 @@ fn decode_alter_object_schema_stmt(buf []u8, depth int) (AlterObjectSchemaStmt, 
 }
 
 fn decode_alter_owner_stmt(buf []u8, depth int) (AlterOwnerStmt, int) {
-	if depth <= 0 { return AlterOwnerStmt{}, 0 }
+	if depth <= 0 {
+		return AlterOwnerStmt{}, 0
+	}
 	mut r := AlterOwnerStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -10412,7 +11008,10 @@ fn decode_alter_owner_stmt(buf []u8, depth int) (AlterOwnerStmt, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.object_type = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
+				r.object_type = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8,
+					9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
+					28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46,
+					47, 48, 49, 50, 51, 52], v)) }
 				off += c2
 			}
 			2 {
@@ -10442,7 +11041,9 @@ fn decode_alter_owner_stmt(buf []u8, depth int) (AlterOwnerStmt, int) {
 }
 
 fn decode_rule_stmt(buf []u8, depth int) (RuleStmt, int) {
-	if depth <= 0 { return RuleStmt{}, 0 }
+	if depth <= 0 {
+		return RuleStmt{}, 0
+	}
 	mut r := RuleStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -10468,7 +11069,8 @@ fn decode_rule_stmt(buf []u8, depth int) (RuleStmt, int) {
 			}
 			4 {
 				v, c2 := read_varint(buf, off)
-				r.event = unsafe { CmdType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8], v)) }
+				r.event = unsafe { CmdType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8],
+					v)) }
 				off += c2
 			}
 			5 {
@@ -10496,7 +11098,9 @@ fn decode_rule_stmt(buf []u8, depth int) (RuleStmt, int) {
 }
 
 fn decode_composite_type_stmt(buf []u8, depth int) (CompositeTypeStmt, int) {
-	if depth <= 0 { return CompositeTypeStmt{}, 0 }
+	if depth <= 0 {
+		return CompositeTypeStmt{}, 0
+	}
 	mut r := CompositeTypeStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -10524,7 +11128,9 @@ fn decode_composite_type_stmt(buf []u8, depth int) (CompositeTypeStmt, int) {
 }
 
 fn decode_view_stmt(buf []u8, depth int) (ViewStmt, int) {
-	if depth <= 0 { return ViewStmt{}, 0 }
+	if depth <= 0 {
+		return ViewStmt{}, 0
+	}
 	mut r := ViewStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -10562,7 +11168,8 @@ fn decode_view_stmt(buf []u8, depth int) (ViewStmt, int) {
 			}
 			6 {
 				v, c2 := read_varint(buf, off)
-				r.with_check_option = unsafe { ViewCheckOption(valid_enum_int([0, 1, 2, 3], v)) }
+				r.with_check_option = unsafe { ViewCheckOption(valid_enum_int([0, 1, 2, 3],
+					v)) }
 				off += c2
 			}
 			else {
@@ -10574,7 +11181,9 @@ fn decode_view_stmt(buf []u8, depth int) (ViewStmt, int) {
 }
 
 fn decode_cluster_stmt(buf []u8, depth int) (ClusterStmt, int) {
-	if depth <= 0 { return ClusterStmt{}, 0 }
+	if depth <= 0 {
+		return ClusterStmt{}, 0
+	}
 	mut r := ClusterStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -10607,7 +11216,9 @@ fn decode_cluster_stmt(buf []u8, depth int) (ClusterStmt, int) {
 }
 
 fn decode_vacuum_relation(buf []u8, depth int) (VacuumRelation, int) {
-	if depth <= 0 { return VacuumRelation{}, 0 }
+	if depth <= 0 {
+		return VacuumRelation{}, 0
+	}
 	mut r := VacuumRelation{}
 	mut off := 0
 	for off < buf.len {
@@ -10640,7 +11251,9 @@ fn decode_vacuum_relation(buf []u8, depth int) (VacuumRelation, int) {
 }
 
 fn decode_refresh_mat_view_stmt(buf []u8, depth int) (RefreshMatViewStmt, int) {
-	if depth <= 0 { return RefreshMatViewStmt{}, 0 }
+	if depth <= 0 {
+		return RefreshMatViewStmt{}, 0
+	}
 	mut r := RefreshMatViewStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -10672,7 +11285,9 @@ fn decode_refresh_mat_view_stmt(buf []u8, depth int) (RefreshMatViewStmt, int) {
 }
 
 fn decode_reindex_stmt(buf []u8, depth int) (ReindexStmt, int) {
-	if depth <= 0 { return ReindexStmt{}, 0 }
+	if depth <= 0 {
+		return ReindexStmt{}, 0
+	}
 	mut r := ReindexStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -10681,7 +11296,8 @@ fn decode_reindex_stmt(buf []u8, depth int) (ReindexStmt, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.kind = unsafe { ReindexObjectType(valid_enum_int([0, 1, 2, 3, 4, 5], v)) }
+				r.kind = unsafe { ReindexObjectType(valid_enum_int([0, 1, 2, 3, 4, 5],
+					v)) }
 				off += c2
 			}
 			2 {
@@ -10710,7 +11326,9 @@ fn decode_reindex_stmt(buf []u8, depth int) (ReindexStmt, int) {
 }
 
 fn decode_publication_table(buf []u8, depth int) (PublicationTable, int) {
-	if depth <= 0 { return PublicationTable{}, 0 }
+	if depth <= 0 {
+		return PublicationTable{}, 0
+	}
 	mut r := PublicationTable{}
 	mut off := 0
 	for off < buf.len {
@@ -10744,7 +11362,9 @@ fn decode_publication_table(buf []u8, depth int) (PublicationTable, int) {
 }
 
 fn decode_json_constructor_expr(buf []u8, depth int) (JsonConstructorExpr, int) {
-	if depth <= 0 { return JsonConstructorExpr{}, 0 }
+	if depth <= 0 {
+		return JsonConstructorExpr{}, 0
+	}
 	mut r := JsonConstructorExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -10759,7 +11379,8 @@ fn decode_json_constructor_expr(buf []u8, depth int) (JsonConstructorExpr, int) 
 			}
 			2 {
 				v, c2 := read_varint(buf, off)
-				r.type = unsafe { JsonConstructorType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7], v)) }
+				r.type = unsafe { JsonConstructorType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7],
+					v)) }
 				off += c2
 			}
 			3 {
@@ -10810,7 +11431,9 @@ fn decode_json_constructor_expr(buf []u8, depth int) (JsonConstructorExpr, int) 
 }
 
 fn decode_json_expr(buf []u8, depth int) (JsonExpr, int) {
-	if depth <= 0 { return JsonExpr{}, 0 }
+	if depth <= 0 {
+		return JsonExpr{}, 0
+	}
 	mut r := JsonExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -10920,7 +11543,9 @@ fn decode_json_expr(buf []u8, depth int) (JsonExpr, int) {
 }
 
 fn decode_json_output(buf []u8, depth int) (JsonOutput, int) {
-	if depth <= 0 { return JsonOutput{}, 0 }
+	if depth <= 0 {
+		return JsonOutput{}, 0
+	}
 	mut r := JsonOutput{}
 	mut off := 0
 	for off < buf.len {
@@ -10948,7 +11573,9 @@ fn decode_json_output(buf []u8, depth int) (JsonOutput, int) {
 }
 
 fn decode_json_argument(buf []u8, depth int) (JsonArgument, int) {
-	if depth <= 0 { return JsonArgument{}, 0 }
+	if depth <= 0 {
+		return JsonArgument{}, 0
+	}
 	mut r := JsonArgument{}
 	mut off := 0
 	for off < buf.len {
@@ -10975,7 +11602,9 @@ fn decode_json_argument(buf []u8, depth int) (JsonArgument, int) {
 }
 
 fn decode_json_table(buf []u8, depth int) (JsonTable, int) {
-	if depth <= 0 { return JsonTable{}, 0 }
+	if depth <= 0 {
+		return JsonTable{}, 0
+	}
 	mut r := JsonTable{}
 	mut off := 0
 	for off < buf.len {
@@ -11037,7 +11666,9 @@ fn decode_json_table(buf []u8, depth int) (JsonTable, int) {
 }
 
 fn decode_json_key_value(buf []u8, depth int) (JsonKeyValue, int) {
-	if depth <= 0 { return JsonKeyValue{}, 0 }
+	if depth <= 0 {
+		return JsonKeyValue{}, 0
+	}
 	mut r := JsonKeyValue{}
 	mut off := 0
 	for off < buf.len {
@@ -11065,7 +11696,9 @@ fn decode_json_key_value(buf []u8, depth int) (JsonKeyValue, int) {
 }
 
 fn decode_range_tbl_entry(buf []u8, depth int) (RangeTblEntry, int) {
-	if depth <= 0 { return RangeTblEntry{}, 0 }
+	if depth <= 0 {
+		return RangeTblEntry{}, 0
+	}
 	mut r := RangeTblEntry{}
 	mut off := 0
 	for off < buf.len {
@@ -11086,7 +11719,8 @@ fn decode_range_tbl_entry(buf []u8, depth int) (RangeTblEntry, int) {
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.rtekind = unsafe { RTEKind(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], v)) }
+				r.rtekind = unsafe { RTEKind(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+					v)) }
 				off += c2
 			}
 			4 {
@@ -11133,7 +11767,8 @@ fn decode_range_tbl_entry(buf []u8, depth int) (RangeTblEntry, int) {
 			}
 			12 {
 				v, c2 := read_varint(buf, off)
-				r.jointype = unsafe { JoinType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], v)) }
+				r.jointype = unsafe { JoinType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+					v)) }
 				off += c2
 			}
 			13 {
@@ -11256,7 +11891,9 @@ fn decode_range_tbl_entry(buf []u8, depth int) (RangeTblEntry, int) {
 }
 
 fn decode_alter_default_privileges_stmt(buf []u8, depth int) (AlterDefaultPrivilegesStmt, int) {
-	if depth <= 0 { return AlterDefaultPrivilegesStmt{}, 0 }
+	if depth <= 0 {
+		return AlterDefaultPrivilegesStmt{}, 0
+	}
 	mut r := AlterDefaultPrivilegesStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -11284,7 +11921,9 @@ fn decode_alter_default_privileges_stmt(buf []u8, depth int) (AlterDefaultPrivil
 }
 
 fn decode_call_stmt(buf []u8, depth int) (CallStmt, int) {
-	if depth <= 0 { return CallStmt{}, 0 }
+	if depth <= 0 {
+		return CallStmt{}, 0
+	}
 	mut r := CallStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -11318,7 +11957,9 @@ fn decode_call_stmt(buf []u8, depth int) (CallStmt, int) {
 }
 
 fn decode_insert_stmt(buf []u8, depth int) (InsertStmt, int) {
-	if depth <= 0 { return InsertStmt{}, 0 }
+	if depth <= 0 {
+		return InsertStmt{}, 0
+	}
 	mut r := InsertStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -11375,13 +12016,15 @@ fn decode_insert_stmt(buf []u8, depth int) (InsertStmt, int) {
 }
 
 fn decode_select_stmt(buf []u8, depth int) (SelectStmt, int) {
-	if depth <= 0 { return SelectStmt{
-		larg: unsafe { nil }
-		rarg: unsafe { nil }
-	}, 0 }
+	if depth <= 0 {
+		return SelectStmt{
+			larg: none
+			rarg: none
+		}, 0
+	}
 	mut r := SelectStmt{
-		larg: unsafe { nil }
-		rarg: unsafe { nil }
+		larg: none
+		rarg: none
 	}
 	mut off := 0
 	for off < buf.len {
@@ -11513,7 +12156,9 @@ fn decode_select_stmt(buf []u8, depth int) (SelectStmt, int) {
 }
 
 fn decode_create_table_as_stmt(buf []u8, depth int) (CreateTableAsStmt, int) {
-	if depth <= 0 { return CreateTableAsStmt{}, 0 }
+	if depth <= 0 {
+		return CreateTableAsStmt{}, 0
+	}
 	mut r := CreateTableAsStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -11534,7 +12179,10 @@ fn decode_create_table_as_stmt(buf []u8, depth int) (CreateTableAsStmt, int) {
 			}
 			3 {
 				v, c2 := read_varint(buf, off)
-				r.objtype = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52], v)) }
+				r.objtype = unsafe { ObjectType(valid_enum_int([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+					11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+					30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48,
+					49, 50, 51, 52], v)) }
 				off += c2
 			}
 			4 {
@@ -11556,7 +12204,9 @@ fn decode_create_table_as_stmt(buf []u8, depth int) (CreateTableAsStmt, int) {
 }
 
 fn decode_create_foreign_table_stmt(buf []u8, depth int) (CreateForeignTableStmt, int) {
-	if depth <= 0 { return CreateForeignTableStmt{}, 0 }
+	if depth <= 0 {
+		return CreateForeignTableStmt{}, 0
+	}
 	mut r := CreateForeignTableStmt{}
 	mut off := 0
 	for off < buf.len {
@@ -11589,7 +12239,9 @@ fn decode_create_foreign_table_stmt(buf []u8, depth int) (CreateForeignTableStmt
 }
 
 fn decode_publication_obj_spec(buf []u8, depth int) (PublicationObjSpec, int) {
-	if depth <= 0 { return PublicationObjSpec{}, 0 }
+	if depth <= 0 {
+		return PublicationObjSpec{}, 0
+	}
 	mut r := PublicationObjSpec{}
 	mut off := 0
 	for off < buf.len {
@@ -11598,7 +12250,8 @@ fn decode_publication_obj_spec(buf []u8, depth int) (PublicationObjSpec, int) {
 		match field_num {
 			1 {
 				v, c2 := read_varint(buf, off)
-				r.pubobjtype = unsafe { PublicationObjSpecType(valid_enum_int([0, 1, 2, 3, 4], v)) }
+				r.pubobjtype = unsafe { PublicationObjSpecType(valid_enum_int([0, 1, 2, 3, 4],
+					v)) }
 				off += c2
 			}
 			2 {
@@ -11626,7 +12279,9 @@ fn decode_publication_obj_spec(buf []u8, depth int) (PublicationObjSpec, int) {
 }
 
 fn decode_json_func_expr(buf []u8, depth int) (JsonFuncExpr, int) {
-	if depth <= 0 { return JsonFuncExpr{}, 0 }
+	if depth <= 0 {
+		return JsonFuncExpr{}, 0
+	}
 	mut r := JsonFuncExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -11703,7 +12358,9 @@ fn decode_json_func_expr(buf []u8, depth int) (JsonFuncExpr, int) {
 }
 
 fn decode_json_parse_expr(buf []u8, depth int) (JsonParseExpr, int) {
-	if depth <= 0 { return JsonParseExpr{}, 0 }
+	if depth <= 0 {
+		return JsonParseExpr{}, 0
+	}
 	mut r := JsonParseExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -11741,7 +12398,9 @@ fn decode_json_parse_expr(buf []u8, depth int) (JsonParseExpr, int) {
 }
 
 fn decode_json_scalar_expr(buf []u8, depth int) (JsonScalarExpr, int) {
-	if depth <= 0 { return JsonScalarExpr{}, 0 }
+	if depth <= 0 {
+		return JsonScalarExpr{}, 0
+	}
 	mut r := JsonScalarExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -11774,7 +12433,9 @@ fn decode_json_scalar_expr(buf []u8, depth int) (JsonScalarExpr, int) {
 }
 
 fn decode_json_serialize_expr(buf []u8, depth int) (JsonSerializeExpr, int) {
-	if depth <= 0 { return JsonSerializeExpr{}, 0 }
+	if depth <= 0 {
+		return JsonSerializeExpr{}, 0
+	}
 	mut r := JsonSerializeExpr{}
 	mut off := 0
 	for off < buf.len {
@@ -11807,7 +12468,9 @@ fn decode_json_serialize_expr(buf []u8, depth int) (JsonSerializeExpr, int) {
 }
 
 fn decode_json_object_constructor(buf []u8, depth int) (JsonObjectConstructor, int) {
-	if depth <= 0 { return JsonObjectConstructor{}, 0 }
+	if depth <= 0 {
+		return JsonObjectConstructor{}, 0
+	}
 	mut r := JsonObjectConstructor{}
 	mut off := 0
 	for off < buf.len {
@@ -11850,7 +12513,9 @@ fn decode_json_object_constructor(buf []u8, depth int) (JsonObjectConstructor, i
 }
 
 fn decode_json_array_constructor(buf []u8, depth int) (JsonArrayConstructor, int) {
-	if depth <= 0 { return JsonArrayConstructor{}, 0 }
+	if depth <= 0 {
+		return JsonArrayConstructor{}, 0
+	}
 	mut r := JsonArrayConstructor{}
 	mut off := 0
 	for off < buf.len {
@@ -11888,7 +12553,9 @@ fn decode_json_array_constructor(buf []u8, depth int) (JsonArrayConstructor, int
 }
 
 fn decode_json_array_query_constructor(buf []u8, depth int) (JsonArrayQueryConstructor, int) {
-	if depth <= 0 { return JsonArrayQueryConstructor{}, 0 }
+	if depth <= 0 {
+		return JsonArrayQueryConstructor{}, 0
+	}
 	mut r := JsonArrayQueryConstructor{}
 	mut off := 0
 	for off < buf.len {
@@ -11932,7 +12599,9 @@ fn decode_json_array_query_constructor(buf []u8, depth int) (JsonArrayQueryConst
 }
 
 fn decode_json_agg_constructor(buf []u8, depth int) (JsonAggConstructor, int) {
-	if depth <= 0 { return JsonAggConstructor{}, 0 }
+	if depth <= 0 {
+		return JsonAggConstructor{}, 0
+	}
 	mut r := JsonAggConstructor{}
 	mut off := 0
 	for off < buf.len {
@@ -11977,16 +12646,18 @@ fn decode_json_agg_constructor(buf []u8, depth int) (JsonAggConstructor, int) {
 }
 
 fn decode_p_l_assign_stmt(buf []u8, depth int) (PLAssignStmt, int) {
-	if depth <= 0 { return PLAssignStmt{
-		val: SelectStmt{
-			larg: unsafe { nil }
-			rarg: unsafe { nil }
-		}
-	}, 0 }
-	mut r := PLAssignStmt{
+	if depth <= 0 {
+		return PLAssignStmt{
 			val: SelectStmt{
-			larg: unsafe { nil }
-			rarg: unsafe { nil }
+				larg: none
+				rarg: none
+			}
+		}, 0
+	}
+	mut r := PLAssignStmt{
+		val: SelectStmt{
+			larg: none
+			rarg: none
 		}
 	}
 	mut off := 0
@@ -12030,7 +12701,9 @@ fn decode_p_l_assign_stmt(buf []u8, depth int) (PLAssignStmt, int) {
 }
 
 fn decode_json_object_agg(buf []u8, depth int) (JsonObjectAgg, int) {
-	if depth <= 0 { return JsonObjectAgg{}, 0 }
+	if depth <= 0 {
+		return JsonObjectAgg{}, 0
+	}
 	mut r := JsonObjectAgg{}
 	mut off := 0
 	for off < buf.len {
@@ -12068,7 +12741,9 @@ fn decode_json_object_agg(buf []u8, depth int) (JsonObjectAgg, int) {
 }
 
 fn decode_json_array_agg(buf []u8, depth int) (JsonArrayAgg, int) {
-	if depth <= 0 { return JsonArrayAgg{}, 0 }
+	if depth <= 0 {
+		return JsonArrayAgg{}, 0
+	}
 	mut r := JsonArrayAgg{}
 	mut off := 0
 	for off < buf.len {
@@ -12101,9 +12776,11 @@ fn decode_json_array_agg(buf []u8, depth int) (JsonArrayAgg, int) {
 }
 
 fn decode_summary_result(buf []u8, depth int) (SummaryResult, int) {
-	if depth <= 0 { return SummaryResult{
-		aliases: {}
-	}, 0 }
+	if depth <= 0 {
+		return SummaryResult{
+			aliases: {}
+		}, 0
+	}
 	mut r := SummaryResult{
 		aliases: {}
 	}
@@ -12160,8 +12837,12 @@ fn decode_summary_result(buf []u8, depth int) (SummaryResult, int) {
 }
 
 fn decode_node(buf []u8, depth int) (Node, int) {
-	if depth <= 0 { return Alias{}, 0 }
-	if buf.len == 0 { return UnrecognizedNode{}, 0 }
+	if depth <= 0 {
+		return Alias{}, 0
+	}
+	if buf.len == 0 {
+		return UnrecognizedNode{}, 0
+	}
 	field_num, _, c := read_tag(buf, 0)
 	data, c2 := read_submessage(buf, c)
 	consumed := c + c2
@@ -13262,8 +13943,8 @@ pub fn decode_parse_result(buf []u8) ParseAstResult {
 				rs, _ := decode_raw_stmt(data, max_decode_depth)
 				stmts << AstRawStmt{
 					stmt_location: rs.stmt_location
-					stmt_len: rs.stmt_len
-					stmt: rs.stmt
+					stmt_len:      rs.stmt_len
+					stmt:          rs.stmt
 				}
 				off += c2
 			}
@@ -13274,7 +13955,6 @@ pub fn decode_parse_result(buf []u8) ParseAstResult {
 	}
 	return ParseAstResult{
 		version: version
-		stmts: stmts
+		stmts:   stmts
 	}
 }
-

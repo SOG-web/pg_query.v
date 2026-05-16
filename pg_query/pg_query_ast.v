@@ -4183,8 +4183,8 @@ pub mut:
 	with_clause WithClause
 	op SetOperation
 	all bool
-	larg &SelectStmt
-	rarg &SelectStmt
+	larg ?&SelectStmt
+	rarg ?&SelectStmt
 }
 pub fn (m SelectStmt) str() string {
 	mut parts := []string{}
@@ -4206,8 +4206,8 @@ pub fn (m SelectStmt) str() string {
 	parts << "with_clause: ${m.with_clause}"
 	parts << "op: ${m.op}"
 	if m.all { parts << "all: true" }
-	if !isnil(m.larg) { parts << "larg: ${m.larg}" }
-	if !isnil(m.rarg) { parts << "rarg: ${m.rarg}" }
+	if m.larg != none { parts << "larg: ${m.larg}" }
+	if m.rarg != none { parts << "rarg: ${m.rarg}" }
 	return 'SelectStmt{' + parts.join(', ') + '}'
 }
 

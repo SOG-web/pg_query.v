@@ -108,6 +108,7 @@ pub:
 }
 
 pub struct DeparseOpts {
+pub:
 	comments             []DeparseComment
 	pretty_print         bool
 	indent_size          int
