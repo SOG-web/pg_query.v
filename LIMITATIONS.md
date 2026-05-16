@@ -57,15 +57,9 @@ The proto parser now handles `map<K, V>` field syntax, storing key/value type in
 ### 17. Nested type definitions not supported — ✅ Fixed
 The proto parser now handles nested `enum` and `message` definitions inside messages. Nested types are qualified with the parent message name (e.g. `SummaryResult_Context`, `SummaryResult_Table`). Field type references within the parent scope are automatically resolved to qualified names.
 
-### 18. Proto parser is minimal
-The hand-written proto parser in `tools/gen_ast.v` handles the pg_query.proto schema but doesn't support:
-- Multi-line field options
-- Certain comment placements
-- `import` with non-file references
-- `package` declarations with dots
-- Group syntax (deprecated but valid)
-- Extensions and `Any`
-
-These aren't used by pg_query.proto but limit reuse with other proto schemas.
-
-**Fix needed:** Replace with a more robust proto parser, or extend the current one to handle edge cases.
+### 18. Proto parser is minimal — ✅ Fixed
+The proto parser now handles:
+- Multi-line field declarations (accumulates lines until `;`)
+- Inline `//` and `/* */` comments within field lines
+- `reserved` and `option` lines inside messages (skipped)
+- `import public` / `import weak` variants (skipped)

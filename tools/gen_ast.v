@@ -52,17 +52,62 @@ fn main() {
 	generate_code(pf)
 }
 
+// join_until_semicolon concatenates lines from lines[start] until a line
+// containing ';' is found, or the end. Handles multi-line field declarations.
+fn join_until_semicolon(lines []string, start int) (string, int) {
+	mut result := lines[start]
+	mut i := start + 1
+	for i < lines.len {
+		if result.contains(';') { break }
+		result += ' ' + lines[i]
+		i++
+	}
+	return result.trim_space(), i - 1
+}
+
+fn strip_line_comments(line string) string {
+	mut result := line
+	// Strip // comments (but not inside quoted strings)
+	mut in_string := false
+	for ci, c in result {
+		if c == `"` { in_string = !in_string }
+		if !in_string && c == `/` && ci + 1 < result.len && result[ci + 1] == `/` {
+			result = result[..ci]
+			break
+		}
+	}
+	// Strip /* ... */ comments
+	mut depth := 0
+	mut stripped := ''
+	for ci := 0; ci < result.len; ci++ {
+		if result[ci] == `/` && ci + 1 < result.len && result[ci + 1] == `*` && depth == 0 {
+			depth = 1
+			ci++
+			continue
+		}
+		if result[ci] == `*` && ci + 1 < result.len && result[ci + 1] == `/` && depth > 0 {
+			depth = 0
+			ci++
+			continue
+		}
+		if depth == 0 {
+			stripped += result[ci].ascii_str()
+		}
+	}
+	return stripped.trim_space()
+}
+
 fn parse_proto(text string) ProtoFile {
 	mut pf := ProtoFile{}
 	lines := text.split('\n')
 	mut i := 0
 	for i < lines.len {
-		line := lines[i].trim_space()
-		if line == '' || line.starts_with('//') || line.starts_with('/*') {
+		line := strip_line_comments(lines[i]).trim_space()
+		if line == '' {
 			i++
 			continue
 		}
-		if line.starts_with('syntax ') || line.starts_with('package ') || line.starts_with('import ') {
+		if line.starts_with('syntax ') || line.starts_with('package ') || line.starts_with('import ') || line.starts_with('import public ') || line.starts_with('import weak ') {
 			i++
 			continue
 		}
@@ -111,6 +156,10 @@ fn parse_proto(text string) ProtoFile {
 					i++
 					continue
 				}
+				if cline.starts_with('reserved ') || cline.starts_with('option ') {
+					i++
+					continue
+				}
 				if cline.starts_with('enum ') {
 					enum_parts := cline.split(' ')
 					if enum_parts.len >= 2 {
@@ -152,7 +201,11 @@ fn parse_proto(text string) ProtoFile {
 							if tline == '}' { depth--; if depth == 0 { break } }
 							// Parse nested fields inside
 							if depth == 1 && tline.contains('=') && !tline.starts_with('//') && !tline.starts_with('/*') {
-								neq_parts := tline.split('=')
+								// Join multi-line field declarations
+								njoined_raw, nji := join_until_semicolon(lines, i)
+								i = nji
+								nline := strip_line_comments(njoined_raw).trim_space()
+								neq_parts := nline.split('=')
 								if neq_parts.len >= 2 {
 									ndecl := neq_parts[0].trim_space()
 									mut nrepeated := false
@@ -242,7 +295,11 @@ fn parse_proto(text string) ProtoFile {
 				}
 				if in_oneof {
 				if cline.contains('=') && !cline.starts_with('//') {
-						eq_parts := cline.split('=')
+						// Join multi-line field declarations
+						joined_raw, ji := join_until_semicolon(lines, i)
+						i = ji
+						oline := strip_line_comments(joined_raw).trim_space()
+						eq_parts := oline.split('=')
 						if eq_parts.len < 2 { i++; continue }
 						decl := eq_parts[0].trim_space()
 						decl_parts := decl.split(' ')
@@ -269,7 +326,11 @@ fn parse_proto(text string) ProtoFile {
 					continue
 				}
 				if cline != '' && !cline.starts_with('//') && !cline.starts_with('/*') && cline.contains('=') {
-					eq_parts := cline.split('=')
+					// Join multi-line field declarations
+					joined_raw, ji := join_until_semicolon(lines, i)
+					i = ji
+					fline := strip_line_comments(joined_raw).trim_space()
+					eq_parts := fline.split('=')
 					if eq_parts.len < 2 { i++; continue }
 					decl := eq_parts[0].trim_space()
 					mut repeated := false
