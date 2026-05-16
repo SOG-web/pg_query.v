@@ -1,0 +1,2 @@
+-I../libpg_query
+-I../libpg_query/vendor

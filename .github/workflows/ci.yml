@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install V
+        uses: vlang/setup-v@v1
+        with:
+          version: latest
+
+      - name: Build C library
+        run: make -C libpg_query build
+
+      - name: Run V tests
+        run: v test pg_query/
+
+      - name: Verify example compiles
+        run: v -o /tmp/parse_sql_example examples/parse_sql.v
