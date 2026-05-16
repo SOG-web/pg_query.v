@@ -3,6 +3,17 @@
 #include <string.h>
 #include "pg_query.h"
 
+/*
+ * Verify V's C.PostgresDeparseOpts redeclaration matches the actual C struct.
+ * The expected size is fields: voidptr(8) + usize(8) + bool(1) + int(4) +
+ * int(4) + bool(1) + bool(1) = 27 + 5 padding = 32 on LP64.
+ * Update this when PostgresDeparseOpts changes.
+ * If this assert fails, update pgquery.c.v's C.PostgresDeparseOpts.
+ */
+typedef char static_assert_deparse_opts_size[
+    sizeof(PostgresDeparseOpts) == 32 ? 1 : -1
+];
+
 void* pg_query_bridge_split_stmts_get(void *stmts, int index) {
 	return ((void**)stmts)[index];
 }

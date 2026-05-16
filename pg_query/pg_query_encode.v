@@ -2,7 +2,7 @@
 // DO NOT EDIT.
 module pg_query
 
-fn encode_scan_result(val ScanResult) []u8 {
+pub fn encode_scan_result(val ScanResult) []u8 {
 	mut buf := []u8{}
 	if val.version != 0 {
 		buf << write_tag(1, 0)
@@ -17,7 +17,7 @@ fn encode_scan_result(val ScanResult) []u8 {
 	return buf
 }
 
-fn encode_integer(val Integer) []u8 {
+pub fn encode_integer(val Integer) []u8 {
 	mut buf := []u8{}
 	if val.ival != 0 {
 		buf << write_tag(1, 0)
@@ -26,7 +26,7 @@ fn encode_integer(val Integer) []u8 {
 	return buf
 }
 
-fn encode_float(val Float) []u8 {
+pub fn encode_float(val Float) []u8 {
 	mut buf := []u8{}
 	if val.fval != '' {
 		buf << write_tag(1, 2)
@@ -35,7 +35,7 @@ fn encode_float(val Float) []u8 {
 	return buf
 }
 
-fn encode_boolean(val Boolean) []u8 {
+pub fn encode_boolean(val Boolean) []u8 {
 	mut buf := []u8{}
 	if val.boolval {
 		buf << write_tag(1, 0)
@@ -44,7 +44,7 @@ fn encode_boolean(val Boolean) []u8 {
 	return buf
 }
 
-fn encode_string(val String) []u8 {
+pub fn encode_string(val String) []u8 {
 	mut buf := []u8{}
 	if val.sval != '' {
 		buf << write_tag(1, 2)
@@ -53,7 +53,7 @@ fn encode_string(val String) []u8 {
 	return buf
 }
 
-fn encode_bit_string(val BitString) []u8 {
+pub fn encode_bit_string(val BitString) []u8 {
 	mut buf := []u8{}
 	if val.bsval != '' {
 		buf << write_tag(1, 2)
@@ -62,7 +62,7 @@ fn encode_bit_string(val BitString) []u8 {
 	return buf
 }
 
-fn encode_list(val List) []u8 {
+pub fn encode_list(val List) []u8 {
 	mut buf := []u8{}
 	if val.items.len > 0 {
 		for v in val.items {
@@ -76,7 +76,7 @@ fn encode_list(val List) []u8 {
 	return buf
 }
 
-fn encode_oid_list(val OidList) []u8 {
+pub fn encode_oid_list(val OidList) []u8 {
 	mut buf := []u8{}
 	if val.items.len > 0 {
 		for v in val.items {
@@ -90,7 +90,7 @@ fn encode_oid_list(val OidList) []u8 {
 	return buf
 }
 
-fn encode_int_list(val IntList) []u8 {
+pub fn encode_int_list(val IntList) []u8 {
 	mut buf := []u8{}
 	if val.items.len > 0 {
 		for v in val.items {
@@ -104,7 +104,7 @@ fn encode_int_list(val IntList) []u8 {
 	return buf
 }
 
-fn encode_a_const(val AConst) []u8 {
+pub fn encode_a_const(val AConst) []u8 {
 	mut buf := []u8{}
 	if v := val.ival {
 		buf << write_tag(1, 2)
@@ -137,7 +137,7 @@ fn encode_a_const(val AConst) []u8 {
 	return buf
 }
 
-fn encode_alias(val Alias) []u8 {
+pub fn encode_alias(val Alias) []u8 {
 	mut buf := []u8{}
 	if val.aliasname != '' {
 		buf << write_tag(1, 2)
@@ -155,7 +155,7 @@ fn encode_alias(val Alias) []u8 {
 	return buf
 }
 
-fn encode_table_func(val TableFunc) []u8 {
+pub fn encode_table_func(val TableFunc) []u8 {
 	mut buf := []u8{}
 	if u64(val.functype) != 0 {
 		buf << write_tag(1, 0)
@@ -262,10 +262,12 @@ fn encode_table_func(val TableFunc) []u8 {
 		}
 	}
 	if val.notnulls.len > 0 {
+		mut packed_ := []u8{}
 		for v in val.notnulls {
-			buf << write_tag(14, 0)
-			buf << write_varint(v)
+			packed_ << write_varint(v)
 		}
+		buf << write_tag(14, 2)
+		buf << write_length_delimited(packed_)
 	}
 	n_plan := encode_node(val.plan)
 	if n_plan.len > 0 {
@@ -283,7 +285,7 @@ fn encode_table_func(val TableFunc) []u8 {
 	return buf
 }
 
-fn encode_var(val Var) []u8 {
+pub fn encode_var(val Var) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -311,10 +313,12 @@ fn encode_var(val Var) []u8 {
 		buf << write_varint(u64(val.varcollid))
 	}
 	if val.varnullingrels.len > 0 {
+		mut packed_ := []u8{}
 		for v in val.varnullingrels {
-			buf << write_tag(7, 0)
-			buf << write_varint(v)
+			packed_ << write_varint(v)
 		}
+		buf << write_tag(7, 2)
+		buf << write_length_delimited(packed_)
 	}
 	if val.varlevelsup != 0 {
 		buf << write_tag(8, 0)
@@ -327,7 +331,7 @@ fn encode_var(val Var) []u8 {
 	return buf
 }
 
-fn encode_param(val Param) []u8 {
+pub fn encode_param(val Param) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -361,7 +365,7 @@ fn encode_param(val Param) []u8 {
 	return buf
 }
 
-fn encode_aggref(val Aggref) []u8 {
+pub fn encode_aggref(val Aggref) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -469,7 +473,7 @@ fn encode_aggref(val Aggref) []u8 {
 	return buf
 }
 
-fn encode_grouping_func(val GroupingFunc) []u8 {
+pub fn encode_grouping_func(val GroupingFunc) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -505,7 +509,7 @@ fn encode_grouping_func(val GroupingFunc) []u8 {
 	return buf
 }
 
-fn encode_window_func(val WindowFunc) []u8 {
+pub fn encode_window_func(val WindowFunc) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -570,7 +574,7 @@ fn encode_window_func(val WindowFunc) []u8 {
 	return buf
 }
 
-fn encode_window_func_run_condition(val WindowFuncRunCondition) []u8 {
+pub fn encode_window_func_run_condition(val WindowFuncRunCondition) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -597,7 +601,7 @@ fn encode_window_func_run_condition(val WindowFuncRunCondition) []u8 {
 	return buf
 }
 
-fn encode_merge_support_func(val MergeSupportFunc) []u8 {
+pub fn encode_merge_support_func(val MergeSupportFunc) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -619,7 +623,7 @@ fn encode_merge_support_func(val MergeSupportFunc) []u8 {
 	return buf
 }
 
-fn encode_subscripting_ref(val SubscriptingRef) []u8 {
+pub fn encode_subscripting_ref(val SubscriptingRef) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -677,7 +681,7 @@ fn encode_subscripting_ref(val SubscriptingRef) []u8 {
 	return buf
 }
 
-fn encode_func_expr(val FuncExpr) []u8 {
+pub fn encode_func_expr(val FuncExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -728,7 +732,7 @@ fn encode_func_expr(val FuncExpr) []u8 {
 	return buf
 }
 
-fn encode_named_arg_expr(val NamedArgExpr) []u8 {
+pub fn encode_named_arg_expr(val NamedArgExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -755,7 +759,7 @@ fn encode_named_arg_expr(val NamedArgExpr) []u8 {
 	return buf
 }
 
-fn encode_op_expr(val OpExpr) []u8 {
+pub fn encode_op_expr(val OpExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -798,7 +802,7 @@ fn encode_op_expr(val OpExpr) []u8 {
 	return buf
 }
 
-fn encode_distinct_expr(val DistinctExpr) []u8 {
+pub fn encode_distinct_expr(val DistinctExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -841,7 +845,7 @@ fn encode_distinct_expr(val DistinctExpr) []u8 {
 	return buf
 }
 
-fn encode_null_if_expr(val NullIfExpr) []u8 {
+pub fn encode_null_if_expr(val NullIfExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -884,7 +888,7 @@ fn encode_null_if_expr(val NullIfExpr) []u8 {
 	return buf
 }
 
-fn encode_scalar_array_op_expr(val ScalarArrayOpExpr) []u8 {
+pub fn encode_scalar_array_op_expr(val ScalarArrayOpExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -919,7 +923,7 @@ fn encode_scalar_array_op_expr(val ScalarArrayOpExpr) []u8 {
 	return buf
 }
 
-fn encode_bool_expr(val BoolExpr) []u8 {
+pub fn encode_bool_expr(val BoolExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -946,7 +950,7 @@ fn encode_bool_expr(val BoolExpr) []u8 {
 	return buf
 }
 
-fn encode_sub_link(val SubLink) []u8 {
+pub fn encode_sub_link(val SubLink) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -987,7 +991,7 @@ fn encode_sub_link(val SubLink) []u8 {
 	return buf
 }
 
-fn encode_sub_plan(val SubPlan) []u8 {
+pub fn encode_sub_plan(val SubPlan) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1082,7 +1086,7 @@ fn encode_sub_plan(val SubPlan) []u8 {
 	return buf
 }
 
-fn encode_alternative_sub_plan(val AlternativeSubPlan) []u8 {
+pub fn encode_alternative_sub_plan(val AlternativeSubPlan) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1101,7 +1105,7 @@ fn encode_alternative_sub_plan(val AlternativeSubPlan) []u8 {
 	return buf
 }
 
-fn encode_field_select(val FieldSelect) []u8 {
+pub fn encode_field_select(val FieldSelect) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1132,7 +1136,7 @@ fn encode_field_select(val FieldSelect) []u8 {
 	return buf
 }
 
-fn encode_field_store(val FieldStore) []u8 {
+pub fn encode_field_store(val FieldStore) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1169,7 +1173,7 @@ fn encode_field_store(val FieldStore) []u8 {
 	return buf
 }
 
-fn encode_relabel_type(val RelabelType) []u8 {
+pub fn encode_relabel_type(val RelabelType) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1204,7 +1208,7 @@ fn encode_relabel_type(val RelabelType) []u8 {
 	return buf
 }
 
-fn encode_coerce_via_i_o(val CoerceViaIO) []u8 {
+pub fn encode_coerce_via_i_o(val CoerceViaIO) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1235,7 +1239,7 @@ fn encode_coerce_via_i_o(val CoerceViaIO) []u8 {
 	return buf
 }
 
-fn encode_array_coerce_expr(val ArrayCoerceExpr) []u8 {
+pub fn encode_array_coerce_expr(val ArrayCoerceExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1275,7 +1279,7 @@ fn encode_array_coerce_expr(val ArrayCoerceExpr) []u8 {
 	return buf
 }
 
-fn encode_convert_rowtype_expr(val ConvertRowtypeExpr) []u8 {
+pub fn encode_convert_rowtype_expr(val ConvertRowtypeExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1302,7 +1306,7 @@ fn encode_convert_rowtype_expr(val ConvertRowtypeExpr) []u8 {
 	return buf
 }
 
-fn encode_collate_expr(val CollateExpr) []u8 {
+pub fn encode_collate_expr(val CollateExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1325,7 +1329,7 @@ fn encode_collate_expr(val CollateExpr) []u8 {
 	return buf
 }
 
-fn encode_case_expr(val CaseExpr) []u8 {
+pub fn encode_case_expr(val CaseExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1366,7 +1370,7 @@ fn encode_case_expr(val CaseExpr) []u8 {
 	return buf
 }
 
-fn encode_case_when(val CaseWhen) []u8 {
+pub fn encode_case_when(val CaseWhen) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1390,7 +1394,7 @@ fn encode_case_when(val CaseWhen) []u8 {
 	return buf
 }
 
-fn encode_case_test_expr(val CaseTestExpr) []u8 {
+pub fn encode_case_test_expr(val CaseTestExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1412,7 +1416,7 @@ fn encode_case_test_expr(val CaseTestExpr) []u8 {
 	return buf
 }
 
-fn encode_array_expr(val ArrayExpr) []u8 {
+pub fn encode_array_expr(val ArrayExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1451,7 +1455,7 @@ fn encode_array_expr(val ArrayExpr) []u8 {
 	return buf
 }
 
-fn encode_row_expr(val RowExpr) []u8 {
+pub fn encode_row_expr(val RowExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1491,7 +1495,7 @@ fn encode_row_expr(val RowExpr) []u8 {
 	return buf
 }
 
-fn encode_row_compare_expr(val RowCompareExpr) []u8 {
+pub fn encode_row_compare_expr(val RowCompareExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1550,7 +1554,7 @@ fn encode_row_compare_expr(val RowCompareExpr) []u8 {
 	return buf
 }
 
-fn encode_coalesce_expr(val CoalesceExpr) []u8 {
+pub fn encode_coalesce_expr(val CoalesceExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1581,7 +1585,7 @@ fn encode_coalesce_expr(val CoalesceExpr) []u8 {
 	return buf
 }
 
-fn encode_min_max_expr(val MinMaxExpr) []u8 {
+pub fn encode_min_max_expr(val MinMaxExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1620,7 +1624,7 @@ fn encode_min_max_expr(val MinMaxExpr) []u8 {
 	return buf
 }
 
-fn encode_s_q_l_value_function(val SQLValueFunction) []u8 {
+pub fn encode_s_q_l_value_function(val SQLValueFunction) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1646,7 +1650,7 @@ fn encode_s_q_l_value_function(val SQLValueFunction) []u8 {
 	return buf
 }
 
-fn encode_xml_expr(val XmlExpr) []u8 {
+pub fn encode_xml_expr(val XmlExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1711,7 +1715,7 @@ fn encode_xml_expr(val XmlExpr) []u8 {
 	return buf
 }
 
-fn encode_json_format(val JsonFormat) []u8 {
+pub fn encode_json_format(val JsonFormat) []u8 {
 	mut buf := []u8{}
 	if u64(val.format_type) != 0 {
 		buf << write_tag(1, 0)
@@ -1728,7 +1732,7 @@ fn encode_json_format(val JsonFormat) []u8 {
 	return buf
 }
 
-fn encode_json_behavior(val JsonBehavior) []u8 {
+pub fn encode_json_behavior(val JsonBehavior) []u8 {
 	mut buf := []u8{}
 	if u64(val.btype) != 0 {
 		buf << write_tag(1, 0)
@@ -1750,7 +1754,7 @@ fn encode_json_behavior(val JsonBehavior) []u8 {
 	return buf
 }
 
-fn encode_json_table_path(val JsonTablePath) []u8 {
+pub fn encode_json_table_path(val JsonTablePath) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
 		buf << write_tag(1, 2)
@@ -1759,7 +1763,7 @@ fn encode_json_table_path(val JsonTablePath) []u8 {
 	return buf
 }
 
-fn encode_json_table_sibling_join(val JsonTableSiblingJoin) []u8 {
+pub fn encode_json_table_sibling_join(val JsonTableSiblingJoin) []u8 {
 	mut buf := []u8{}
 	n_plan := encode_node(val.plan)
 	if n_plan.len > 0 {
@@ -1779,7 +1783,7 @@ fn encode_json_table_sibling_join(val JsonTableSiblingJoin) []u8 {
 	return buf
 }
 
-fn encode_null_test(val NullTest) []u8 {
+pub fn encode_null_test(val NullTest) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1806,7 +1810,7 @@ fn encode_null_test(val NullTest) []u8 {
 	return buf
 }
 
-fn encode_boolean_test(val BooleanTest) []u8 {
+pub fn encode_boolean_test(val BooleanTest) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1829,7 +1833,7 @@ fn encode_boolean_test(val BooleanTest) []u8 {
 	return buf
 }
 
-fn encode_merge_action(val MergeAction) []u8 {
+pub fn encode_merge_action(val MergeAction) []u8 {
 	mut buf := []u8{}
 	if u64(val.match_kind) != 0 {
 		buf << write_tag(1, 0)
@@ -1869,7 +1873,7 @@ fn encode_merge_action(val MergeAction) []u8 {
 	return buf
 }
 
-fn encode_coerce_to_domain(val CoerceToDomain) []u8 {
+pub fn encode_coerce_to_domain(val CoerceToDomain) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1904,7 +1908,7 @@ fn encode_coerce_to_domain(val CoerceToDomain) []u8 {
 	return buf
 }
 
-fn encode_coerce_to_domain_value(val CoerceToDomainValue) []u8 {
+pub fn encode_coerce_to_domain_value(val CoerceToDomainValue) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1930,7 +1934,7 @@ fn encode_coerce_to_domain_value(val CoerceToDomainValue) []u8 {
 	return buf
 }
 
-fn encode_set_to_default(val SetToDefault) []u8 {
+pub fn encode_set_to_default(val SetToDefault) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1956,7 +1960,7 @@ fn encode_set_to_default(val SetToDefault) []u8 {
 	return buf
 }
 
-fn encode_current_of_expr(val CurrentOfExpr) []u8 {
+pub fn encode_current_of_expr(val CurrentOfExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1978,7 +1982,7 @@ fn encode_current_of_expr(val CurrentOfExpr) []u8 {
 	return buf
 }
 
-fn encode_next_value_expr(val NextValueExpr) []u8 {
+pub fn encode_next_value_expr(val NextValueExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -1996,7 +2000,7 @@ fn encode_next_value_expr(val NextValueExpr) []u8 {
 	return buf
 }
 
-fn encode_inference_elem(val InferenceElem) []u8 {
+pub fn encode_inference_elem(val InferenceElem) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -2019,7 +2023,7 @@ fn encode_inference_elem(val InferenceElem) []u8 {
 	return buf
 }
 
-fn encode_target_entry(val TargetEntry) []u8 {
+pub fn encode_target_entry(val TargetEntry) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -2058,7 +2062,7 @@ fn encode_target_entry(val TargetEntry) []u8 {
 	return buf
 }
 
-fn encode_range_tbl_ref(val RangeTblRef) []u8 {
+pub fn encode_range_tbl_ref(val RangeTblRef) []u8 {
 	mut buf := []u8{}
 	if val.rtindex != 0 {
 		buf << write_tag(1, 0)
@@ -2067,7 +2071,7 @@ fn encode_range_tbl_ref(val RangeTblRef) []u8 {
 	return buf
 }
 
-fn encode_from_expr(val FromExpr) []u8 {
+pub fn encode_from_expr(val FromExpr) []u8 {
 	mut buf := []u8{}
 	if val.fromlist.len > 0 {
 		for v in val.fromlist {
@@ -2086,7 +2090,7 @@ fn encode_from_expr(val FromExpr) []u8 {
 	return buf
 }
 
-fn encode_on_conflict_expr(val OnConflictExpr) []u8 {
+pub fn encode_on_conflict_expr(val OnConflictExpr) []u8 {
 	mut buf := []u8{}
 	if u64(val.action) != 0 {
 		buf << write_tag(1, 0)
@@ -2140,7 +2144,7 @@ fn encode_on_conflict_expr(val OnConflictExpr) []u8 {
 	return buf
 }
 
-fn encode_type_name(val TypeName) []u8 {
+pub fn encode_type_name(val TypeName) []u8 {
 	mut buf := []u8{}
 	if val.names.len > 0 {
 		for v in val.names {
@@ -2192,7 +2196,7 @@ fn encode_type_name(val TypeName) []u8 {
 	return buf
 }
 
-fn encode_column_ref(val ColumnRef) []u8 {
+pub fn encode_column_ref(val ColumnRef) []u8 {
 	mut buf := []u8{}
 	if val.fields.len > 0 {
 		for v in val.fields {
@@ -2210,7 +2214,7 @@ fn encode_column_ref(val ColumnRef) []u8 {
 	return buf
 }
 
-fn encode_param_ref(val ParamRef) []u8 {
+pub fn encode_param_ref(val ParamRef) []u8 {
 	mut buf := []u8{}
 	if val.number != 0 {
 		buf << write_tag(1, 0)
@@ -2223,7 +2227,7 @@ fn encode_param_ref(val ParamRef) []u8 {
 	return buf
 }
 
-fn encode_a_expr(val AExpr) []u8 {
+pub fn encode_a_expr(val AExpr) []u8 {
 	mut buf := []u8{}
 	if u64(val.kind) != 0 {
 		buf << write_tag(1, 0)
@@ -2255,7 +2259,7 @@ fn encode_a_expr(val AExpr) []u8 {
 	return buf
 }
 
-fn encode_collate_clause(val CollateClause) []u8 {
+pub fn encode_collate_clause(val CollateClause) []u8 {
 	mut buf := []u8{}
 	n_arg := encode_node(val.arg)
 	if n_arg.len > 0 {
@@ -2278,7 +2282,7 @@ fn encode_collate_clause(val CollateClause) []u8 {
 	return buf
 }
 
-fn encode_role_spec(val RoleSpec) []u8 {
+pub fn encode_role_spec(val RoleSpec) []u8 {
 	mut buf := []u8{}
 	if u64(val.roletype) != 0 {
 		buf << write_tag(1, 0)
@@ -2295,12 +2299,12 @@ fn encode_role_spec(val RoleSpec) []u8 {
 	return buf
 }
 
-fn encode_a_star(val AStar) []u8 {
+pub fn encode_a_star(val AStar) []u8 {
 	mut buf := []u8{}
 	return buf
 }
 
-fn encode_a_indices(val AIndices) []u8 {
+pub fn encode_a_indices(val AIndices) []u8 {
 	mut buf := []u8{}
 	if val.is_slice {
 		buf << write_tag(1, 0)
@@ -2319,7 +2323,7 @@ fn encode_a_indices(val AIndices) []u8 {
 	return buf
 }
 
-fn encode_a_indirection(val AIndirection) []u8 {
+pub fn encode_a_indirection(val AIndirection) []u8 {
 	mut buf := []u8{}
 	n_arg := encode_node(val.arg)
 	if n_arg.len > 0 {
@@ -2338,7 +2342,7 @@ fn encode_a_indirection(val AIndirection) []u8 {
 	return buf
 }
 
-fn encode_a_array_expr(val AArrayExpr) []u8 {
+pub fn encode_a_array_expr(val AArrayExpr) []u8 {
 	mut buf := []u8{}
 	if val.elements.len > 0 {
 		for v in val.elements {
@@ -2356,7 +2360,7 @@ fn encode_a_array_expr(val AArrayExpr) []u8 {
 	return buf
 }
 
-fn encode_res_target(val ResTarget) []u8 {
+pub fn encode_res_target(val ResTarget) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
 		buf << write_tag(1, 2)
@@ -2383,7 +2387,7 @@ fn encode_res_target(val ResTarget) []u8 {
 	return buf
 }
 
-fn encode_multi_assign_ref(val MultiAssignRef) []u8 {
+pub fn encode_multi_assign_ref(val MultiAssignRef) []u8 {
 	mut buf := []u8{}
 	n_source := encode_node(val.source)
 	if n_source.len > 0 {
@@ -2401,7 +2405,7 @@ fn encode_multi_assign_ref(val MultiAssignRef) []u8 {
 	return buf
 }
 
-fn encode_sort_by(val SortBy) []u8 {
+pub fn encode_sort_by(val SortBy) []u8 {
 	mut buf := []u8{}
 	n_node := encode_node(val.node)
 	if n_node.len > 0 {
@@ -2432,7 +2436,7 @@ fn encode_sort_by(val SortBy) []u8 {
 	return buf
 }
 
-fn encode_window_def(val WindowDef) []u8 {
+pub fn encode_window_def(val WindowDef) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
 		buf << write_tag(1, 2)
@@ -2481,7 +2485,7 @@ fn encode_window_def(val WindowDef) []u8 {
 	return buf
 }
 
-fn encode_range_table_sample(val RangeTableSample) []u8 {
+pub fn encode_range_table_sample(val RangeTableSample) []u8 {
 	mut buf := []u8{}
 	n_relation := encode_node(val.relation)
 	if n_relation.len > 0 {
@@ -2518,7 +2522,7 @@ fn encode_range_table_sample(val RangeTableSample) []u8 {
 	return buf
 }
 
-fn encode_index_elem(val IndexElem) []u8 {
+pub fn encode_index_elem(val IndexElem) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
 		buf << write_tag(1, 2)
@@ -2571,7 +2575,7 @@ fn encode_index_elem(val IndexElem) []u8 {
 	return buf
 }
 
-fn encode_def_elem(val DefElem) []u8 {
+pub fn encode_def_elem(val DefElem) []u8 {
 	mut buf := []u8{}
 	if val.defnamespace != '' {
 		buf << write_tag(1, 2)
@@ -2597,7 +2601,7 @@ fn encode_def_elem(val DefElem) []u8 {
 	return buf
 }
 
-fn encode_locking_clause(val LockingClause) []u8 {
+pub fn encode_locking_clause(val LockingClause) []u8 {
 	mut buf := []u8{}
 	if val.locked_rels.len > 0 {
 		for v in val.locked_rels {
@@ -2619,7 +2623,7 @@ fn encode_locking_clause(val LockingClause) []u8 {
 	return buf
 }
 
-fn encode_partition_elem(val PartitionElem) []u8 {
+pub fn encode_partition_elem(val PartitionElem) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
 		buf << write_tag(1, 2)
@@ -2655,7 +2659,7 @@ fn encode_partition_elem(val PartitionElem) []u8 {
 	return buf
 }
 
-fn encode_partition_spec(val PartitionSpec) []u8 {
+pub fn encode_partition_spec(val PartitionSpec) []u8 {
 	mut buf := []u8{}
 	if u64(val.strategy) != 0 {
 		buf << write_tag(1, 0)
@@ -2677,7 +2681,7 @@ fn encode_partition_spec(val PartitionSpec) []u8 {
 	return buf
 }
 
-fn encode_partition_bound_spec(val PartitionBoundSpec) []u8 {
+pub fn encode_partition_bound_spec(val PartitionBoundSpec) []u8 {
 	mut buf := []u8{}
 	if val.strategy != '' {
 		buf << write_tag(1, 2)
@@ -2729,7 +2733,7 @@ fn encode_partition_bound_spec(val PartitionBoundSpec) []u8 {
 	return buf
 }
 
-fn encode_partition_range_datum(val PartitionRangeDatum) []u8 {
+pub fn encode_partition_range_datum(val PartitionRangeDatum) []u8 {
 	mut buf := []u8{}
 	if u64(val.kind) != 0 {
 		buf << write_tag(1, 0)
@@ -2747,12 +2751,12 @@ fn encode_partition_range_datum(val PartitionRangeDatum) []u8 {
 	return buf
 }
 
-fn encode_single_partition_spec(val SinglePartitionSpec) []u8 {
+pub fn encode_single_partition_spec(val SinglePartitionSpec) []u8 {
 	mut buf := []u8{}
 	return buf
 }
 
-fn encode_r_t_e_permission_info(val RTEPermissionInfo) []u8 {
+pub fn encode_r_t_e_permission_info(val RTEPermissionInfo) []u8 {
 	mut buf := []u8{}
 	if val.relid != 0 {
 		buf << write_tag(1, 0)
@@ -2771,27 +2775,33 @@ fn encode_r_t_e_permission_info(val RTEPermissionInfo) []u8 {
 		buf << write_varint(u64(val.check_as_user))
 	}
 	if val.selected_cols.len > 0 {
+		mut packed_ := []u8{}
 		for v in val.selected_cols {
-			buf << write_tag(5, 0)
-			buf << write_varint(v)
+			packed_ << write_varint(v)
 		}
+		buf << write_tag(5, 2)
+		buf << write_length_delimited(packed_)
 	}
 	if val.inserted_cols.len > 0 {
+		mut packed_ := []u8{}
 		for v in val.inserted_cols {
-			buf << write_tag(6, 0)
-			buf << write_varint(v)
+			packed_ << write_varint(v)
 		}
+		buf << write_tag(6, 2)
+		buf << write_length_delimited(packed_)
 	}
 	if val.updated_cols.len > 0 {
+		mut packed_ := []u8{}
 		for v in val.updated_cols {
-			buf << write_tag(7, 0)
-			buf << write_varint(v)
+			packed_ << write_varint(v)
 		}
+		buf << write_tag(7, 2)
+		buf << write_length_delimited(packed_)
 	}
 	return buf
 }
 
-fn encode_range_tbl_function(val RangeTblFunction) []u8 {
+pub fn encode_range_tbl_function(val RangeTblFunction) []u8 {
 	mut buf := []u8{}
 	n_funcexpr := encode_node(val.funcexpr)
 	if n_funcexpr.len > 0 {
@@ -2839,15 +2849,17 @@ fn encode_range_tbl_function(val RangeTblFunction) []u8 {
 		}
 	}
 	if val.funcparams.len > 0 {
+		mut packed_ := []u8{}
 		for v in val.funcparams {
-			buf << write_tag(7, 0)
-			buf << write_varint(v)
+			packed_ << write_varint(v)
 		}
+		buf << write_tag(7, 2)
+		buf << write_length_delimited(packed_)
 	}
 	return buf
 }
 
-fn encode_table_sample_clause(val TableSampleClause) []u8 {
+pub fn encode_table_sample_clause(val TableSampleClause) []u8 {
 	mut buf := []u8{}
 	if val.tsmhandler != 0 {
 		buf << write_tag(1, 0)
@@ -2870,7 +2882,7 @@ fn encode_table_sample_clause(val TableSampleClause) []u8 {
 	return buf
 }
 
-fn encode_with_check_option(val WithCheckOption) []u8 {
+pub fn encode_with_check_option(val WithCheckOption) []u8 {
 	mut buf := []u8{}
 	if u64(val.kind) != 0 {
 		buf << write_tag(1, 0)
@@ -2896,7 +2908,7 @@ fn encode_with_check_option(val WithCheckOption) []u8 {
 	return buf
 }
 
-fn encode_sort_group_clause(val SortGroupClause) []u8 {
+pub fn encode_sort_group_clause(val SortGroupClause) []u8 {
 	mut buf := []u8{}
 	if val.tle_sort_group_ref != 0 {
 		buf << write_tag(1, 0)
@@ -2921,7 +2933,7 @@ fn encode_sort_group_clause(val SortGroupClause) []u8 {
 	return buf
 }
 
-fn encode_grouping_set(val GroupingSet) []u8 {
+pub fn encode_grouping_set(val GroupingSet) []u8 {
 	mut buf := []u8{}
 	if u64(val.kind) != 0 {
 		buf << write_tag(1, 0)
@@ -2943,7 +2955,7 @@ fn encode_grouping_set(val GroupingSet) []u8 {
 	return buf
 }
 
-fn encode_window_clause(val WindowClause) []u8 {
+pub fn encode_window_clause(val WindowClause) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
 		buf << write_tag(1, 2)
@@ -3016,7 +3028,7 @@ fn encode_window_clause(val WindowClause) []u8 {
 	return buf
 }
 
-fn encode_row_mark_clause(val RowMarkClause) []u8 {
+pub fn encode_row_mark_clause(val RowMarkClause) []u8 {
 	mut buf := []u8{}
 	if val.rti != 0 {
 		buf << write_tag(1, 0)
@@ -3037,7 +3049,7 @@ fn encode_row_mark_clause(val RowMarkClause) []u8 {
 	return buf
 }
 
-fn encode_with_clause(val WithClause) []u8 {
+pub fn encode_with_clause(val WithClause) []u8 {
 	mut buf := []u8{}
 	if val.ctes.len > 0 {
 		for v in val.ctes {
@@ -3059,7 +3071,7 @@ fn encode_with_clause(val WithClause) []u8 {
 	return buf
 }
 
-fn encode_infer_clause(val InferClause) []u8 {
+pub fn encode_infer_clause(val InferClause) []u8 {
 	mut buf := []u8{}
 	if val.index_elems.len > 0 {
 		for v in val.index_elems {
@@ -3086,7 +3098,7 @@ fn encode_infer_clause(val InferClause) []u8 {
 	return buf
 }
 
-fn encode_c_t_e_search_clause(val CTESearchClause) []u8 {
+pub fn encode_c_t_e_search_clause(val CTESearchClause) []u8 {
 	mut buf := []u8{}
 	if val.search_col_list.len > 0 {
 		for v in val.search_col_list {
@@ -3112,7 +3124,7 @@ fn encode_c_t_e_search_clause(val CTESearchClause) []u8 {
 	return buf
 }
 
-fn encode_c_t_e_cycle_clause(val CTECycleClause) []u8 {
+pub fn encode_c_t_e_cycle_clause(val CTECycleClause) []u8 {
 	mut buf := []u8{}
 	if val.cycle_col_list.len > 0 {
 		for v in val.cycle_col_list {
@@ -3164,7 +3176,7 @@ fn encode_c_t_e_cycle_clause(val CTECycleClause) []u8 {
 	return buf
 }
 
-fn encode_merge_when_clause(val MergeWhenClause) []u8 {
+pub fn encode_merge_when_clause(val MergeWhenClause) []u8 {
 	mut buf := []u8{}
 	if u64(val.match_kind) != 0 {
 		buf << write_tag(1, 0)
@@ -3204,7 +3216,7 @@ fn encode_merge_when_clause(val MergeWhenClause) []u8 {
 	return buf
 }
 
-fn encode_trigger_transition(val TriggerTransition) []u8 {
+pub fn encode_trigger_transition(val TriggerTransition) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
 		buf << write_tag(1, 2)
@@ -3221,7 +3233,7 @@ fn encode_trigger_transition(val TriggerTransition) []u8 {
 	return buf
 }
 
-fn encode_json_table_path_spec(val JsonTablePathSpec) []u8 {
+pub fn encode_json_table_path_spec(val JsonTablePathSpec) []u8 {
 	mut buf := []u8{}
 	n_string := encode_node(val.string)
 	if n_string.len > 0 {
@@ -3243,7 +3255,7 @@ fn encode_json_table_path_spec(val JsonTablePathSpec) []u8 {
 	return buf
 }
 
-fn encode_raw_stmt(val RawStmt) []u8 {
+pub fn encode_raw_stmt(val RawStmt) []u8 {
 	mut buf := []u8{}
 	n_stmt := encode_node(val.stmt)
 	if n_stmt.len > 0 {
@@ -3261,7 +3273,7 @@ fn encode_raw_stmt(val RawStmt) []u8 {
 	return buf
 }
 
-fn encode_set_operation_stmt(val SetOperationStmt) []u8 {
+pub fn encode_set_operation_stmt(val SetOperationStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.op) != 0 {
 		buf << write_tag(1, 0)
@@ -3320,7 +3332,7 @@ fn encode_set_operation_stmt(val SetOperationStmt) []u8 {
 	return buf
 }
 
-fn encode_return_stmt(val ReturnStmt) []u8 {
+pub fn encode_return_stmt(val ReturnStmt) []u8 {
 	mut buf := []u8{}
 	n_returnval := encode_node(val.returnval)
 	if n_returnval.len > 0 {
@@ -3330,7 +3342,7 @@ fn encode_return_stmt(val ReturnStmt) []u8 {
 	return buf
 }
 
-fn encode_replica_identity_stmt(val ReplicaIdentityStmt) []u8 {
+pub fn encode_replica_identity_stmt(val ReplicaIdentityStmt) []u8 {
 	mut buf := []u8{}
 	if val.identity_type != '' {
 		buf << write_tag(1, 2)
@@ -3343,7 +3355,7 @@ fn encode_replica_identity_stmt(val ReplicaIdentityStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_collation_stmt(val AlterCollationStmt) []u8 {
+pub fn encode_alter_collation_stmt(val AlterCollationStmt) []u8 {
 	mut buf := []u8{}
 	if val.collname.len > 0 {
 		for v in val.collname {
@@ -3357,7 +3369,7 @@ fn encode_alter_collation_stmt(val AlterCollationStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_domain_stmt(val AlterDomainStmt) []u8 {
+pub fn encode_alter_domain_stmt(val AlterDomainStmt) []u8 {
 	mut buf := []u8{}
 	if val.subtype != '' {
 		buf << write_tag(1, 2)
@@ -3392,7 +3404,7 @@ fn encode_alter_domain_stmt(val AlterDomainStmt) []u8 {
 	return buf
 }
 
-fn encode_object_with_args(val ObjectWithArgs) []u8 {
+pub fn encode_object_with_args(val ObjectWithArgs) []u8 {
 	mut buf := []u8{}
 	if val.objname.len > 0 {
 		for v in val.objname {
@@ -3428,7 +3440,7 @@ fn encode_object_with_args(val ObjectWithArgs) []u8 {
 	return buf
 }
 
-fn encode_access_priv(val AccessPriv) []u8 {
+pub fn encode_access_priv(val AccessPriv) []u8 {
 	mut buf := []u8{}
 	if val.priv_name != '' {
 		buf << write_tag(1, 2)
@@ -3446,7 +3458,7 @@ fn encode_access_priv(val AccessPriv) []u8 {
 	return buf
 }
 
-fn encode_variable_set_stmt(val VariableSetStmt) []u8 {
+pub fn encode_variable_set_stmt(val VariableSetStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.kind) != 0 {
 		buf << write_tag(1, 0)
@@ -3472,7 +3484,7 @@ fn encode_variable_set_stmt(val VariableSetStmt) []u8 {
 	return buf
 }
 
-fn encode_variable_show_stmt(val VariableShowStmt) []u8 {
+pub fn encode_variable_show_stmt(val VariableShowStmt) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
 		buf << write_tag(1, 2)
@@ -3481,7 +3493,7 @@ fn encode_variable_show_stmt(val VariableShowStmt) []u8 {
 	return buf
 }
 
-fn encode_drop_table_space_stmt(val DropTableSpaceStmt) []u8 {
+pub fn encode_drop_table_space_stmt(val DropTableSpaceStmt) []u8 {
 	mut buf := []u8{}
 	if val.tablespacename != '' {
 		buf << write_tag(1, 2)
@@ -3494,7 +3506,7 @@ fn encode_drop_table_space_stmt(val DropTableSpaceStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_table_space_options_stmt(val AlterTableSpaceOptionsStmt) []u8 {
+pub fn encode_alter_table_space_options_stmt(val AlterTableSpaceOptionsStmt) []u8 {
 	mut buf := []u8{}
 	if val.tablespacename != '' {
 		buf << write_tag(1, 2)
@@ -3516,7 +3528,7 @@ fn encode_alter_table_space_options_stmt(val AlterTableSpaceOptionsStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_table_move_all_stmt(val AlterTableMoveAllStmt) []u8 {
+pub fn encode_alter_table_move_all_stmt(val AlterTableMoveAllStmt) []u8 {
 	mut buf := []u8{}
 	if val.orig_tablespacename != '' {
 		buf << write_tag(1, 2)
@@ -3546,7 +3558,7 @@ fn encode_alter_table_move_all_stmt(val AlterTableMoveAllStmt) []u8 {
 	return buf
 }
 
-fn encode_create_extension_stmt(val CreateExtensionStmt) []u8 {
+pub fn encode_create_extension_stmt(val CreateExtensionStmt) []u8 {
 	mut buf := []u8{}
 	if val.extname != '' {
 		buf << write_tag(1, 2)
@@ -3568,7 +3580,7 @@ fn encode_create_extension_stmt(val CreateExtensionStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_extension_stmt(val AlterExtensionStmt) []u8 {
+pub fn encode_alter_extension_stmt(val AlterExtensionStmt) []u8 {
 	mut buf := []u8{}
 	if val.extname != '' {
 		buf << write_tag(1, 2)
@@ -3586,7 +3598,7 @@ fn encode_alter_extension_stmt(val AlterExtensionStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_extension_contents_stmt(val AlterExtensionContentsStmt) []u8 {
+pub fn encode_alter_extension_contents_stmt(val AlterExtensionContentsStmt) []u8 {
 	mut buf := []u8{}
 	if val.extname != '' {
 		buf << write_tag(1, 2)
@@ -3608,7 +3620,7 @@ fn encode_alter_extension_contents_stmt(val AlterExtensionContentsStmt) []u8 {
 	return buf
 }
 
-fn encode_create_fdw_stmt(val CreateFdwStmt) []u8 {
+pub fn encode_create_fdw_stmt(val CreateFdwStmt) []u8 {
 	mut buf := []u8{}
 	if val.fdwname != '' {
 		buf << write_tag(1, 2)
@@ -3635,7 +3647,7 @@ fn encode_create_fdw_stmt(val CreateFdwStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_fdw_stmt(val AlterFdwStmt) []u8 {
+pub fn encode_alter_fdw_stmt(val AlterFdwStmt) []u8 {
 	mut buf := []u8{}
 	if val.fdwname != '' {
 		buf << write_tag(1, 2)
@@ -3662,7 +3674,7 @@ fn encode_alter_fdw_stmt(val AlterFdwStmt) []u8 {
 	return buf
 }
 
-fn encode_create_foreign_server_stmt(val CreateForeignServerStmt) []u8 {
+pub fn encode_create_foreign_server_stmt(val CreateForeignServerStmt) []u8 {
 	mut buf := []u8{}
 	if val.servername != '' {
 		buf << write_tag(1, 2)
@@ -3696,7 +3708,7 @@ fn encode_create_foreign_server_stmt(val CreateForeignServerStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_foreign_server_stmt(val AlterForeignServerStmt) []u8 {
+pub fn encode_alter_foreign_server_stmt(val AlterForeignServerStmt) []u8 {
 	mut buf := []u8{}
 	if val.servername != '' {
 		buf << write_tag(1, 2)
@@ -3722,7 +3734,7 @@ fn encode_alter_foreign_server_stmt(val AlterForeignServerStmt) []u8 {
 	return buf
 }
 
-fn encode_import_foreign_schema_stmt(val ImportForeignSchemaStmt) []u8 {
+pub fn encode_import_foreign_schema_stmt(val ImportForeignSchemaStmt) []u8 {
 	mut buf := []u8{}
 	if val.server_name != '' {
 		buf << write_tag(1, 2)
@@ -3761,7 +3773,7 @@ fn encode_import_foreign_schema_stmt(val ImportForeignSchemaStmt) []u8 {
 	return buf
 }
 
-fn encode_create_am_stmt(val CreateAmStmt) []u8 {
+pub fn encode_create_am_stmt(val CreateAmStmt) []u8 {
 	mut buf := []u8{}
 	if val.amname != '' {
 		buf << write_tag(1, 2)
@@ -3783,7 +3795,7 @@ fn encode_create_am_stmt(val CreateAmStmt) []u8 {
 	return buf
 }
 
-fn encode_create_event_trig_stmt(val CreateEventTrigStmt) []u8 {
+pub fn encode_create_event_trig_stmt(val CreateEventTrigStmt) []u8 {
 	mut buf := []u8{}
 	if val.trigname != '' {
 		buf << write_tag(1, 2)
@@ -3814,7 +3826,7 @@ fn encode_create_event_trig_stmt(val CreateEventTrigStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_event_trig_stmt(val AlterEventTrigStmt) []u8 {
+pub fn encode_alter_event_trig_stmt(val AlterEventTrigStmt) []u8 {
 	mut buf := []u8{}
 	if val.trigname != '' {
 		buf << write_tag(1, 2)
@@ -3827,7 +3839,7 @@ fn encode_alter_event_trig_stmt(val AlterEventTrigStmt) []u8 {
 	return buf
 }
 
-fn encode_create_p_lang_stmt(val CreatePLangStmt) []u8 {
+pub fn encode_create_p_lang_stmt(val CreatePLangStmt) []u8 {
 	mut buf := []u8{}
 	if val.replace {
 		buf << write_tag(1, 0)
@@ -3871,7 +3883,7 @@ fn encode_create_p_lang_stmt(val CreatePLangStmt) []u8 {
 	return buf
 }
 
-fn encode_create_role_stmt(val CreateRoleStmt) []u8 {
+pub fn encode_create_role_stmt(val CreateRoleStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.stmt_type) != 0 {
 		buf << write_tag(1, 0)
@@ -3893,7 +3905,7 @@ fn encode_create_role_stmt(val CreateRoleStmt) []u8 {
 	return buf
 }
 
-fn encode_drop_role_stmt(val DropRoleStmt) []u8 {
+pub fn encode_drop_role_stmt(val DropRoleStmt) []u8 {
 	mut buf := []u8{}
 	if val.roles.len > 0 {
 		for v in val.roles {
@@ -3911,7 +3923,7 @@ fn encode_drop_role_stmt(val DropRoleStmt) []u8 {
 	return buf
 }
 
-fn encode_define_stmt(val DefineStmt) []u8 {
+pub fn encode_define_stmt(val DefineStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.kind) != 0 {
 		buf << write_tag(1, 0)
@@ -3959,7 +3971,7 @@ fn encode_define_stmt(val DefineStmt) []u8 {
 	return buf
 }
 
-fn encode_create_op_family_stmt(val CreateOpFamilyStmt) []u8 {
+pub fn encode_create_op_family_stmt(val CreateOpFamilyStmt) []u8 {
 	mut buf := []u8{}
 	if val.opfamilyname.len > 0 {
 		for v in val.opfamilyname {
@@ -3977,7 +3989,7 @@ fn encode_create_op_family_stmt(val CreateOpFamilyStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_op_family_stmt(val AlterOpFamilyStmt) []u8 {
+pub fn encode_alter_op_family_stmt(val AlterOpFamilyStmt) []u8 {
 	mut buf := []u8{}
 	if val.opfamilyname.len > 0 {
 		for v in val.opfamilyname {
@@ -4008,7 +4020,7 @@ fn encode_alter_op_family_stmt(val AlterOpFamilyStmt) []u8 {
 	return buf
 }
 
-fn encode_drop_stmt(val DropStmt) []u8 {
+pub fn encode_drop_stmt(val DropStmt) []u8 {
 	mut buf := []u8{}
 	if val.objects.len > 0 {
 		for v in val.objects {
@@ -4038,7 +4050,7 @@ fn encode_drop_stmt(val DropStmt) []u8 {
 	return buf
 }
 
-fn encode_truncate_stmt(val TruncateStmt) []u8 {
+pub fn encode_truncate_stmt(val TruncateStmt) []u8 {
 	mut buf := []u8{}
 	if val.relations.len > 0 {
 		for v in val.relations {
@@ -4060,7 +4072,7 @@ fn encode_truncate_stmt(val TruncateStmt) []u8 {
 	return buf
 }
 
-fn encode_comment_stmt(val CommentStmt) []u8 {
+pub fn encode_comment_stmt(val CommentStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.objtype) != 0 {
 		buf << write_tag(1, 0)
@@ -4078,7 +4090,7 @@ fn encode_comment_stmt(val CommentStmt) []u8 {
 	return buf
 }
 
-fn encode_sec_label_stmt(val SecLabelStmt) []u8 {
+pub fn encode_sec_label_stmt(val SecLabelStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.objtype) != 0 {
 		buf << write_tag(1, 0)
@@ -4100,7 +4112,7 @@ fn encode_sec_label_stmt(val SecLabelStmt) []u8 {
 	return buf
 }
 
-fn encode_declare_cursor_stmt(val DeclareCursorStmt) []u8 {
+pub fn encode_declare_cursor_stmt(val DeclareCursorStmt) []u8 {
 	mut buf := []u8{}
 	if val.portalname != '' {
 		buf << write_tag(1, 2)
@@ -4118,7 +4130,7 @@ fn encode_declare_cursor_stmt(val DeclareCursorStmt) []u8 {
 	return buf
 }
 
-fn encode_close_portal_stmt(val ClosePortalStmt) []u8 {
+pub fn encode_close_portal_stmt(val ClosePortalStmt) []u8 {
 	mut buf := []u8{}
 	if val.portalname != '' {
 		buf << write_tag(1, 2)
@@ -4127,7 +4139,7 @@ fn encode_close_portal_stmt(val ClosePortalStmt) []u8 {
 	return buf
 }
 
-fn encode_fetch_stmt(val FetchStmt) []u8 {
+pub fn encode_fetch_stmt(val FetchStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.direction) != 0 {
 		buf << write_tag(1, 0)
@@ -4148,7 +4160,7 @@ fn encode_fetch_stmt(val FetchStmt) []u8 {
 	return buf
 }
 
-fn encode_create_stats_stmt(val CreateStatsStmt) []u8 {
+pub fn encode_create_stats_stmt(val CreateStatsStmt) []u8 {
 	mut buf := []u8{}
 	if val.defnames.len > 0 {
 		for v in val.defnames {
@@ -4201,7 +4213,7 @@ fn encode_create_stats_stmt(val CreateStatsStmt) []u8 {
 	return buf
 }
 
-fn encode_stats_elem(val StatsElem) []u8 {
+pub fn encode_stats_elem(val StatsElem) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
 		buf << write_tag(1, 2)
@@ -4215,7 +4227,7 @@ fn encode_stats_elem(val StatsElem) []u8 {
 	return buf
 }
 
-fn encode_alter_stats_stmt(val AlterStatsStmt) []u8 {
+pub fn encode_alter_stats_stmt(val AlterStatsStmt) []u8 {
 	mut buf := []u8{}
 	if val.defnames.len > 0 {
 		for v in val.defnames {
@@ -4238,7 +4250,7 @@ fn encode_alter_stats_stmt(val AlterStatsStmt) []u8 {
 	return buf
 }
 
-fn encode_do_stmt(val DoStmt) []u8 {
+pub fn encode_do_stmt(val DoStmt) []u8 {
 	mut buf := []u8{}
 	if val.args.len > 0 {
 		for v in val.args {
@@ -4252,7 +4264,7 @@ fn encode_do_stmt(val DoStmt) []u8 {
 	return buf
 }
 
-fn encode_inline_code_block(val InlineCodeBlock) []u8 {
+pub fn encode_inline_code_block(val InlineCodeBlock) []u8 {
 	mut buf := []u8{}
 	if val.source_text != '' {
 		buf << write_tag(1, 2)
@@ -4273,7 +4285,7 @@ fn encode_inline_code_block(val InlineCodeBlock) []u8 {
 	return buf
 }
 
-fn encode_call_context(val CallContext) []u8 {
+pub fn encode_call_context(val CallContext) []u8 {
 	mut buf := []u8{}
 	if val.atomic {
 		buf << write_tag(1, 0)
@@ -4282,7 +4294,7 @@ fn encode_call_context(val CallContext) []u8 {
 	return buf
 }
 
-fn encode_alter_type_stmt(val AlterTypeStmt) []u8 {
+pub fn encode_alter_type_stmt(val AlterTypeStmt) []u8 {
 	mut buf := []u8{}
 	if val.type_name.len > 0 {
 		for v in val.type_name {
@@ -4305,7 +4317,7 @@ fn encode_alter_type_stmt(val AlterTypeStmt) []u8 {
 	return buf
 }
 
-fn encode_notify_stmt(val NotifyStmt) []u8 {
+pub fn encode_notify_stmt(val NotifyStmt) []u8 {
 	mut buf := []u8{}
 	if val.conditionname != '' {
 		buf << write_tag(1, 2)
@@ -4318,7 +4330,7 @@ fn encode_notify_stmt(val NotifyStmt) []u8 {
 	return buf
 }
 
-fn encode_listen_stmt(val ListenStmt) []u8 {
+pub fn encode_listen_stmt(val ListenStmt) []u8 {
 	mut buf := []u8{}
 	if val.conditionname != '' {
 		buf << write_tag(1, 2)
@@ -4327,7 +4339,7 @@ fn encode_listen_stmt(val ListenStmt) []u8 {
 	return buf
 }
 
-fn encode_unlisten_stmt(val UnlistenStmt) []u8 {
+pub fn encode_unlisten_stmt(val UnlistenStmt) []u8 {
 	mut buf := []u8{}
 	if val.conditionname != '' {
 		buf << write_tag(1, 2)
@@ -4336,7 +4348,7 @@ fn encode_unlisten_stmt(val UnlistenStmt) []u8 {
 	return buf
 }
 
-fn encode_transaction_stmt(val TransactionStmt) []u8 {
+pub fn encode_transaction_stmt(val TransactionStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.kind) != 0 {
 		buf << write_tag(1, 0)
@@ -4370,7 +4382,7 @@ fn encode_transaction_stmt(val TransactionStmt) []u8 {
 	return buf
 }
 
-fn encode_create_enum_stmt(val CreateEnumStmt) []u8 {
+pub fn encode_create_enum_stmt(val CreateEnumStmt) []u8 {
 	mut buf := []u8{}
 	if val.type_name.len > 0 {
 		for v in val.type_name {
@@ -4393,7 +4405,7 @@ fn encode_create_enum_stmt(val CreateEnumStmt) []u8 {
 	return buf
 }
 
-fn encode_create_range_stmt(val CreateRangeStmt) []u8 {
+pub fn encode_create_range_stmt(val CreateRangeStmt) []u8 {
 	mut buf := []u8{}
 	if val.type_name.len > 0 {
 		for v in val.type_name {
@@ -4416,7 +4428,7 @@ fn encode_create_range_stmt(val CreateRangeStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_enum_stmt(val AlterEnumStmt) []u8 {
+pub fn encode_alter_enum_stmt(val AlterEnumStmt) []u8 {
 	mut buf := []u8{}
 	if val.type_name.len > 0 {
 		for v in val.type_name {
@@ -4450,7 +4462,7 @@ fn encode_alter_enum_stmt(val AlterEnumStmt) []u8 {
 	return buf
 }
 
-fn encode_load_stmt(val LoadStmt) []u8 {
+pub fn encode_load_stmt(val LoadStmt) []u8 {
 	mut buf := []u8{}
 	if val.filename != '' {
 		buf << write_tag(1, 2)
@@ -4459,7 +4471,7 @@ fn encode_load_stmt(val LoadStmt) []u8 {
 	return buf
 }
 
-fn encode_createdb_stmt(val CreatedbStmt) []u8 {
+pub fn encode_createdb_stmt(val CreatedbStmt) []u8 {
 	mut buf := []u8{}
 	if val.dbname != '' {
 		buf << write_tag(1, 2)
@@ -4477,7 +4489,7 @@ fn encode_createdb_stmt(val CreatedbStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_database_stmt(val AlterDatabaseStmt) []u8 {
+pub fn encode_alter_database_stmt(val AlterDatabaseStmt) []u8 {
 	mut buf := []u8{}
 	if val.dbname != '' {
 		buf << write_tag(1, 2)
@@ -4495,7 +4507,7 @@ fn encode_alter_database_stmt(val AlterDatabaseStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_database_refresh_coll_stmt(val AlterDatabaseRefreshCollStmt) []u8 {
+pub fn encode_alter_database_refresh_coll_stmt(val AlterDatabaseRefreshCollStmt) []u8 {
 	mut buf := []u8{}
 	if val.dbname != '' {
 		buf << write_tag(1, 2)
@@ -4504,7 +4516,7 @@ fn encode_alter_database_refresh_coll_stmt(val AlterDatabaseRefreshCollStmt) []u
 	return buf
 }
 
-fn encode_dropdb_stmt(val DropdbStmt) []u8 {
+pub fn encode_dropdb_stmt(val DropdbStmt) []u8 {
 	mut buf := []u8{}
 	if val.dbname != '' {
 		buf << write_tag(1, 2)
@@ -4526,7 +4538,7 @@ fn encode_dropdb_stmt(val DropdbStmt) []u8 {
 	return buf
 }
 
-fn encode_vacuum_stmt(val VacuumStmt) []u8 {
+pub fn encode_vacuum_stmt(val VacuumStmt) []u8 {
 	mut buf := []u8{}
 	if val.options.len > 0 {
 		for v in val.options {
@@ -4553,7 +4565,7 @@ fn encode_vacuum_stmt(val VacuumStmt) []u8 {
 	return buf
 }
 
-fn encode_explain_stmt(val ExplainStmt) []u8 {
+pub fn encode_explain_stmt(val ExplainStmt) []u8 {
 	mut buf := []u8{}
 	n_query := encode_node(val.query)
 	if n_query.len > 0 {
@@ -4572,12 +4584,12 @@ fn encode_explain_stmt(val ExplainStmt) []u8 {
 	return buf
 }
 
-fn encode_check_point_stmt(val CheckPointStmt) []u8 {
+pub fn encode_check_point_stmt(val CheckPointStmt) []u8 {
 	mut buf := []u8{}
 	return buf
 }
 
-fn encode_discard_stmt(val DiscardStmt) []u8 {
+pub fn encode_discard_stmt(val DiscardStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.target) != 0 {
 		buf << write_tag(1, 0)
@@ -4586,7 +4598,7 @@ fn encode_discard_stmt(val DiscardStmt) []u8 {
 	return buf
 }
 
-fn encode_lock_stmt(val LockStmt) []u8 {
+pub fn encode_lock_stmt(val LockStmt) []u8 {
 	mut buf := []u8{}
 	if val.relations.len > 0 {
 		for v in val.relations {
@@ -4608,7 +4620,7 @@ fn encode_lock_stmt(val LockStmt) []u8 {
 	return buf
 }
 
-fn encode_constraints_set_stmt(val ConstraintsSetStmt) []u8 {
+pub fn encode_constraints_set_stmt(val ConstraintsSetStmt) []u8 {
 	mut buf := []u8{}
 	if val.constraints.len > 0 {
 		for v in val.constraints {
@@ -4626,7 +4638,7 @@ fn encode_constraints_set_stmt(val ConstraintsSetStmt) []u8 {
 	return buf
 }
 
-fn encode_create_conversion_stmt(val CreateConversionStmt) []u8 {
+pub fn encode_create_conversion_stmt(val CreateConversionStmt) []u8 {
 	mut buf := []u8{}
 	if val.conversion_name.len > 0 {
 		for v in val.conversion_name {
@@ -4661,7 +4673,7 @@ fn encode_create_conversion_stmt(val CreateConversionStmt) []u8 {
 	return buf
 }
 
-fn encode_prepare_stmt(val PrepareStmt) []u8 {
+pub fn encode_prepare_stmt(val PrepareStmt) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
 		buf << write_tag(1, 2)
@@ -4684,7 +4696,7 @@ fn encode_prepare_stmt(val PrepareStmt) []u8 {
 	return buf
 }
 
-fn encode_execute_stmt(val ExecuteStmt) []u8 {
+pub fn encode_execute_stmt(val ExecuteStmt) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
 		buf << write_tag(1, 2)
@@ -4702,7 +4714,7 @@ fn encode_execute_stmt(val ExecuteStmt) []u8 {
 	return buf
 }
 
-fn encode_deallocate_stmt(val DeallocateStmt) []u8 {
+pub fn encode_deallocate_stmt(val DeallocateStmt) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
 		buf << write_tag(1, 2)
@@ -4719,7 +4731,7 @@ fn encode_deallocate_stmt(val DeallocateStmt) []u8 {
 	return buf
 }
 
-fn encode_drop_owned_stmt(val DropOwnedStmt) []u8 {
+pub fn encode_drop_owned_stmt(val DropOwnedStmt) []u8 {
 	mut buf := []u8{}
 	if val.roles.len > 0 {
 		for v in val.roles {
@@ -4737,7 +4749,7 @@ fn encode_drop_owned_stmt(val DropOwnedStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_t_s_dictionary_stmt(val AlterTSDictionaryStmt) []u8 {
+pub fn encode_alter_t_s_dictionary_stmt(val AlterTSDictionaryStmt) []u8 {
 	mut buf := []u8{}
 	if val.dictname.len > 0 {
 		for v in val.dictname {
@@ -4760,7 +4772,7 @@ fn encode_alter_t_s_dictionary_stmt(val AlterTSDictionaryStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_t_s_configuration_stmt(val AlterTSConfigurationStmt) []u8 {
+pub fn encode_alter_t_s_configuration_stmt(val AlterTSConfigurationStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.kind) != 0 {
 		buf << write_tag(1, 0)
@@ -4808,7 +4820,7 @@ fn encode_alter_t_s_configuration_stmt(val AlterTSConfigurationStmt) []u8 {
 	return buf
 }
 
-fn encode_create_publication_stmt(val CreatePublicationStmt) []u8 {
+pub fn encode_create_publication_stmt(val CreatePublicationStmt) []u8 {
 	mut buf := []u8{}
 	if val.pubname != '' {
 		buf << write_tag(1, 2)
@@ -4839,7 +4851,7 @@ fn encode_create_publication_stmt(val CreatePublicationStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_publication_stmt(val AlterPublicationStmt) []u8 {
+pub fn encode_alter_publication_stmt(val AlterPublicationStmt) []u8 {
 	mut buf := []u8{}
 	if val.pubname != '' {
 		buf << write_tag(1, 2)
@@ -4874,7 +4886,7 @@ fn encode_alter_publication_stmt(val AlterPublicationStmt) []u8 {
 	return buf
 }
 
-fn encode_create_subscription_stmt(val CreateSubscriptionStmt) []u8 {
+pub fn encode_create_subscription_stmt(val CreateSubscriptionStmt) []u8 {
 	mut buf := []u8{}
 	if val.subname != '' {
 		buf << write_tag(1, 2)
@@ -4905,7 +4917,7 @@ fn encode_create_subscription_stmt(val CreateSubscriptionStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_subscription_stmt(val AlterSubscriptionStmt) []u8 {
+pub fn encode_alter_subscription_stmt(val AlterSubscriptionStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.kind) != 0 {
 		buf << write_tag(1, 0)
@@ -4940,7 +4952,7 @@ fn encode_alter_subscription_stmt(val AlterSubscriptionStmt) []u8 {
 	return buf
 }
 
-fn encode_drop_subscription_stmt(val DropSubscriptionStmt) []u8 {
+pub fn encode_drop_subscription_stmt(val DropSubscriptionStmt) []u8 {
 	mut buf := []u8{}
 	if val.subname != '' {
 		buf << write_tag(1, 2)
@@ -4957,7 +4969,7 @@ fn encode_drop_subscription_stmt(val DropSubscriptionStmt) []u8 {
 	return buf
 }
 
-fn encode_scan_token(val ScanToken) []u8 {
+pub fn encode_scan_token(val ScanToken) []u8 {
 	mut buf := []u8{}
 	if val.start != 0 {
 		buf << write_tag(1, 0)
@@ -4978,7 +4990,7 @@ fn encode_scan_token(val ScanToken) []u8 {
 	return buf
 }
 
-fn encode_summary_result_table(val SummaryResultTable) []u8 {
+pub fn encode_summary_result_table(val SummaryResultTable) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
 		buf << write_tag(1, 2)
@@ -4999,7 +5011,7 @@ fn encode_summary_result_table(val SummaryResultTable) []u8 {
 	return buf
 }
 
-fn encode_summary_result_function(val SummaryResultFunction) []u8 {
+pub fn encode_summary_result_function(val SummaryResultFunction) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
 		buf << write_tag(1, 2)
@@ -5020,7 +5032,7 @@ fn encode_summary_result_function(val SummaryResultFunction) []u8 {
 	return buf
 }
 
-fn encode_summary_result_filter_column(val SummaryResultFilterColumn) []u8 {
+pub fn encode_summary_result_filter_column(val SummaryResultFilterColumn) []u8 {
 	mut buf := []u8{}
 	if val.schema_name != '' {
 		buf << write_tag(1, 2)
@@ -5037,7 +5049,7 @@ fn encode_summary_result_filter_column(val SummaryResultFilterColumn) []u8 {
 	return buf
 }
 
-fn encode_range_var(val RangeVar) []u8 {
+pub fn encode_range_var(val RangeVar) []u8 {
 	mut buf := []u8{}
 	if val.catalogname != '' {
 		buf << write_tag(1, 2)
@@ -5071,7 +5083,7 @@ fn encode_range_var(val RangeVar) []u8 {
 	return buf
 }
 
-fn encode_join_expr(val JoinExpr) []u8 {
+pub fn encode_join_expr(val JoinExpr) []u8 {
 	mut buf := []u8{}
 	if u64(val.jointype) != 0 {
 		buf << write_tag(1, 0)
@@ -5122,7 +5134,7 @@ fn encode_join_expr(val JoinExpr) []u8 {
 	return buf
 }
 
-fn encode_range_subselect(val RangeSubselect) []u8 {
+pub fn encode_range_subselect(val RangeSubselect) []u8 {
 	mut buf := []u8{}
 	if val.lateral {
 		buf << write_tag(1, 0)
@@ -5141,7 +5153,7 @@ fn encode_range_subselect(val RangeSubselect) []u8 {
 	return buf
 }
 
-fn encode_range_function(val RangeFunction) []u8 {
+pub fn encode_range_function(val RangeFunction) []u8 {
 	mut buf := []u8{}
 	if val.lateral {
 		buf << write_tag(1, 0)
@@ -5181,7 +5193,7 @@ fn encode_range_function(val RangeFunction) []u8 {
 	return buf
 }
 
-fn encode_range_table_func(val RangeTableFunc) []u8 {
+pub fn encode_range_table_func(val RangeTableFunc) []u8 {
 	mut buf := []u8{}
 	if val.lateral {
 		buf << write_tag(1, 0)
@@ -5227,7 +5239,7 @@ fn encode_range_table_func(val RangeTableFunc) []u8 {
 	return buf
 }
 
-fn encode_json_returning(val JsonReturning) []u8 {
+pub fn encode_json_returning(val JsonReturning) []u8 {
 	mut buf := []u8{}
 	in_format := encode_json_format(val.format)
 	if in_format.len > 0 {
@@ -5245,7 +5257,7 @@ fn encode_json_returning(val JsonReturning) []u8 {
 	return buf
 }
 
-fn encode_json_value_expr(val JsonValueExpr) []u8 {
+pub fn encode_json_value_expr(val JsonValueExpr) []u8 {
 	mut buf := []u8{}
 	n_raw_expr := encode_node(val.raw_expr)
 	if n_raw_expr.len > 0 {
@@ -5265,7 +5277,7 @@ fn encode_json_value_expr(val JsonValueExpr) []u8 {
 	return buf
 }
 
-fn encode_json_is_predicate(val JsonIsPredicate) []u8 {
+pub fn encode_json_is_predicate(val JsonIsPredicate) []u8 {
 	mut buf := []u8{}
 	n_expr := encode_node(val.expr)
 	if n_expr.len > 0 {
@@ -5292,7 +5304,7 @@ fn encode_json_is_predicate(val JsonIsPredicate) []u8 {
 	return buf
 }
 
-fn encode_json_table_path_scan(val JsonTablePathScan) []u8 {
+pub fn encode_json_table_path_scan(val JsonTablePathScan) []u8 {
 	mut buf := []u8{}
 	n_plan := encode_node(val.plan)
 	if n_plan.len > 0 {
@@ -5324,7 +5336,7 @@ fn encode_json_table_path_scan(val JsonTablePathScan) []u8 {
 	return buf
 }
 
-fn encode_query(val Query) []u8 {
+pub fn encode_query(val Query) []u8 {
 	mut buf := []u8{}
 	if u64(val.command_type) != 0 {
 		buf << write_tag(1, 0)
@@ -5575,7 +5587,7 @@ fn encode_query(val Query) []u8 {
 	return buf
 }
 
-fn encode_type_cast(val TypeCast) []u8 {
+pub fn encode_type_cast(val TypeCast) []u8 {
 	mut buf := []u8{}
 	n_arg := encode_node(val.arg)
 	if n_arg.len > 0 {
@@ -5594,7 +5606,7 @@ fn encode_type_cast(val TypeCast) []u8 {
 	return buf
 }
 
-fn encode_range_table_func_col(val RangeTableFuncCol) []u8 {
+pub fn encode_range_table_func_col(val RangeTableFuncCol) []u8 {
 	mut buf := []u8{}
 	if val.colname != '' {
 		buf << write_tag(1, 2)
@@ -5630,7 +5642,7 @@ fn encode_range_table_func_col(val RangeTableFuncCol) []u8 {
 	return buf
 }
 
-fn encode_xml_serialize(val XmlSerialize) []u8 {
+pub fn encode_xml_serialize(val XmlSerialize) []u8 {
 	mut buf := []u8{}
 	if u64(val.xmloption) != 0 {
 		buf << write_tag(1, 0)
@@ -5657,7 +5669,7 @@ fn encode_xml_serialize(val XmlSerialize) []u8 {
 	return buf
 }
 
-fn encode_create_op_class_stmt(val CreateOpClassStmt) []u8 {
+pub fn encode_create_op_class_stmt(val CreateOpClassStmt) []u8 {
 	mut buf := []u8{}
 	if val.opclassname.len > 0 {
 		for v in val.opclassname {
@@ -5702,7 +5714,7 @@ fn encode_create_op_class_stmt(val CreateOpClassStmt) []u8 {
 	return buf
 }
 
-fn encode_create_function_stmt(val CreateFunctionStmt) []u8 {
+pub fn encode_create_function_stmt(val CreateFunctionStmt) []u8 {
 	mut buf := []u8{}
 	if val.is_procedure {
 		buf << write_tag(1, 0)
@@ -5752,7 +5764,7 @@ fn encode_create_function_stmt(val CreateFunctionStmt) []u8 {
 	return buf
 }
 
-fn encode_function_parameter(val FunctionParameter) []u8 {
+pub fn encode_function_parameter(val FunctionParameter) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
 		buf << write_tag(1, 2)
@@ -5775,7 +5787,7 @@ fn encode_function_parameter(val FunctionParameter) []u8 {
 	return buf
 }
 
-fn encode_create_domain_stmt(val CreateDomainStmt) []u8 {
+pub fn encode_create_domain_stmt(val CreateDomainStmt) []u8 {
 	mut buf := []u8{}
 	if val.domainname.len > 0 {
 		for v in val.domainname {
@@ -5808,7 +5820,7 @@ fn encode_create_domain_stmt(val CreateDomainStmt) []u8 {
 	return buf
 }
 
-fn encode_create_schema_stmt(val CreateSchemaStmt) []u8 {
+pub fn encode_create_schema_stmt(val CreateSchemaStmt) []u8 {
 	mut buf := []u8{}
 	if val.schemaname != '' {
 		buf << write_tag(1, 2)
@@ -5835,7 +5847,7 @@ fn encode_create_schema_stmt(val CreateSchemaStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_table_cmd(val AlterTableCmd) []u8 {
+pub fn encode_alter_table_cmd(val AlterTableCmd) []u8 {
 	mut buf := []u8{}
 	if u64(val.subtype) != 0 {
 		buf << write_tag(1, 0)
@@ -5874,7 +5886,7 @@ fn encode_alter_table_cmd(val AlterTableCmd) []u8 {
 	return buf
 }
 
-fn encode_grant_stmt(val GrantStmt) []u8 {
+pub fn encode_grant_stmt(val GrantStmt) []u8 {
 	mut buf := []u8{}
 	if val.is_grant {
 		buf << write_tag(1, 0)
@@ -5931,7 +5943,7 @@ fn encode_grant_stmt(val GrantStmt) []u8 {
 	return buf
 }
 
-fn encode_grant_role_stmt(val GrantRoleStmt) []u8 {
+pub fn encode_grant_role_stmt(val GrantRoleStmt) []u8 {
 	mut buf := []u8{}
 	if val.granted_roles.len > 0 {
 		for v in val.granted_roles {
@@ -5976,7 +5988,7 @@ fn encode_grant_role_stmt(val GrantRoleStmt) []u8 {
 	return buf
 }
 
-fn encode_create_table_space_stmt(val CreateTableSpaceStmt) []u8 {
+pub fn encode_create_table_space_stmt(val CreateTableSpaceStmt) []u8 {
 	mut buf := []u8{}
 	if val.tablespacename != '' {
 		buf << write_tag(1, 2)
@@ -6003,7 +6015,7 @@ fn encode_create_table_space_stmt(val CreateTableSpaceStmt) []u8 {
 	return buf
 }
 
-fn encode_create_user_mapping_stmt(val CreateUserMappingStmt) []u8 {
+pub fn encode_create_user_mapping_stmt(val CreateUserMappingStmt) []u8 {
 	mut buf := []u8{}
 	in_user := encode_role_spec(val.user)
 	if in_user.len > 0 {
@@ -6030,7 +6042,7 @@ fn encode_create_user_mapping_stmt(val CreateUserMappingStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_user_mapping_stmt(val AlterUserMappingStmt) []u8 {
+pub fn encode_alter_user_mapping_stmt(val AlterUserMappingStmt) []u8 {
 	mut buf := []u8{}
 	in_user := encode_role_spec(val.user)
 	if in_user.len > 0 {
@@ -6053,7 +6065,7 @@ fn encode_alter_user_mapping_stmt(val AlterUserMappingStmt) []u8 {
 	return buf
 }
 
-fn encode_drop_user_mapping_stmt(val DropUserMappingStmt) []u8 {
+pub fn encode_drop_user_mapping_stmt(val DropUserMappingStmt) []u8 {
 	mut buf := []u8{}
 	in_user := encode_role_spec(val.user)
 	if in_user.len > 0 {
@@ -6071,7 +6083,7 @@ fn encode_drop_user_mapping_stmt(val DropUserMappingStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_role_stmt(val AlterRoleStmt) []u8 {
+pub fn encode_alter_role_stmt(val AlterRoleStmt) []u8 {
 	mut buf := []u8{}
 	in_role := encode_role_spec(val.role)
 	if in_role.len > 0 {
@@ -6094,7 +6106,7 @@ fn encode_alter_role_stmt(val AlterRoleStmt) []u8 {
 	return buf
 }
 
-fn encode_reassign_owned_stmt(val ReassignOwnedStmt) []u8 {
+pub fn encode_reassign_owned_stmt(val ReassignOwnedStmt) []u8 {
 	mut buf := []u8{}
 	if val.roles.len > 0 {
 		for v in val.roles {
@@ -6113,7 +6125,7 @@ fn encode_reassign_owned_stmt(val ReassignOwnedStmt) []u8 {
 	return buf
 }
 
-fn encode_func_call(val FuncCall) []u8 {
+pub fn encode_func_call(val FuncCall) []u8 {
 	mut buf := []u8{}
 	if val.funcname.len > 0 {
 		for v in val.funcname {
@@ -6179,7 +6191,7 @@ fn encode_func_call(val FuncCall) []u8 {
 	return buf
 }
 
-fn encode_on_conflict_clause(val OnConflictClause) []u8 {
+pub fn encode_on_conflict_clause(val OnConflictClause) []u8 {
 	mut buf := []u8{}
 	if u64(val.action) != 0 {
 		buf << write_tag(1, 0)
@@ -6211,7 +6223,7 @@ fn encode_on_conflict_clause(val OnConflictClause) []u8 {
 	return buf
 }
 
-fn encode_common_table_expr(val CommonTableExpr) []u8 {
+pub fn encode_common_table_expr(val CommonTableExpr) []u8 {
 	mut buf := []u8{}
 	if val.ctename != '' {
 		buf << write_tag(1, 2)
@@ -6296,7 +6308,7 @@ fn encode_common_table_expr(val CommonTableExpr) []u8 {
 	return buf
 }
 
-fn encode_json_table_column(val JsonTableColumn) []u8 {
+pub fn encode_json_table_column(val JsonTableColumn) []u8 {
 	mut buf := []u8{}
 	if u64(val.coltype) != 0 {
 		buf << write_tag(1, 0)
@@ -6355,7 +6367,7 @@ fn encode_json_table_column(val JsonTableColumn) []u8 {
 	return buf
 }
 
-fn encode_create_op_class_item(val CreateOpClassItem) []u8 {
+pub fn encode_create_op_class_item(val CreateOpClassItem) []u8 {
 	mut buf := []u8{}
 	if val.itemtype != 0 {
 		buf << write_tag(1, 0)
@@ -6396,7 +6408,7 @@ fn encode_create_op_class_item(val CreateOpClassItem) []u8 {
 	return buf
 }
 
-fn encode_alter_function_stmt(val AlterFunctionStmt) []u8 {
+pub fn encode_alter_function_stmt(val AlterFunctionStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.objtype) != 0 {
 		buf << write_tag(1, 0)
@@ -6419,7 +6431,7 @@ fn encode_alter_function_stmt(val AlterFunctionStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_operator_stmt(val AlterOperatorStmt) []u8 {
+pub fn encode_alter_operator_stmt(val AlterOperatorStmt) []u8 {
 	mut buf := []u8{}
 	in_opername := encode_object_with_args(val.opername)
 	if in_opername.len > 0 {
@@ -6438,7 +6450,7 @@ fn encode_alter_operator_stmt(val AlterOperatorStmt) []u8 {
 	return buf
 }
 
-fn encode_create_cast_stmt(val CreateCastStmt) []u8 {
+pub fn encode_create_cast_stmt(val CreateCastStmt) []u8 {
 	mut buf := []u8{}
 	in_sourcetype := encode_type_name(val.sourcetype)
 	if in_sourcetype.len > 0 {
@@ -6466,7 +6478,7 @@ fn encode_create_cast_stmt(val CreateCastStmt) []u8 {
 	return buf
 }
 
-fn encode_create_transform_stmt(val CreateTransformStmt) []u8 {
+pub fn encode_create_transform_stmt(val CreateTransformStmt) []u8 {
 	mut buf := []u8{}
 	if val.replace {
 		buf << write_tag(1, 0)
@@ -6494,7 +6506,7 @@ fn encode_create_transform_stmt(val CreateTransformStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_role_set_stmt(val AlterRoleSetStmt) []u8 {
+pub fn encode_alter_role_set_stmt(val AlterRoleSetStmt) []u8 {
 	mut buf := []u8{}
 	in_role := encode_role_spec(val.role)
 	if in_role.len > 0 {
@@ -6513,7 +6525,7 @@ fn encode_alter_role_set_stmt(val AlterRoleSetStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_database_set_stmt(val AlterDatabaseSetStmt) []u8 {
+pub fn encode_alter_database_set_stmt(val AlterDatabaseSetStmt) []u8 {
 	mut buf := []u8{}
 	if val.dbname != '' {
 		buf << write_tag(1, 2)
@@ -6527,7 +6539,7 @@ fn encode_alter_database_set_stmt(val AlterDatabaseSetStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_system_stmt(val AlterSystemStmt) []u8 {
+pub fn encode_alter_system_stmt(val AlterSystemStmt) []u8 {
 	mut buf := []u8{}
 	in_setstmt := encode_variable_set_stmt(val.setstmt)
 	if in_setstmt.len > 0 {
@@ -6537,7 +6549,7 @@ fn encode_alter_system_stmt(val AlterSystemStmt) []u8 {
 	return buf
 }
 
-fn encode_into_clause(val IntoClause) []u8 {
+pub fn encode_into_clause(val IntoClause) []u8 {
 	mut buf := []u8{}
 	in_rel := encode_range_var(val.rel)
 	if in_rel.len > 0 {
@@ -6586,7 +6598,7 @@ fn encode_into_clause(val IntoClause) []u8 {
 	return buf
 }
 
-fn encode_column_def(val ColumnDef) []u8 {
+pub fn encode_column_def(val ColumnDef) []u8 {
 	mut buf := []u8{}
 	if val.colname != '' {
 		buf << write_tag(1, 2)
@@ -6682,7 +6694,7 @@ fn encode_column_def(val ColumnDef) []u8 {
 	return buf
 }
 
-fn encode_table_like_clause(val TableLikeClause) []u8 {
+pub fn encode_table_like_clause(val TableLikeClause) []u8 {
 	mut buf := []u8{}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
@@ -6700,7 +6712,7 @@ fn encode_table_like_clause(val TableLikeClause) []u8 {
 	return buf
 }
 
-fn encode_partition_cmd(val PartitionCmd) []u8 {
+pub fn encode_partition_cmd(val PartitionCmd) []u8 {
 	mut buf := []u8{}
 	in_name := encode_range_var(val.name)
 	if in_name.len > 0 {
@@ -6719,7 +6731,7 @@ fn encode_partition_cmd(val PartitionCmd) []u8 {
 	return buf
 }
 
-fn encode_delete_stmt(val DeleteStmt) []u8 {
+pub fn encode_delete_stmt(val DeleteStmt) []u8 {
 	mut buf := []u8{}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
@@ -6757,7 +6769,7 @@ fn encode_delete_stmt(val DeleteStmt) []u8 {
 	return buf
 }
 
-fn encode_update_stmt(val UpdateStmt) []u8 {
+pub fn encode_update_stmt(val UpdateStmt) []u8 {
 	mut buf := []u8{}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
@@ -6804,7 +6816,7 @@ fn encode_update_stmt(val UpdateStmt) []u8 {
 	return buf
 }
 
-fn encode_merge_stmt(val MergeStmt) []u8 {
+pub fn encode_merge_stmt(val MergeStmt) []u8 {
 	mut buf := []u8{}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
@@ -6847,7 +6859,7 @@ fn encode_merge_stmt(val MergeStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_table_stmt(val AlterTableStmt) []u8 {
+pub fn encode_alter_table_stmt(val AlterTableStmt) []u8 {
 	mut buf := []u8{}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
@@ -6874,7 +6886,7 @@ fn encode_alter_table_stmt(val AlterTableStmt) []u8 {
 	return buf
 }
 
-fn encode_copy_stmt(val CopyStmt) []u8 {
+pub fn encode_copy_stmt(val CopyStmt) []u8 {
 	mut buf := []u8{}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
@@ -6924,7 +6936,7 @@ fn encode_copy_stmt(val CopyStmt) []u8 {
 	return buf
 }
 
-fn encode_create_stmt(val CreateStmt) []u8 {
+pub fn encode_create_stmt(val CreateStmt) []u8 {
 	mut buf := []u8{}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
@@ -7001,7 +7013,7 @@ fn encode_create_stmt(val CreateStmt) []u8 {
 	return buf
 }
 
-fn encode_constraint(val Constraint) []u8 {
+pub fn encode_constraint(val Constraint) []u8 {
 	mut buf := []u8{}
 	if u64(val.contype) != 0 {
 		buf << write_tag(1, 0)
@@ -7173,7 +7185,7 @@ fn encode_constraint(val Constraint) []u8 {
 	return buf
 }
 
-fn encode_create_policy_stmt(val CreatePolicyStmt) []u8 {
+pub fn encode_create_policy_stmt(val CreatePolicyStmt) []u8 {
 	mut buf := []u8{}
 	if val.policy_name != '' {
 		buf << write_tag(1, 2)
@@ -7214,7 +7226,7 @@ fn encode_create_policy_stmt(val CreatePolicyStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_policy_stmt(val AlterPolicyStmt) []u8 {
+pub fn encode_alter_policy_stmt(val AlterPolicyStmt) []u8 {
 	mut buf := []u8{}
 	if val.policy_name != '' {
 		buf << write_tag(1, 2)
@@ -7247,7 +7259,7 @@ fn encode_alter_policy_stmt(val AlterPolicyStmt) []u8 {
 	return buf
 }
 
-fn encode_create_trig_stmt(val CreateTrigStmt) []u8 {
+pub fn encode_create_trig_stmt(val CreateTrigStmt) []u8 {
 	mut buf := []u8{}
 	if val.replace {
 		buf << write_tag(1, 0)
@@ -7335,7 +7347,7 @@ fn encode_create_trig_stmt(val CreateTrigStmt) []u8 {
 	return buf
 }
 
-fn encode_create_seq_stmt(val CreateSeqStmt) []u8 {
+pub fn encode_create_seq_stmt(val CreateSeqStmt) []u8 {
 	mut buf := []u8{}
 	in_sequence := encode_range_var(val.sequence)
 	if in_sequence.len > 0 {
@@ -7366,7 +7378,7 @@ fn encode_create_seq_stmt(val CreateSeqStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_seq_stmt(val AlterSeqStmt) []u8 {
+pub fn encode_alter_seq_stmt(val AlterSeqStmt) []u8 {
 	mut buf := []u8{}
 	in_sequence := encode_range_var(val.sequence)
 	if in_sequence.len > 0 {
@@ -7393,7 +7405,7 @@ fn encode_alter_seq_stmt(val AlterSeqStmt) []u8 {
 	return buf
 }
 
-fn encode_index_stmt(val IndexStmt) []u8 {
+pub fn encode_index_stmt(val IndexStmt) []u8 {
 	mut buf := []u8{}
 	if val.idxname != '' {
 		buf << write_tag(1, 2)
@@ -7516,7 +7528,7 @@ fn encode_index_stmt(val IndexStmt) []u8 {
 	return buf
 }
 
-fn encode_rename_stmt(val RenameStmt) []u8 {
+pub fn encode_rename_stmt(val RenameStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.rename_type) != 0 {
 		buf << write_tag(1, 0)
@@ -7555,7 +7567,7 @@ fn encode_rename_stmt(val RenameStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_object_depends_stmt(val AlterObjectDependsStmt) []u8 {
+pub fn encode_alter_object_depends_stmt(val AlterObjectDependsStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.object_type) != 0 {
 		buf << write_tag(1, 0)
@@ -7583,7 +7595,7 @@ fn encode_alter_object_depends_stmt(val AlterObjectDependsStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_object_schema_stmt(val AlterObjectSchemaStmt) []u8 {
+pub fn encode_alter_object_schema_stmt(val AlterObjectSchemaStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.object_type) != 0 {
 		buf << write_tag(1, 0)
@@ -7610,7 +7622,7 @@ fn encode_alter_object_schema_stmt(val AlterObjectSchemaStmt) []u8 {
 	return buf
 }
 
-fn encode_alter_owner_stmt(val AlterOwnerStmt) []u8 {
+pub fn encode_alter_owner_stmt(val AlterOwnerStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.object_type) != 0 {
 		buf << write_tag(1, 0)
@@ -7634,7 +7646,7 @@ fn encode_alter_owner_stmt(val AlterOwnerStmt) []u8 {
 	return buf
 }
 
-fn encode_rule_stmt(val RuleStmt) []u8 {
+pub fn encode_rule_stmt(val RuleStmt) []u8 {
 	mut buf := []u8{}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
@@ -7674,7 +7686,7 @@ fn encode_rule_stmt(val RuleStmt) []u8 {
 	return buf
 }
 
-fn encode_composite_type_stmt(val CompositeTypeStmt) []u8 {
+pub fn encode_composite_type_stmt(val CompositeTypeStmt) []u8 {
 	mut buf := []u8{}
 	in_typevar := encode_range_var(val.typevar)
 	if in_typevar.len > 0 {
@@ -7693,7 +7705,7 @@ fn encode_composite_type_stmt(val CompositeTypeStmt) []u8 {
 	return buf
 }
 
-fn encode_view_stmt(val ViewStmt) []u8 {
+pub fn encode_view_stmt(val ViewStmt) []u8 {
 	mut buf := []u8{}
 	in_view := encode_range_var(val.view)
 	if in_view.len > 0 {
@@ -7734,7 +7746,7 @@ fn encode_view_stmt(val ViewStmt) []u8 {
 	return buf
 }
 
-fn encode_cluster_stmt(val ClusterStmt) []u8 {
+pub fn encode_cluster_stmt(val ClusterStmt) []u8 {
 	mut buf := []u8{}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
@@ -7757,7 +7769,7 @@ fn encode_cluster_stmt(val ClusterStmt) []u8 {
 	return buf
 }
 
-fn encode_vacuum_relation(val VacuumRelation) []u8 {
+pub fn encode_vacuum_relation(val VacuumRelation) []u8 {
 	mut buf := []u8{}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
@@ -7780,7 +7792,7 @@ fn encode_vacuum_relation(val VacuumRelation) []u8 {
 	return buf
 }
 
-fn encode_refresh_mat_view_stmt(val RefreshMatViewStmt) []u8 {
+pub fn encode_refresh_mat_view_stmt(val RefreshMatViewStmt) []u8 {
 	mut buf := []u8{}
 	if val.concurrent {
 		buf << write_tag(1, 0)
@@ -7798,7 +7810,7 @@ fn encode_refresh_mat_view_stmt(val RefreshMatViewStmt) []u8 {
 	return buf
 }
 
-fn encode_reindex_stmt(val ReindexStmt) []u8 {
+pub fn encode_reindex_stmt(val ReindexStmt) []u8 {
 	mut buf := []u8{}
 	if u64(val.kind) != 0 {
 		buf << write_tag(1, 0)
@@ -7825,7 +7837,7 @@ fn encode_reindex_stmt(val ReindexStmt) []u8 {
 	return buf
 }
 
-fn encode_publication_table(val PublicationTable) []u8 {
+pub fn encode_publication_table(val PublicationTable) []u8 {
 	mut buf := []u8{}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
@@ -7849,7 +7861,7 @@ fn encode_publication_table(val PublicationTable) []u8 {
 	return buf
 }
 
-fn encode_json_constructor_expr(val JsonConstructorExpr) []u8 {
+pub fn encode_json_constructor_expr(val JsonConstructorExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -7899,7 +7911,7 @@ fn encode_json_constructor_expr(val JsonConstructorExpr) []u8 {
 	return buf
 }
 
-fn encode_json_expr(val JsonExpr) []u8 {
+pub fn encode_json_expr(val JsonExpr) []u8 {
 	mut buf := []u8{}
 	n_xpr := encode_node(val.xpr)
 	if n_xpr.len > 0 {
@@ -7989,7 +8001,7 @@ fn encode_json_expr(val JsonExpr) []u8 {
 	return buf
 }
 
-fn encode_json_output(val JsonOutput) []u8 {
+pub fn encode_json_output(val JsonOutput) []u8 {
 	mut buf := []u8{}
 	in_type_name := encode_type_name(val.type_name)
 	if in_type_name.len > 0 {
@@ -8004,7 +8016,7 @@ fn encode_json_output(val JsonOutput) []u8 {
 	return buf
 }
 
-fn encode_json_argument(val JsonArgument) []u8 {
+pub fn encode_json_argument(val JsonArgument) []u8 {
 	mut buf := []u8{}
 	in_val := encode_json_value_expr(val.val)
 	if in_val.len > 0 {
@@ -8018,7 +8030,7 @@ fn encode_json_argument(val JsonArgument) []u8 {
 	return buf
 }
 
-fn encode_json_table(val JsonTable) []u8 {
+pub fn encode_json_table(val JsonTable) []u8 {
 	mut buf := []u8{}
 	in_context_item := encode_json_value_expr(val.context_item)
 	if in_context_item.len > 0 {
@@ -8069,7 +8081,7 @@ fn encode_json_table(val JsonTable) []u8 {
 	return buf
 }
 
-fn encode_json_key_value(val JsonKeyValue) []u8 {
+pub fn encode_json_key_value(val JsonKeyValue) []u8 {
 	mut buf := []u8{}
 	n_key := encode_node(val.key)
 	if n_key.len > 0 {
@@ -8084,7 +8096,7 @@ fn encode_json_key_value(val JsonKeyValue) []u8 {
 	return buf
 }
 
-fn encode_range_tbl_entry(val RangeTblEntry) []u8 {
+pub fn encode_range_tbl_entry(val RangeTblEntry) []u8 {
 	mut buf := []u8{}
 	in_alias := encode_alias(val.alias)
 	if in_alias.len > 0 {
@@ -8268,7 +8280,7 @@ fn encode_range_tbl_entry(val RangeTblEntry) []u8 {
 	return buf
 }
 
-fn encode_alter_default_privileges_stmt(val AlterDefaultPrivilegesStmt) []u8 {
+pub fn encode_alter_default_privileges_stmt(val AlterDefaultPrivilegesStmt) []u8 {
 	mut buf := []u8{}
 	if val.options.len > 0 {
 		for v in val.options {
@@ -8287,7 +8299,7 @@ fn encode_alter_default_privileges_stmt(val AlterDefaultPrivilegesStmt) []u8 {
 	return buf
 }
 
-fn encode_call_stmt(val CallStmt) []u8 {
+pub fn encode_call_stmt(val CallStmt) []u8 {
 	mut buf := []u8{}
 	in_funccall := encode_func_call(val.funccall)
 	if in_funccall.len > 0 {
@@ -8311,7 +8323,7 @@ fn encode_call_stmt(val CallStmt) []u8 {
 	return buf
 }
 
-fn encode_insert_stmt(val InsertStmt) []u8 {
+pub fn encode_insert_stmt(val InsertStmt) []u8 {
 	mut buf := []u8{}
 	in_relation := encode_range_var(val.relation)
 	if in_relation.len > 0 {
@@ -8358,7 +8370,7 @@ fn encode_insert_stmt(val InsertStmt) []u8 {
 	return buf
 }
 
-fn encode_select_stmt(val SelectStmt) []u8 {
+pub fn encode_select_stmt(val SelectStmt) []u8 {
 	mut buf := []u8{}
 	if val.distinct_clause.len > 0 {
 		for v in val.distinct_clause {
@@ -8491,7 +8503,7 @@ fn encode_select_stmt(val SelectStmt) []u8 {
 	return buf
 }
 
-fn encode_create_table_as_stmt(val CreateTableAsStmt) []u8 {
+pub fn encode_create_table_as_stmt(val CreateTableAsStmt) []u8 {
 	mut buf := []u8{}
 	n_query := encode_node(val.query)
 	if n_query.len > 0 {
@@ -8518,7 +8530,7 @@ fn encode_create_table_as_stmt(val CreateTableAsStmt) []u8 {
 	return buf
 }
 
-fn encode_create_foreign_table_stmt(val CreateForeignTableStmt) []u8 {
+pub fn encode_create_foreign_table_stmt(val CreateForeignTableStmt) []u8 {
 	mut buf := []u8{}
 	in_base_stmt := encode_create_stmt(val.base_stmt)
 	if in_base_stmt.len > 0 {
@@ -8541,7 +8553,7 @@ fn encode_create_foreign_table_stmt(val CreateForeignTableStmt) []u8 {
 	return buf
 }
 
-fn encode_publication_obj_spec(val PublicationObjSpec) []u8 {
+pub fn encode_publication_obj_spec(val PublicationObjSpec) []u8 {
 	mut buf := []u8{}
 	if u64(val.pubobjtype) != 0 {
 		buf << write_tag(1, 0)
@@ -8563,7 +8575,7 @@ fn encode_publication_obj_spec(val PublicationObjSpec) []u8 {
 	return buf
 }
 
-fn encode_json_func_expr(val JsonFuncExpr) []u8 {
+pub fn encode_json_func_expr(val JsonFuncExpr) []u8 {
 	mut buf := []u8{}
 	if u64(val.op) != 0 {
 		buf << write_tag(1, 0)
@@ -8622,7 +8634,7 @@ fn encode_json_func_expr(val JsonFuncExpr) []u8 {
 	return buf
 }
 
-fn encode_json_parse_expr(val JsonParseExpr) []u8 {
+pub fn encode_json_parse_expr(val JsonParseExpr) []u8 {
 	mut buf := []u8{}
 	in_expr := encode_json_value_expr(val.expr)
 	if in_expr.len > 0 {
@@ -8645,7 +8657,7 @@ fn encode_json_parse_expr(val JsonParseExpr) []u8 {
 	return buf
 }
 
-fn encode_json_scalar_expr(val JsonScalarExpr) []u8 {
+pub fn encode_json_scalar_expr(val JsonScalarExpr) []u8 {
 	mut buf := []u8{}
 	n_expr := encode_node(val.expr)
 	if n_expr.len > 0 {
@@ -8664,7 +8676,7 @@ fn encode_json_scalar_expr(val JsonScalarExpr) []u8 {
 	return buf
 }
 
-fn encode_json_serialize_expr(val JsonSerializeExpr) []u8 {
+pub fn encode_json_serialize_expr(val JsonSerializeExpr) []u8 {
 	mut buf := []u8{}
 	in_expr := encode_json_value_expr(val.expr)
 	if in_expr.len > 0 {
@@ -8683,7 +8695,7 @@ fn encode_json_serialize_expr(val JsonSerializeExpr) []u8 {
 	return buf
 }
 
-fn encode_json_object_constructor(val JsonObjectConstructor) []u8 {
+pub fn encode_json_object_constructor(val JsonObjectConstructor) []u8 {
 	mut buf := []u8{}
 	if val.exprs.len > 0 {
 		for v in val.exprs {
@@ -8714,7 +8726,7 @@ fn encode_json_object_constructor(val JsonObjectConstructor) []u8 {
 	return buf
 }
 
-fn encode_json_array_constructor(val JsonArrayConstructor) []u8 {
+pub fn encode_json_array_constructor(val JsonArrayConstructor) []u8 {
 	mut buf := []u8{}
 	if val.exprs.len > 0 {
 		for v in val.exprs {
@@ -8741,7 +8753,7 @@ fn encode_json_array_constructor(val JsonArrayConstructor) []u8 {
 	return buf
 }
 
-fn encode_json_array_query_constructor(val JsonArrayQueryConstructor) []u8 {
+pub fn encode_json_array_query_constructor(val JsonArrayQueryConstructor) []u8 {
 	mut buf := []u8{}
 	n_query := encode_node(val.query)
 	if n_query.len > 0 {
@@ -8769,7 +8781,7 @@ fn encode_json_array_query_constructor(val JsonArrayQueryConstructor) []u8 {
 	return buf
 }
 
-fn encode_json_agg_constructor(val JsonAggConstructor) []u8 {
+pub fn encode_json_agg_constructor(val JsonAggConstructor) []u8 {
 	mut buf := []u8{}
 	in_output := encode_json_output(val.output)
 	if in_output.len > 0 {
@@ -8802,7 +8814,7 @@ fn encode_json_agg_constructor(val JsonAggConstructor) []u8 {
 	return buf
 }
 
-fn encode_p_l_assign_stmt(val PLAssignStmt) []u8 {
+pub fn encode_p_l_assign_stmt(val PLAssignStmt) []u8 {
 	mut buf := []u8{}
 	if val.name != '' {
 		buf << write_tag(1, 2)
@@ -8833,7 +8845,7 @@ fn encode_p_l_assign_stmt(val PLAssignStmt) []u8 {
 	return buf
 }
 
-fn encode_json_object_agg(val JsonObjectAgg) []u8 {
+pub fn encode_json_object_agg(val JsonObjectAgg) []u8 {
 	mut buf := []u8{}
 	in_constructor := encode_json_agg_constructor(val.constructor)
 	if in_constructor.len > 0 {
@@ -8856,7 +8868,7 @@ fn encode_json_object_agg(val JsonObjectAgg) []u8 {
 	return buf
 }
 
-fn encode_json_array_agg(val JsonArrayAgg) []u8 {
+pub fn encode_json_array_agg(val JsonArrayAgg) []u8 {
 	mut buf := []u8{}
 	in_constructor := encode_json_agg_constructor(val.constructor)
 	if in_constructor.len > 0 {
@@ -8875,7 +8887,7 @@ fn encode_json_array_agg(val JsonArrayAgg) []u8 {
 	return buf
 }
 
-fn encode_summary_result(val SummaryResult) []u8 {
+pub fn encode_summary_result(val SummaryResult) []u8 {
 	mut buf := []u8{}
 	if val.tables.len > 0 {
 		for v in val.tables {

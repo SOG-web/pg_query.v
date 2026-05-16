@@ -17,6 +17,18 @@ pub fn valid_enum_int(valid_values []int, v u64) int {
 	return 0
 }
 
+// valid_enum_int_strict is like valid_enum_int but returns an error
+// instead of silently coercing invalid values to 0.
+pub fn valid_enum_int_strict(valid_values []int, v u64) !int {
+	iv := int(v)
+	for vv in valid_values {
+		if iv == vv {
+			return iv
+		}
+	}
+	return error('invalid enum value ${iv}, expected one of ${valid_values}')
+}
+
 // ---------------------------------------------------------------------------
 // Protobuf wire format helpers (used by generated pg_query_decode.v)
 // ---------------------------------------------------------------------------

@@ -42,6 +42,16 @@ pub fn encode_ast(result ParseAstResult) Protobuf {
 	return protobuf_from_bytes(buf)
 }
 
+// encode_scan serializes a ScanResult back to protobuf wire format.
+pub fn encode_scan(result ScanResult) Protobuf {
+	return protobuf_from_bytes(encode_scan_result(result))
+}
+
+// encode_summary serializes a SummaryResult back to protobuf wire format.
+pub fn encode_summary(result SummaryResult) Protobuf {
+	return protobuf_from_bytes(encode_summary_result(result))
+}
+
 // deparse_ast encodes a ParseAstResult to protobuf and deparses it back to SQL.
 // Returns the deparsed SQL string on success.
 pub fn deparse_ast(result ParseAstResult) !string {
@@ -219,7 +229,7 @@ pub fn parse_json_ast(json_string string) !ParseAstResult {
 		stmts << AstRawStmt{
 			stmt_location: s.stmt_location
 			stmt_len: s.stmt_len
-			stmt: decode_node_json(s.stmt)!
+			stmt: decode_node_json(s.stmt)
 		}
 	}
 	return ParseAstResult{

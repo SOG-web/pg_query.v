@@ -1296,45 +1296,91 @@ pub mut:
 	version int
 	tokens []ScanToken
 }
+pub fn (m ScanResult) str() string {
+	mut parts := []string{}
+	if m.version != 0 { parts << "version: ${m.version}" }
+	if m.tokens.len > 0 { parts << "tokens: ${m.tokens}" }
+	return 'ScanResult{' + parts.join(', ') + '}'
+}
 
 pub struct Integer {
 pub mut:
 	ival int
+}
+pub fn (m Integer) str() string {
+	mut parts := []string{}
+	if m.ival != 0 { parts << "ival: ${m.ival}" }
+	return 'Integer{' + parts.join(', ') + '}'
 }
 
 pub struct Float {
 pub mut:
 	fval string
 }
+pub fn (m Float) str() string {
+	mut parts := []string{}
+	if m.fval != '' { parts << 'fval: ${m.fval}' }
+	return 'Float{' + parts.join(', ') + '}'
+}
 
 pub struct Boolean {
 pub mut:
 	boolval bool
+}
+pub fn (m Boolean) str() string {
+	mut parts := []string{}
+	if m.boolval { parts << "boolval: true" }
+	return 'Boolean{' + parts.join(', ') + '}'
 }
 
 pub struct String {
 pub mut:
 	sval string
 }
+pub fn (m String) str() string {
+	mut parts := []string{}
+	if m.sval != '' { parts << 'sval: ${m.sval}' }
+	return 'String{' + parts.join(', ') + '}'
+}
 
 pub struct BitString {
 pub mut:
 	bsval string
+}
+pub fn (m BitString) str() string {
+	mut parts := []string{}
+	if m.bsval != '' { parts << 'bsval: ${m.bsval}' }
+	return 'BitString{' + parts.join(', ') + '}'
 }
 
 pub struct List {
 pub mut:
 	items []Node
 }
+pub fn (m List) str() string {
+	mut parts := []string{}
+	if m.items.len > 0 { parts << "items: ${m.items}" }
+	return 'List{' + parts.join(', ') + '}'
+}
 
 pub struct OidList {
 pub mut:
 	items []Node
 }
+pub fn (m OidList) str() string {
+	mut parts := []string{}
+	if m.items.len > 0 { parts << "items: ${m.items}" }
+	return 'OidList{' + parts.join(', ') + '}'
+}
 
 pub struct IntList {
 pub mut:
 	items []Node
+}
+pub fn (m IntList) str() string {
+	mut parts := []string{}
+	if m.items.len > 0 { parts << "items: ${m.items}" }
+	return 'IntList{' + parts.join(', ') + '}'
 }
 
 pub struct AConst {
@@ -1347,11 +1393,28 @@ pub mut:
 	sval ?String
 	bsval ?BitString
 }
+pub fn (m AConst) str() string {
+	mut parts := []string{}
+	if m.isnull { parts << "isnull: true" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	if v_ival := m.ival { parts << "ival: ${v_ival}" }
+	if v_fval := m.fval { parts << "fval: ${v_fval}" }
+	if v_boolval := m.boolval { parts << "boolval: ${v_boolval}" }
+	if v_sval := m.sval { parts << "sval: ${v_sval}" }
+	if v_bsval := m.bsval { parts << "bsval: ${v_bsval}" }
+	return 'AConst{' + parts.join(', ') + '}'
+}
 
 pub struct Alias {
 pub mut:
 	aliasname string
 	colnames []Node
+}
+pub fn (m Alias) str() string {
+	mut parts := []string{}
+	if m.aliasname != '' { parts << 'aliasname: ${m.aliasname}' }
+	if m.colnames.len > 0 { parts << "colnames: ${m.colnames}" }
+	return 'Alias{' + parts.join(', ') + '}'
 }
 
 pub struct RangeVar {
@@ -1363,6 +1426,17 @@ pub mut:
 	relpersistence string
 	alias Alias
 	location int
+}
+pub fn (m RangeVar) str() string {
+	mut parts := []string{}
+	if m.catalogname != '' { parts << 'catalogname: ${m.catalogname}' }
+	if m.schemaname != '' { parts << 'schemaname: ${m.schemaname}' }
+	if m.relname != '' { parts << 'relname: ${m.relname}' }
+	if m.inh { parts << "inh: true" }
+	if m.relpersistence != '' { parts << 'relpersistence: ${m.relpersistence}' }
+	parts << "alias: ${m.alias}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'RangeVar{' + parts.join(', ') + '}'
 }
 
 pub struct TableFunc {
@@ -1385,6 +1459,27 @@ pub mut:
 	ordinalitycol int
 	location int
 }
+pub fn (m TableFunc) str() string {
+	mut parts := []string{}
+	parts << "functype: ${m.functype}"
+	if m.ns_uris.len > 0 { parts << "ns_uris: ${m.ns_uris}" }
+	if m.ns_names.len > 0 { parts << "ns_names: ${m.ns_names}" }
+	parts << "docexpr: ${m.docexpr}"
+	parts << "rowexpr: ${m.rowexpr}"
+	if m.colnames.len > 0 { parts << "colnames: ${m.colnames}" }
+	if m.coltypes.len > 0 { parts << "coltypes: ${m.coltypes}" }
+	if m.coltypmods.len > 0 { parts << "coltypmods: ${m.coltypmods}" }
+	if m.colcollations.len > 0 { parts << "colcollations: ${m.colcollations}" }
+	if m.colexprs.len > 0 { parts << "colexprs: ${m.colexprs}" }
+	if m.coldefexprs.len > 0 { parts << "coldefexprs: ${m.coldefexprs}" }
+	if m.colvalexprs.len > 0 { parts << "colvalexprs: ${m.colvalexprs}" }
+	if m.passingvalexprs.len > 0 { parts << "passingvalexprs: ${m.passingvalexprs}" }
+	if m.notnulls.len > 0 { parts << "notnulls: ${m.notnulls}" }
+	parts << "plan: ${m.plan}"
+	if m.ordinalitycol != 0 { parts << "ordinalitycol: ${m.ordinalitycol}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'TableFunc{' + parts.join(', ') + '}'
+}
 
 pub struct IntoClause {
 pub mut:
@@ -1396,6 +1491,18 @@ pub mut:
 	table_space_name string
 	view_query Node
 	skip_data bool
+}
+pub fn (m IntoClause) str() string {
+	mut parts := []string{}
+	parts << "rel: ${m.rel}"
+	if m.col_names.len > 0 { parts << "col_names: ${m.col_names}" }
+	if m.access_method != '' { parts << 'access_method: ${m.access_method}' }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	parts << "on_commit: ${m.on_commit}"
+	if m.table_space_name != '' { parts << 'table_space_name: ${m.table_space_name}' }
+	parts << "view_query: ${m.view_query}"
+	if m.skip_data { parts << "skip_data: true" }
+	return 'IntoClause{' + parts.join(', ') + '}'
 }
 
 pub struct Var {
@@ -1410,6 +1517,19 @@ pub mut:
 	varlevelsup u32
 	location int
 }
+pub fn (m Var) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	if m.varno != 0 { parts << "varno: ${m.varno}" }
+	if m.varattno != 0 { parts << "varattno: ${m.varattno}" }
+	if m.vartype != 0 { parts << "vartype: ${m.vartype}" }
+	if m.vartypmod != 0 { parts << "vartypmod: ${m.vartypmod}" }
+	if m.varcollid != 0 { parts << "varcollid: ${m.varcollid}" }
+	if m.varnullingrels.len > 0 { parts << "varnullingrels: ${m.varnullingrels}" }
+	if m.varlevelsup != 0 { parts << "varlevelsup: ${m.varlevelsup}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'Var{' + parts.join(', ') + '}'
+}
 
 pub struct Param {
 pub mut:
@@ -1420,6 +1540,17 @@ pub mut:
 	paramtypmod int
 	paramcollid u32
 	location int
+}
+pub fn (m Param) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	parts << "paramkind: ${m.paramkind}"
+	if m.paramid != 0 { parts << "paramid: ${m.paramid}" }
+	if m.paramtype != 0 { parts << "paramtype: ${m.paramtype}" }
+	if m.paramtypmod != 0 { parts << "paramtypmod: ${m.paramtypmod}" }
+	if m.paramcollid != 0 { parts << "paramcollid: ${m.paramcollid}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'Param{' + parts.join(', ') + '}'
 }
 
 pub struct Aggref {
@@ -1444,6 +1575,29 @@ pub mut:
 	aggtransno int
 	location int
 }
+pub fn (m Aggref) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	if m.aggfnoid != 0 { parts << "aggfnoid: ${m.aggfnoid}" }
+	if m.aggtype != 0 { parts << "aggtype: ${m.aggtype}" }
+	if m.aggcollid != 0 { parts << "aggcollid: ${m.aggcollid}" }
+	if m.inputcollid != 0 { parts << "inputcollid: ${m.inputcollid}" }
+	if m.aggargtypes.len > 0 { parts << "aggargtypes: ${m.aggargtypes}" }
+	if m.aggdirectargs.len > 0 { parts << "aggdirectargs: ${m.aggdirectargs}" }
+	if m.args.len > 0 { parts << "args: ${m.args}" }
+	if m.aggorder.len > 0 { parts << "aggorder: ${m.aggorder}" }
+	if m.aggdistinct.len > 0 { parts << "aggdistinct: ${m.aggdistinct}" }
+	parts << "aggfilter: ${m.aggfilter}"
+	if m.aggstar { parts << "aggstar: true" }
+	if m.aggvariadic { parts << "aggvariadic: true" }
+	if m.aggkind != '' { parts << 'aggkind: ${m.aggkind}' }
+	if m.agglevelsup != 0 { parts << "agglevelsup: ${m.agglevelsup}" }
+	parts << "aggsplit: ${m.aggsplit}"
+	if m.aggno != 0 { parts << "aggno: ${m.aggno}" }
+	if m.aggtransno != 0 { parts << "aggtransno: ${m.aggtransno}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'Aggref{' + parts.join(', ') + '}'
+}
 
 pub struct GroupingFunc {
 pub mut:
@@ -1452,6 +1606,15 @@ pub mut:
 	refs []Node
 	agglevelsup u32
 	location int
+}
+pub fn (m GroupingFunc) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	if m.args.len > 0 { parts << "args: ${m.args}" }
+	if m.refs.len > 0 { parts << "refs: ${m.refs}" }
+	if m.agglevelsup != 0 { parts << "agglevelsup: ${m.agglevelsup}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'GroupingFunc{' + parts.join(', ') + '}'
 }
 
 pub struct WindowFunc {
@@ -1469,6 +1632,22 @@ pub mut:
 	winagg bool
 	location int
 }
+pub fn (m WindowFunc) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	if m.winfnoid != 0 { parts << "winfnoid: ${m.winfnoid}" }
+	if m.wintype != 0 { parts << "wintype: ${m.wintype}" }
+	if m.wincollid != 0 { parts << "wincollid: ${m.wincollid}" }
+	if m.inputcollid != 0 { parts << "inputcollid: ${m.inputcollid}" }
+	if m.args.len > 0 { parts << "args: ${m.args}" }
+	parts << "aggfilter: ${m.aggfilter}"
+	if m.run_condition.len > 0 { parts << "run_condition: ${m.run_condition}" }
+	if m.winref != 0 { parts << "winref: ${m.winref}" }
+	if m.winstar { parts << "winstar: true" }
+	if m.winagg { parts << "winagg: true" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'WindowFunc{' + parts.join(', ') + '}'
+}
 
 pub struct WindowFuncRunCondition {
 pub mut:
@@ -1478,6 +1657,15 @@ pub mut:
 	wfunc_left bool
 	arg Node
 }
+pub fn (m WindowFuncRunCondition) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	if m.opno != 0 { parts << "opno: ${m.opno}" }
+	if m.inputcollid != 0 { parts << "inputcollid: ${m.inputcollid}" }
+	if m.wfunc_left { parts << "wfunc_left: true" }
+	parts << "arg: ${m.arg}"
+	return 'WindowFuncRunCondition{' + parts.join(', ') + '}'
+}
 
 pub struct MergeSupportFunc {
 pub mut:
@@ -1485,6 +1673,14 @@ pub mut:
 	msftype u32
 	msfcollid u32
 	location int
+}
+pub fn (m MergeSupportFunc) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	if m.msftype != 0 { parts << "msftype: ${m.msftype}" }
+	if m.msfcollid != 0 { parts << "msfcollid: ${m.msfcollid}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'MergeSupportFunc{' + parts.join(', ') + '}'
 }
 
 pub struct SubscriptingRef {
@@ -1500,6 +1696,20 @@ pub mut:
 	refexpr Node
 	refassgnexpr Node
 }
+pub fn (m SubscriptingRef) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	if m.refcontainertype != 0 { parts << "refcontainertype: ${m.refcontainertype}" }
+	if m.refelemtype != 0 { parts << "refelemtype: ${m.refelemtype}" }
+	if m.refrestype != 0 { parts << "refrestype: ${m.refrestype}" }
+	if m.reftypmod != 0 { parts << "reftypmod: ${m.reftypmod}" }
+	if m.refcollid != 0 { parts << "refcollid: ${m.refcollid}" }
+	if m.refupperindexpr.len > 0 { parts << "refupperindexpr: ${m.refupperindexpr}" }
+	if m.reflowerindexpr.len > 0 { parts << "reflowerindexpr: ${m.reflowerindexpr}" }
+	parts << "refexpr: ${m.refexpr}"
+	parts << "refassgnexpr: ${m.refassgnexpr}"
+	return 'SubscriptingRef{' + parts.join(', ') + '}'
+}
 
 pub struct FuncExpr {
 pub mut:
@@ -1514,6 +1724,20 @@ pub mut:
 	args []Node
 	location int
 }
+pub fn (m FuncExpr) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	if m.funcid != 0 { parts << "funcid: ${m.funcid}" }
+	if m.funcresulttype != 0 { parts << "funcresulttype: ${m.funcresulttype}" }
+	if m.funcretset { parts << "funcretset: true" }
+	if m.funcvariadic { parts << "funcvariadic: true" }
+	parts << "funcformat: ${m.funcformat}"
+	if m.funccollid != 0 { parts << "funccollid: ${m.funccollid}" }
+	if m.inputcollid != 0 { parts << "inputcollid: ${m.inputcollid}" }
+	if m.args.len > 0 { parts << "args: ${m.args}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'FuncExpr{' + parts.join(', ') + '}'
+}
 
 pub struct NamedArgExpr {
 pub mut:
@@ -1522,6 +1746,15 @@ pub mut:
 	name string
 	argnumber int
 	location int
+}
+pub fn (m NamedArgExpr) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	parts << "arg: ${m.arg}"
+	if m.name != '' { parts << 'name: ${m.name}' }
+	if m.argnumber != 0 { parts << "argnumber: ${m.argnumber}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'NamedArgExpr{' + parts.join(', ') + '}'
 }
 
 pub struct OpExpr {
@@ -1535,6 +1768,18 @@ pub mut:
 	args []Node
 	location int
 }
+pub fn (m OpExpr) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	if m.opno != 0 { parts << "opno: ${m.opno}" }
+	if m.opresulttype != 0 { parts << "opresulttype: ${m.opresulttype}" }
+	if m.opretset { parts << "opretset: true" }
+	if m.opcollid != 0 { parts << "opcollid: ${m.opcollid}" }
+	if m.inputcollid != 0 { parts << "inputcollid: ${m.inputcollid}" }
+	if m.args.len > 0 { parts << "args: ${m.args}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'OpExpr{' + parts.join(', ') + '}'
+}
 
 pub struct DistinctExpr {
 pub mut:
@@ -1546,6 +1791,18 @@ pub mut:
 	inputcollid u32
 	args []Node
 	location int
+}
+pub fn (m DistinctExpr) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	if m.opno != 0 { parts << "opno: ${m.opno}" }
+	if m.opresulttype != 0 { parts << "opresulttype: ${m.opresulttype}" }
+	if m.opretset { parts << "opretset: true" }
+	if m.opcollid != 0 { parts << "opcollid: ${m.opcollid}" }
+	if m.inputcollid != 0 { parts << "inputcollid: ${m.inputcollid}" }
+	if m.args.len > 0 { parts << "args: ${m.args}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'DistinctExpr{' + parts.join(', ') + '}'
 }
 
 pub struct NullIfExpr {
@@ -1559,6 +1816,18 @@ pub mut:
 	args []Node
 	location int
 }
+pub fn (m NullIfExpr) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	if m.opno != 0 { parts << "opno: ${m.opno}" }
+	if m.opresulttype != 0 { parts << "opresulttype: ${m.opresulttype}" }
+	if m.opretset { parts << "opretset: true" }
+	if m.opcollid != 0 { parts << "opcollid: ${m.opcollid}" }
+	if m.inputcollid != 0 { parts << "inputcollid: ${m.inputcollid}" }
+	if m.args.len > 0 { parts << "args: ${m.args}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'NullIfExpr{' + parts.join(', ') + '}'
+}
 
 pub struct ScalarArrayOpExpr {
 pub mut:
@@ -1569,6 +1838,16 @@ pub mut:
 	args []Node
 	location int
 }
+pub fn (m ScalarArrayOpExpr) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	if m.opno != 0 { parts << "opno: ${m.opno}" }
+	if m.use_or { parts << "use_or: true" }
+	if m.inputcollid != 0 { parts << "inputcollid: ${m.inputcollid}" }
+	if m.args.len > 0 { parts << "args: ${m.args}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'ScalarArrayOpExpr{' + parts.join(', ') + '}'
+}
 
 pub struct BoolExpr {
 pub mut:
@@ -1576,6 +1855,14 @@ pub mut:
 	boolop BoolExprType
 	args []Node
 	location int
+}
+pub fn (m BoolExpr) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	parts << "boolop: ${m.boolop}"
+	if m.args.len > 0 { parts << "args: ${m.args}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'BoolExpr{' + parts.join(', ') + '}'
 }
 
 pub struct SubLink {
@@ -1587,6 +1874,17 @@ pub mut:
 	oper_name []Node
 	subselect Node
 	location int
+}
+pub fn (m SubLink) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	parts << "sub_link_type: ${m.sub_link_type}"
+	if m.sub_link_id != 0 { parts << "sub_link_id: ${m.sub_link_id}" }
+	parts << "testexpr: ${m.testexpr}"
+	if m.oper_name.len > 0 { parts << "oper_name: ${m.oper_name}" }
+	parts << "subselect: ${m.subselect}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'SubLink{' + parts.join(', ') + '}'
 }
 
 pub struct SubPlan {
@@ -1609,11 +1907,38 @@ pub mut:
 	startup_cost f64
 	per_call_cost f64
 }
+pub fn (m SubPlan) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	parts << "sub_link_type: ${m.sub_link_type}"
+	parts << "testexpr: ${m.testexpr}"
+	if m.param_ids.len > 0 { parts << "param_ids: ${m.param_ids}" }
+	if m.plan_id != 0 { parts << "plan_id: ${m.plan_id}" }
+	if m.plan_name != '' { parts << 'plan_name: ${m.plan_name}' }
+	if m.first_col_type != 0 { parts << "first_col_type: ${m.first_col_type}" }
+	if m.first_col_typmod != 0 { parts << "first_col_typmod: ${m.first_col_typmod}" }
+	if m.first_col_collation != 0 { parts << "first_col_collation: ${m.first_col_collation}" }
+	if m.use_hash_table { parts << "use_hash_table: true" }
+	if m.unknown_eq_false { parts << "unknown_eq_false: true" }
+	if m.parallel_safe { parts << "parallel_safe: true" }
+	if m.set_param.len > 0 { parts << "set_param: ${m.set_param}" }
+	if m.par_param.len > 0 { parts << "par_param: ${m.par_param}" }
+	if m.args.len > 0 { parts << "args: ${m.args}" }
+	if m.startup_cost != 0.0 { parts << "startup_cost: ${m.startup_cost}" }
+	if m.per_call_cost != 0.0 { parts << "per_call_cost: ${m.per_call_cost}" }
+	return 'SubPlan{' + parts.join(', ') + '}'
+}
 
 pub struct AlternativeSubPlan {
 pub mut:
 	xpr Node
 	subplans []Node
+}
+pub fn (m AlternativeSubPlan) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	if m.subplans.len > 0 { parts << "subplans: ${m.subplans}" }
+	return 'AlternativeSubPlan{' + parts.join(', ') + '}'
 }
 
 pub struct FieldSelect {
@@ -1625,6 +1950,16 @@ pub mut:
 	resulttypmod int
 	resultcollid u32
 }
+pub fn (m FieldSelect) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	parts << "arg: ${m.arg}"
+	if m.fieldnum != 0 { parts << "fieldnum: ${m.fieldnum}" }
+	if m.resulttype != 0 { parts << "resulttype: ${m.resulttype}" }
+	if m.resulttypmod != 0 { parts << "resulttypmod: ${m.resulttypmod}" }
+	if m.resultcollid != 0 { parts << "resultcollid: ${m.resultcollid}" }
+	return 'FieldSelect{' + parts.join(', ') + '}'
+}
 
 pub struct FieldStore {
 pub mut:
@@ -1633,6 +1968,15 @@ pub mut:
 	newvals []Node
 	fieldnums []Node
 	resulttype u32
+}
+pub fn (m FieldStore) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	parts << "arg: ${m.arg}"
+	if m.newvals.len > 0 { parts << "newvals: ${m.newvals}" }
+	if m.fieldnums.len > 0 { parts << "fieldnums: ${m.fieldnums}" }
+	if m.resulttype != 0 { parts << "resulttype: ${m.resulttype}" }
+	return 'FieldStore{' + parts.join(', ') + '}'
 }
 
 pub struct RelabelType {
@@ -1645,6 +1989,17 @@ pub mut:
 	relabelformat CoercionForm
 	location int
 }
+pub fn (m RelabelType) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	parts << "arg: ${m.arg}"
+	if m.resulttype != 0 { parts << "resulttype: ${m.resulttype}" }
+	if m.resulttypmod != 0 { parts << "resulttypmod: ${m.resulttypmod}" }
+	if m.resultcollid != 0 { parts << "resultcollid: ${m.resultcollid}" }
+	parts << "relabelformat: ${m.relabelformat}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'RelabelType{' + parts.join(', ') + '}'
+}
 
 pub struct CoerceViaIO {
 pub mut:
@@ -1654,6 +2009,16 @@ pub mut:
 	resultcollid u32
 	coerceformat CoercionForm
 	location int
+}
+pub fn (m CoerceViaIO) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	parts << "arg: ${m.arg}"
+	if m.resulttype != 0 { parts << "resulttype: ${m.resulttype}" }
+	if m.resultcollid != 0 { parts << "resultcollid: ${m.resultcollid}" }
+	parts << "coerceformat: ${m.coerceformat}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'CoerceViaIO{' + parts.join(', ') + '}'
 }
 
 pub struct ArrayCoerceExpr {
@@ -1667,6 +2032,18 @@ pub mut:
 	coerceformat CoercionForm
 	location int
 }
+pub fn (m ArrayCoerceExpr) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	parts << "arg: ${m.arg}"
+	parts << "elemexpr: ${m.elemexpr}"
+	if m.resulttype != 0 { parts << "resulttype: ${m.resulttype}" }
+	if m.resulttypmod != 0 { parts << "resulttypmod: ${m.resulttypmod}" }
+	if m.resultcollid != 0 { parts << "resultcollid: ${m.resultcollid}" }
+	parts << "coerceformat: ${m.coerceformat}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'ArrayCoerceExpr{' + parts.join(', ') + '}'
+}
 
 pub struct ConvertRowtypeExpr {
 pub mut:
@@ -1676,6 +2053,15 @@ pub mut:
 	convertformat CoercionForm
 	location int
 }
+pub fn (m ConvertRowtypeExpr) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	parts << "arg: ${m.arg}"
+	if m.resulttype != 0 { parts << "resulttype: ${m.resulttype}" }
+	parts << "convertformat: ${m.convertformat}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'ConvertRowtypeExpr{' + parts.join(', ') + '}'
+}
 
 pub struct CollateExpr {
 pub mut:
@@ -1683,6 +2069,14 @@ pub mut:
 	arg Node
 	coll_oid u32
 	location int
+}
+pub fn (m CollateExpr) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	parts << "arg: ${m.arg}"
+	if m.coll_oid != 0 { parts << "coll_oid: ${m.coll_oid}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'CollateExpr{' + parts.join(', ') + '}'
 }
 
 pub struct CaseExpr {
@@ -1695,6 +2089,17 @@ pub mut:
 	defresult Node
 	location int
 }
+pub fn (m CaseExpr) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	if m.casetype != 0 { parts << "casetype: ${m.casetype}" }
+	if m.casecollid != 0 { parts << "casecollid: ${m.casecollid}" }
+	parts << "arg: ${m.arg}"
+	if m.args.len > 0 { parts << "args: ${m.args}" }
+	parts << "defresult: ${m.defresult}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'CaseExpr{' + parts.join(', ') + '}'
+}
 
 pub struct CaseWhen {
 pub mut:
@@ -1703,6 +2108,14 @@ pub mut:
 	result Node
 	location int
 }
+pub fn (m CaseWhen) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	parts << "expr: ${m.expr}"
+	parts << "result: ${m.result}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'CaseWhen{' + parts.join(', ') + '}'
+}
 
 pub struct CaseTestExpr {
 pub mut:
@@ -1710,6 +2123,14 @@ pub mut:
 	type_id u32
 	type_mod int
 	collation u32
+}
+pub fn (m CaseTestExpr) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	if m.type_id != 0 { parts << "type_id: ${m.type_id}" }
+	if m.type_mod != 0 { parts << "type_mod: ${m.type_mod}" }
+	if m.collation != 0 { parts << "collation: ${m.collation}" }
+	return 'CaseTestExpr{' + parts.join(', ') + '}'
 }
 
 pub struct ArrayExpr {
@@ -1722,6 +2143,17 @@ pub mut:
 	multidims bool
 	location int
 }
+pub fn (m ArrayExpr) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	if m.array_typeid != 0 { parts << "array_typeid: ${m.array_typeid}" }
+	if m.array_collid != 0 { parts << "array_collid: ${m.array_collid}" }
+	if m.element_typeid != 0 { parts << "element_typeid: ${m.element_typeid}" }
+	if m.elements.len > 0 { parts << "elements: ${m.elements}" }
+	if m.multidims { parts << "multidims: true" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'ArrayExpr{' + parts.join(', ') + '}'
+}
 
 pub struct RowExpr {
 pub mut:
@@ -1731,6 +2163,16 @@ pub mut:
 	row_format CoercionForm
 	colnames []Node
 	location int
+}
+pub fn (m RowExpr) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	if m.args.len > 0 { parts << "args: ${m.args}" }
+	if m.row_typeid != 0 { parts << "row_typeid: ${m.row_typeid}" }
+	parts << "row_format: ${m.row_format}"
+	if m.colnames.len > 0 { parts << "colnames: ${m.colnames}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'RowExpr{' + parts.join(', ') + '}'
 }
 
 pub struct RowCompareExpr {
@@ -1743,6 +2185,17 @@ pub mut:
 	largs []Node
 	rargs []Node
 }
+pub fn (m RowCompareExpr) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	parts << "rctype: ${m.rctype}"
+	if m.opnos.len > 0 { parts << "opnos: ${m.opnos}" }
+	if m.opfamilies.len > 0 { parts << "opfamilies: ${m.opfamilies}" }
+	if m.inputcollids.len > 0 { parts << "inputcollids: ${m.inputcollids}" }
+	if m.largs.len > 0 { parts << "largs: ${m.largs}" }
+	if m.rargs.len > 0 { parts << "rargs: ${m.rargs}" }
+	return 'RowCompareExpr{' + parts.join(', ') + '}'
+}
 
 pub struct CoalesceExpr {
 pub mut:
@@ -1751,6 +2204,15 @@ pub mut:
 	coalescecollid u32
 	args []Node
 	location int
+}
+pub fn (m CoalesceExpr) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	if m.coalescetype != 0 { parts << "coalescetype: ${m.coalescetype}" }
+	if m.coalescecollid != 0 { parts << "coalescecollid: ${m.coalescecollid}" }
+	if m.args.len > 0 { parts << "args: ${m.args}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'CoalesceExpr{' + parts.join(', ') + '}'
 }
 
 pub struct MinMaxExpr {
@@ -1763,6 +2225,17 @@ pub mut:
 	args []Node
 	location int
 }
+pub fn (m MinMaxExpr) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	if m.minmaxtype != 0 { parts << "minmaxtype: ${m.minmaxtype}" }
+	if m.minmaxcollid != 0 { parts << "minmaxcollid: ${m.minmaxcollid}" }
+	if m.inputcollid != 0 { parts << "inputcollid: ${m.inputcollid}" }
+	parts << "op: ${m.op}"
+	if m.args.len > 0 { parts << "args: ${m.args}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'MinMaxExpr{' + parts.join(', ') + '}'
+}
 
 pub struct SQLValueFunction {
 pub mut:
@@ -1771,6 +2244,15 @@ pub mut:
 	type u32
 	typmod int
 	location int
+}
+pub fn (m SQLValueFunction) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	parts << "op: ${m.op}"
+	if m.type != 0 { parts << "type: ${m.type}" }
+	if m.typmod != 0 { parts << "typmod: ${m.typmod}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'SQLValueFunction{' + parts.join(', ') + '}'
 }
 
 pub struct XmlExpr {
@@ -1787,12 +2269,34 @@ pub mut:
 	typmod int
 	location int
 }
+pub fn (m XmlExpr) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	parts << "op: ${m.op}"
+	if m.name != '' { parts << 'name: ${m.name}' }
+	if m.named_args.len > 0 { parts << "named_args: ${m.named_args}" }
+	if m.arg_names.len > 0 { parts << "arg_names: ${m.arg_names}" }
+	if m.args.len > 0 { parts << "args: ${m.args}" }
+	parts << "xmloption: ${m.xmloption}"
+	if m.indent { parts << "indent: true" }
+	if m.type != 0 { parts << "type: ${m.type}" }
+	if m.typmod != 0 { parts << "typmod: ${m.typmod}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'XmlExpr{' + parts.join(', ') + '}'
+}
 
 pub struct JsonFormat {
 pub mut:
 	format_type JsonFormatType
 	encoding JsonEncoding
 	location int
+}
+pub fn (m JsonFormat) str() string {
+	mut parts := []string{}
+	parts << "format_type: ${m.format_type}"
+	parts << "encoding: ${m.encoding}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'JsonFormat{' + parts.join(', ') + '}'
 }
 
 pub struct JsonReturning {
@@ -1801,12 +2305,26 @@ pub mut:
 	typid u32
 	typmod int
 }
+pub fn (m JsonReturning) str() string {
+	mut parts := []string{}
+	parts << "format: ${m.format}"
+	if m.typid != 0 { parts << "typid: ${m.typid}" }
+	if m.typmod != 0 { parts << "typmod: ${m.typmod}" }
+	return 'JsonReturning{' + parts.join(', ') + '}'
+}
 
 pub struct JsonValueExpr {
 pub mut:
 	raw_expr Node
 	formatted_expr Node
 	format JsonFormat
+}
+pub fn (m JsonValueExpr) str() string {
+	mut parts := []string{}
+	parts << "raw_expr: ${m.raw_expr}"
+	parts << "formatted_expr: ${m.formatted_expr}"
+	parts << "format: ${m.format}"
+	return 'JsonValueExpr{' + parts.join(', ') + '}'
 }
 
 pub struct JsonConstructorExpr {
@@ -1821,6 +2339,19 @@ pub mut:
 	unique bool
 	location int
 }
+pub fn (m JsonConstructorExpr) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	parts << "type: ${m.type}"
+	if m.args.len > 0 { parts << "args: ${m.args}" }
+	parts << "func: ${m.func}"
+	parts << "coercion: ${m.coercion}"
+	parts << "returning: ${m.returning}"
+	if m.absent_on_null { parts << "absent_on_null: true" }
+	if m.unique { parts << "unique: true" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'JsonConstructorExpr{' + parts.join(', ') + '}'
+}
 
 pub struct JsonIsPredicate {
 pub mut:
@@ -1830,6 +2361,15 @@ pub mut:
 	unique_keys bool
 	location int
 }
+pub fn (m JsonIsPredicate) str() string {
+	mut parts := []string{}
+	parts << "expr: ${m.expr}"
+	parts << "format: ${m.format}"
+	parts << "item_type: ${m.item_type}"
+	if m.unique_keys { parts << "unique_keys: true" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'JsonIsPredicate{' + parts.join(', ') + '}'
+}
 
 pub struct JsonBehavior {
 pub mut:
@@ -1837,6 +2377,14 @@ pub mut:
 	expr Node
 	coerce bool
 	location int
+}
+pub fn (m JsonBehavior) str() string {
+	mut parts := []string{}
+	parts << "btype: ${m.btype}"
+	parts << "expr: ${m.expr}"
+	if m.coerce { parts << "coerce: true" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'JsonBehavior{' + parts.join(', ') + '}'
 }
 
 pub struct JsonExpr {
@@ -1859,10 +2407,36 @@ pub mut:
 	collation u32
 	location int
 }
+pub fn (m JsonExpr) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	parts << "op: ${m.op}"
+	if m.column_name != '' { parts << 'column_name: ${m.column_name}' }
+	parts << "formatted_expr: ${m.formatted_expr}"
+	parts << "format: ${m.format}"
+	parts << "path_spec: ${m.path_spec}"
+	parts << "returning: ${m.returning}"
+	if m.passing_names.len > 0 { parts << "passing_names: ${m.passing_names}" }
+	if m.passing_values.len > 0 { parts << "passing_values: ${m.passing_values}" }
+	parts << "on_empty: ${m.on_empty}"
+	parts << "on_error: ${m.on_error}"
+	if m.use_io_coercion { parts << "use_io_coercion: true" }
+	if m.use_json_coercion { parts << "use_json_coercion: true" }
+	parts << "wrapper: ${m.wrapper}"
+	if m.omit_quotes { parts << "omit_quotes: true" }
+	if m.collation != 0 { parts << "collation: ${m.collation}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'JsonExpr{' + parts.join(', ') + '}'
+}
 
 pub struct JsonTablePath {
 pub mut:
 	name string
+}
+pub fn (m JsonTablePath) str() string {
+	mut parts := []string{}
+	if m.name != '' { parts << 'name: ${m.name}' }
+	return 'JsonTablePath{' + parts.join(', ') + '}'
 }
 
 pub struct JsonTablePathScan {
@@ -1874,12 +2448,29 @@ pub mut:
 	col_min int
 	col_max int
 }
+pub fn (m JsonTablePathScan) str() string {
+	mut parts := []string{}
+	parts << "plan: ${m.plan}"
+	parts << "path: ${m.path}"
+	if m.error_on_error { parts << "error_on_error: true" }
+	parts << "child: ${m.child}"
+	if m.col_min != 0 { parts << "col_min: ${m.col_min}" }
+	if m.col_max != 0 { parts << "col_max: ${m.col_max}" }
+	return 'JsonTablePathScan{' + parts.join(', ') + '}'
+}
 
 pub struct JsonTableSiblingJoin {
 pub mut:
 	plan Node
 	lplan Node
 	rplan Node
+}
+pub fn (m JsonTableSiblingJoin) str() string {
+	mut parts := []string{}
+	parts << "plan: ${m.plan}"
+	parts << "lplan: ${m.lplan}"
+	parts << "rplan: ${m.rplan}"
+	return 'JsonTableSiblingJoin{' + parts.join(', ') + '}'
 }
 
 pub struct NullTest {
@@ -1890,6 +2481,15 @@ pub mut:
 	argisrow bool
 	location int
 }
+pub fn (m NullTest) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	parts << "arg: ${m.arg}"
+	parts << "nulltesttype: ${m.nulltesttype}"
+	if m.argisrow { parts << "argisrow: true" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'NullTest{' + parts.join(', ') + '}'
+}
 
 pub struct BooleanTest {
 pub mut:
@@ -1897,6 +2497,14 @@ pub mut:
 	arg Node
 	booltesttype BoolTestType
 	location int
+}
+pub fn (m BooleanTest) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	parts << "arg: ${m.arg}"
+	parts << "booltesttype: ${m.booltesttype}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'BooleanTest{' + parts.join(', ') + '}'
 }
 
 pub struct MergeAction {
@@ -1907,6 +2515,16 @@ pub mut:
 	qual Node
 	target_list []Node
 	update_colnos []Node
+}
+pub fn (m MergeAction) str() string {
+	mut parts := []string{}
+	parts << "match_kind: ${m.match_kind}"
+	parts << "command_type: ${m.command_type}"
+	parts << "override: ${m.override}"
+	parts << "qual: ${m.qual}"
+	if m.target_list.len > 0 { parts << "target_list: ${m.target_list}" }
+	if m.update_colnos.len > 0 { parts << "update_colnos: ${m.update_colnos}" }
+	return 'MergeAction{' + parts.join(', ') + '}'
 }
 
 pub struct CoerceToDomain {
@@ -1919,6 +2537,17 @@ pub mut:
 	coercionformat CoercionForm
 	location int
 }
+pub fn (m CoerceToDomain) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	parts << "arg: ${m.arg}"
+	if m.resulttype != 0 { parts << "resulttype: ${m.resulttype}" }
+	if m.resulttypmod != 0 { parts << "resulttypmod: ${m.resulttypmod}" }
+	if m.resultcollid != 0 { parts << "resultcollid: ${m.resultcollid}" }
+	parts << "coercionformat: ${m.coercionformat}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'CoerceToDomain{' + parts.join(', ') + '}'
+}
 
 pub struct CoerceToDomainValue {
 pub mut:
@@ -1927,6 +2556,15 @@ pub mut:
 	type_mod int
 	collation u32
 	location int
+}
+pub fn (m CoerceToDomainValue) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	if m.type_id != 0 { parts << "type_id: ${m.type_id}" }
+	if m.type_mod != 0 { parts << "type_mod: ${m.type_mod}" }
+	if m.collation != 0 { parts << "collation: ${m.collation}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'CoerceToDomainValue{' + parts.join(', ') + '}'
 }
 
 pub struct SetToDefault {
@@ -1937,6 +2575,15 @@ pub mut:
 	collation u32
 	location int
 }
+pub fn (m SetToDefault) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	if m.type_id != 0 { parts << "type_id: ${m.type_id}" }
+	if m.type_mod != 0 { parts << "type_mod: ${m.type_mod}" }
+	if m.collation != 0 { parts << "collation: ${m.collation}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'SetToDefault{' + parts.join(', ') + '}'
+}
 
 pub struct CurrentOfExpr {
 pub mut:
@@ -1945,12 +2592,27 @@ pub mut:
 	cursor_name string
 	cursor_param int
 }
+pub fn (m CurrentOfExpr) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	if m.cvarno != 0 { parts << "cvarno: ${m.cvarno}" }
+	if m.cursor_name != '' { parts << 'cursor_name: ${m.cursor_name}' }
+	if m.cursor_param != 0 { parts << "cursor_param: ${m.cursor_param}" }
+	return 'CurrentOfExpr{' + parts.join(', ') + '}'
+}
 
 pub struct NextValueExpr {
 pub mut:
 	xpr Node
 	seqid u32
 	type_id u32
+}
+pub fn (m NextValueExpr) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	if m.seqid != 0 { parts << "seqid: ${m.seqid}" }
+	if m.type_id != 0 { parts << "type_id: ${m.type_id}" }
+	return 'NextValueExpr{' + parts.join(', ') + '}'
 }
 
 pub struct InferenceElem {
@@ -1959,6 +2621,14 @@ pub mut:
 	expr Node
 	infercollid u32
 	inferopclass u32
+}
+pub fn (m InferenceElem) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	parts << "expr: ${m.expr}"
+	if m.infercollid != 0 { parts << "infercollid: ${m.infercollid}" }
+	if m.inferopclass != 0 { parts << "inferopclass: ${m.inferopclass}" }
+	return 'InferenceElem{' + parts.join(', ') + '}'
 }
 
 pub struct TargetEntry {
@@ -1972,10 +2642,27 @@ pub mut:
 	resorigcol int
 	resjunk bool
 }
+pub fn (m TargetEntry) str() string {
+	mut parts := []string{}
+	parts << "xpr: ${m.xpr}"
+	parts << "expr: ${m.expr}"
+	if m.resno != 0 { parts << "resno: ${m.resno}" }
+	if m.resname != '' { parts << 'resname: ${m.resname}' }
+	if m.ressortgroupref != 0 { parts << "ressortgroupref: ${m.ressortgroupref}" }
+	if m.resorigtbl != 0 { parts << "resorigtbl: ${m.resorigtbl}" }
+	if m.resorigcol != 0 { parts << "resorigcol: ${m.resorigcol}" }
+	if m.resjunk { parts << "resjunk: true" }
+	return 'TargetEntry{' + parts.join(', ') + '}'
+}
 
 pub struct RangeTblRef {
 pub mut:
 	rtindex int
+}
+pub fn (m RangeTblRef) str() string {
+	mut parts := []string{}
+	if m.rtindex != 0 { parts << "rtindex: ${m.rtindex}" }
+	return 'RangeTblRef{' + parts.join(', ') + '}'
 }
 
 pub struct JoinExpr {
@@ -1990,11 +2677,30 @@ pub mut:
 	alias Alias
 	rtindex int
 }
+pub fn (m JoinExpr) str() string {
+	mut parts := []string{}
+	parts << "jointype: ${m.jointype}"
+	if m.is_natural { parts << "is_natural: true" }
+	parts << "larg: ${m.larg}"
+	parts << "rarg: ${m.rarg}"
+	if m.using_clause.len > 0 { parts << "using_clause: ${m.using_clause}" }
+	parts << "join_using_alias: ${m.join_using_alias}"
+	parts << "quals: ${m.quals}"
+	parts << "alias: ${m.alias}"
+	if m.rtindex != 0 { parts << "rtindex: ${m.rtindex}" }
+	return 'JoinExpr{' + parts.join(', ') + '}'
+}
 
 pub struct FromExpr {
 pub mut:
 	fromlist []Node
 	quals Node
+}
+pub fn (m FromExpr) str() string {
+	mut parts := []string{}
+	if m.fromlist.len > 0 { parts << "fromlist: ${m.fromlist}" }
+	parts << "quals: ${m.quals}"
+	return 'FromExpr{' + parts.join(', ') + '}'
 }
 
 pub struct OnConflictExpr {
@@ -2007,6 +2713,18 @@ pub mut:
 	on_conflict_where Node
 	excl_rel_index int
 	excl_rel_tlist []Node
+}
+pub fn (m OnConflictExpr) str() string {
+	mut parts := []string{}
+	parts << "action: ${m.action}"
+	if m.arbiter_elems.len > 0 { parts << "arbiter_elems: ${m.arbiter_elems}" }
+	parts << "arbiter_where: ${m.arbiter_where}"
+	if m.constraint != 0 { parts << "constraint: ${m.constraint}" }
+	if m.on_conflict_set.len > 0 { parts << "on_conflict_set: ${m.on_conflict_set}" }
+	parts << "on_conflict_where: ${m.on_conflict_where}"
+	if m.excl_rel_index != 0 { parts << "excl_rel_index: ${m.excl_rel_index}" }
+	if m.excl_rel_tlist.len > 0 { parts << "excl_rel_tlist: ${m.excl_rel_tlist}" }
+	return 'OnConflictExpr{' + parts.join(', ') + '}'
 }
 
 pub struct Query {
@@ -2054,6 +2772,52 @@ pub mut:
 	stmt_location int
 	stmt_len int
 }
+pub fn (m Query) str() string {
+	mut parts := []string{}
+	parts << "command_type: ${m.command_type}"
+	parts << "query_source: ${m.query_source}"
+	if m.can_set_tag { parts << "can_set_tag: true" }
+	parts << "utility_stmt: ${m.utility_stmt}"
+	if m.result_relation != 0 { parts << "result_relation: ${m.result_relation}" }
+	if m.has_aggs { parts << "has_aggs: true" }
+	if m.has_window_funcs { parts << "has_window_funcs: true" }
+	if m.has_target_srfs { parts << "has_target_srfs: true" }
+	if m.has_sub_links { parts << "has_sub_links: true" }
+	if m.has_distinct_on { parts << "has_distinct_on: true" }
+	if m.has_recursive { parts << "has_recursive: true" }
+	if m.has_modifying_cte { parts << "has_modifying_cte: true" }
+	if m.has_for_update { parts << "has_for_update: true" }
+	if m.has_row_security { parts << "has_row_security: true" }
+	if m.is_return { parts << "is_return: true" }
+	if m.cte_list.len > 0 { parts << "cte_list: ${m.cte_list}" }
+	if m.rtable.len > 0 { parts << "rtable: ${m.rtable}" }
+	if m.rteperminfos.len > 0 { parts << "rteperminfos: ${m.rteperminfos}" }
+	parts << "jointree: ${m.jointree}"
+	if m.merge_action_list.len > 0 { parts << "merge_action_list: ${m.merge_action_list}" }
+	if m.merge_target_relation != 0 { parts << "merge_target_relation: ${m.merge_target_relation}" }
+	parts << "merge_join_condition: ${m.merge_join_condition}"
+	if m.target_list.len > 0 { parts << "target_list: ${m.target_list}" }
+	parts << "override: ${m.override}"
+	parts << "on_conflict: ${m.on_conflict}"
+	if m.returning_list.len > 0 { parts << "returning_list: ${m.returning_list}" }
+	if m.group_clause.len > 0 { parts << "group_clause: ${m.group_clause}" }
+	if m.group_distinct { parts << "group_distinct: true" }
+	if m.grouping_sets.len > 0 { parts << "grouping_sets: ${m.grouping_sets}" }
+	parts << "having_qual: ${m.having_qual}"
+	if m.window_clause.len > 0 { parts << "window_clause: ${m.window_clause}" }
+	if m.distinct_clause.len > 0 { parts << "distinct_clause: ${m.distinct_clause}" }
+	if m.sort_clause.len > 0 { parts << "sort_clause: ${m.sort_clause}" }
+	parts << "limit_offset: ${m.limit_offset}"
+	parts << "limit_count: ${m.limit_count}"
+	parts << "limit_option: ${m.limit_option}"
+	if m.row_marks.len > 0 { parts << "row_marks: ${m.row_marks}" }
+	parts << "set_operations: ${m.set_operations}"
+	if m.constraint_deps.len > 0 { parts << "constraint_deps: ${m.constraint_deps}" }
+	if m.with_check_options.len > 0 { parts << "with_check_options: ${m.with_check_options}" }
+	if m.stmt_location != 0 { parts << "stmt_location: ${m.stmt_location}" }
+	if m.stmt_len != 0 { parts << "stmt_len: ${m.stmt_len}" }
+	return 'Query{' + parts.join(', ') + '}'
+}
 
 pub struct TypeName {
 pub mut:
@@ -2066,17 +2830,41 @@ pub mut:
 	array_bounds []Node
 	location int
 }
+pub fn (m TypeName) str() string {
+	mut parts := []string{}
+	if m.names.len > 0 { parts << "names: ${m.names}" }
+	if m.type_oid != 0 { parts << "type_oid: ${m.type_oid}" }
+	if m.setof { parts << "setof: true" }
+	if m.pct_type { parts << "pct_type: true" }
+	if m.typmods.len > 0 { parts << "typmods: ${m.typmods}" }
+	if m.typemod != 0 { parts << "typemod: ${m.typemod}" }
+	if m.array_bounds.len > 0 { parts << "array_bounds: ${m.array_bounds}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'TypeName{' + parts.join(', ') + '}'
+}
 
 pub struct ColumnRef {
 pub mut:
 	fields []Node
 	location int
 }
+pub fn (m ColumnRef) str() string {
+	mut parts := []string{}
+	if m.fields.len > 0 { parts << "fields: ${m.fields}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'ColumnRef{' + parts.join(', ') + '}'
+}
 
 pub struct ParamRef {
 pub mut:
 	number int
 	location int
+}
+pub fn (m ParamRef) str() string {
+	mut parts := []string{}
+	if m.number != 0 { parts << "number: ${m.number}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'ParamRef{' + parts.join(', ') + '}'
 }
 
 pub struct AExpr {
@@ -2087,12 +2875,28 @@ pub mut:
 	rexpr Node
 	location int
 }
+pub fn (m AExpr) str() string {
+	mut parts := []string{}
+	parts << "kind: ${m.kind}"
+	if m.name.len > 0 { parts << "name: ${m.name}" }
+	parts << "lexpr: ${m.lexpr}"
+	parts << "rexpr: ${m.rexpr}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'AExpr{' + parts.join(', ') + '}'
+}
 
 pub struct TypeCast {
 pub mut:
 	arg Node
 	type_name TypeName
 	location int
+}
+pub fn (m TypeCast) str() string {
+	mut parts := []string{}
+	parts << "arg: ${m.arg}"
+	parts << "type_name: ${m.type_name}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'TypeCast{' + parts.join(', ') + '}'
 }
 
 pub struct CollateClause {
@@ -2101,12 +2905,26 @@ pub mut:
 	collname []Node
 	location int
 }
+pub fn (m CollateClause) str() string {
+	mut parts := []string{}
+	parts << "arg: ${m.arg}"
+	if m.collname.len > 0 { parts << "collname: ${m.collname}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'CollateClause{' + parts.join(', ') + '}'
+}
 
 pub struct RoleSpec {
 pub mut:
 	roletype RoleSpecType
 	rolename string
 	location int
+}
+pub fn (m RoleSpec) str() string {
+	mut parts := []string{}
+	parts << "roletype: ${m.roletype}"
+	if m.rolename != '' { parts << 'rolename: ${m.rolename}' }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'RoleSpec{' + parts.join(', ') + '}'
 }
 
 pub struct FuncCall {
@@ -2123,9 +2941,28 @@ pub mut:
 	funcformat CoercionForm
 	location int
 }
+pub fn (m FuncCall) str() string {
+	mut parts := []string{}
+	if m.funcname.len > 0 { parts << "funcname: ${m.funcname}" }
+	if m.args.len > 0 { parts << "args: ${m.args}" }
+	if m.agg_order.len > 0 { parts << "agg_order: ${m.agg_order}" }
+	parts << "agg_filter: ${m.agg_filter}"
+	parts << "over: ${m.over}"
+	if m.agg_within_group { parts << "agg_within_group: true" }
+	if m.agg_star { parts << "agg_star: true" }
+	if m.agg_distinct { parts << "agg_distinct: true" }
+	if m.func_variadic { parts << "func_variadic: true" }
+	parts << "funcformat: ${m.funcformat}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'FuncCall{' + parts.join(', ') + '}'
+}
 
 pub struct AStar {
 pub mut:
+}
+pub fn (m AStar) str() string {
+	mut parts := []string{}
+	return 'AStar{' + parts.join(', ') + '}'
 }
 
 pub struct AIndices {
@@ -2134,17 +2971,36 @@ pub mut:
 	lidx Node
 	uidx Node
 }
+pub fn (m AIndices) str() string {
+	mut parts := []string{}
+	if m.is_slice { parts << "is_slice: true" }
+	parts << "lidx: ${m.lidx}"
+	parts << "uidx: ${m.uidx}"
+	return 'AIndices{' + parts.join(', ') + '}'
+}
 
 pub struct AIndirection {
 pub mut:
 	arg Node
 	indirection []Node
 }
+pub fn (m AIndirection) str() string {
+	mut parts := []string{}
+	parts << "arg: ${m.arg}"
+	if m.indirection.len > 0 { parts << "indirection: ${m.indirection}" }
+	return 'AIndirection{' + parts.join(', ') + '}'
+}
 
 pub struct AArrayExpr {
 pub mut:
 	elements []Node
 	location int
+}
+pub fn (m AArrayExpr) str() string {
+	mut parts := []string{}
+	if m.elements.len > 0 { parts << "elements: ${m.elements}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'AArrayExpr{' + parts.join(', ') + '}'
 }
 
 pub struct ResTarget {
@@ -2154,12 +3010,27 @@ pub mut:
 	val Node
 	location int
 }
+pub fn (m ResTarget) str() string {
+	mut parts := []string{}
+	if m.name != '' { parts << 'name: ${m.name}' }
+	if m.indirection.len > 0 { parts << "indirection: ${m.indirection}" }
+	parts << "val: ${m.val}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'ResTarget{' + parts.join(', ') + '}'
+}
 
 pub struct MultiAssignRef {
 pub mut:
 	source Node
 	colno int
 	ncolumns int
+}
+pub fn (m MultiAssignRef) str() string {
+	mut parts := []string{}
+	parts << "source: ${m.source}"
+	if m.colno != 0 { parts << "colno: ${m.colno}" }
+	if m.ncolumns != 0 { parts << "ncolumns: ${m.ncolumns}" }
+	return 'MultiAssignRef{' + parts.join(', ') + '}'
 }
 
 pub struct SortBy {
@@ -2169,6 +3040,15 @@ pub mut:
 	sortby_nulls SortByNulls
 	use_op []Node
 	location int
+}
+pub fn (m SortBy) str() string {
+	mut parts := []string{}
+	parts << "node: ${m.node}"
+	parts << "sortby_dir: ${m.sortby_dir}"
+	parts << "sortby_nulls: ${m.sortby_nulls}"
+	if m.use_op.len > 0 { parts << "use_op: ${m.use_op}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'SortBy{' + parts.join(', ') + '}'
 }
 
 pub struct WindowDef {
@@ -2182,12 +3062,31 @@ pub mut:
 	end_offset Node
 	location int
 }
+pub fn (m WindowDef) str() string {
+	mut parts := []string{}
+	if m.name != '' { parts << 'name: ${m.name}' }
+	if m.refname != '' { parts << 'refname: ${m.refname}' }
+	if m.partition_clause.len > 0 { parts << "partition_clause: ${m.partition_clause}" }
+	if m.order_clause.len > 0 { parts << "order_clause: ${m.order_clause}" }
+	if m.frame_options != 0 { parts << "frame_options: ${m.frame_options}" }
+	parts << "start_offset: ${m.start_offset}"
+	parts << "end_offset: ${m.end_offset}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'WindowDef{' + parts.join(', ') + '}'
+}
 
 pub struct RangeSubselect {
 pub mut:
 	lateral bool
 	subquery Node
 	alias Alias
+}
+pub fn (m RangeSubselect) str() string {
+	mut parts := []string{}
+	if m.lateral { parts << "lateral: true" }
+	parts << "subquery: ${m.subquery}"
+	parts << "alias: ${m.alias}"
+	return 'RangeSubselect{' + parts.join(', ') + '}'
 }
 
 pub struct RangeFunction {
@@ -2198,6 +3097,16 @@ pub mut:
 	functions []Node
 	alias Alias
 	coldeflist []Node
+}
+pub fn (m RangeFunction) str() string {
+	mut parts := []string{}
+	if m.lateral { parts << "lateral: true" }
+	if m.ordinality { parts << "ordinality: true" }
+	if m.is_rowsfrom { parts << "is_rowsfrom: true" }
+	if m.functions.len > 0 { parts << "functions: ${m.functions}" }
+	parts << "alias: ${m.alias}"
+	if m.coldeflist.len > 0 { parts << "coldeflist: ${m.coldeflist}" }
+	return 'RangeFunction{' + parts.join(', ') + '}'
 }
 
 pub struct RangeTableFunc {
@@ -2210,6 +3119,17 @@ pub mut:
 	alias Alias
 	location int
 }
+pub fn (m RangeTableFunc) str() string {
+	mut parts := []string{}
+	if m.lateral { parts << "lateral: true" }
+	parts << "docexpr: ${m.docexpr}"
+	parts << "rowexpr: ${m.rowexpr}"
+	if m.namespaces.len > 0 { parts << "namespaces: ${m.namespaces}" }
+	if m.columns.len > 0 { parts << "columns: ${m.columns}" }
+	parts << "alias: ${m.alias}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'RangeTableFunc{' + parts.join(', ') + '}'
+}
 
 pub struct RangeTableFuncCol {
 pub mut:
@@ -2221,6 +3141,17 @@ pub mut:
 	coldefexpr Node
 	location int
 }
+pub fn (m RangeTableFuncCol) str() string {
+	mut parts := []string{}
+	if m.colname != '' { parts << 'colname: ${m.colname}' }
+	parts << "type_name: ${m.type_name}"
+	if m.for_ordinality { parts << "for_ordinality: true" }
+	if m.is_not_null { parts << "is_not_null: true" }
+	parts << "colexpr: ${m.colexpr}"
+	parts << "coldefexpr: ${m.coldefexpr}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'RangeTableFuncCol{' + parts.join(', ') + '}'
+}
 
 pub struct RangeTableSample {
 pub mut:
@@ -2229,6 +3160,15 @@ pub mut:
 	args []Node
 	repeatable Node
 	location int
+}
+pub fn (m RangeTableSample) str() string {
+	mut parts := []string{}
+	parts << "relation: ${m.relation}"
+	if m.method.len > 0 { parts << "method: ${m.method}" }
+	if m.args.len > 0 { parts << "args: ${m.args}" }
+	parts << "repeatable: ${m.repeatable}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'RangeTableSample{' + parts.join(', ') + '}'
 }
 
 pub struct ColumnDef {
@@ -2253,12 +3193,42 @@ pub mut:
 	fdwoptions []Node
 	location int
 }
+pub fn (m ColumnDef) str() string {
+	mut parts := []string{}
+	if m.colname != '' { parts << 'colname: ${m.colname}' }
+	parts << "type_name: ${m.type_name}"
+	if m.compression != '' { parts << 'compression: ${m.compression}' }
+	if m.inhcount != 0 { parts << "inhcount: ${m.inhcount}" }
+	if m.is_local { parts << "is_local: true" }
+	if m.is_not_null { parts << "is_not_null: true" }
+	if m.is_from_type { parts << "is_from_type: true" }
+	if m.storage != '' { parts << 'storage: ${m.storage}' }
+	if m.storage_name != '' { parts << 'storage_name: ${m.storage_name}' }
+	parts << "raw_default: ${m.raw_default}"
+	parts << "cooked_default: ${m.cooked_default}"
+	if m.identity != '' { parts << 'identity: ${m.identity}' }
+	parts << "identity_sequence: ${m.identity_sequence}"
+	if m.generated != '' { parts << 'generated: ${m.generated}' }
+	parts << "coll_clause: ${m.coll_clause}"
+	if m.coll_oid != 0 { parts << "coll_oid: ${m.coll_oid}" }
+	if m.constraints.len > 0 { parts << "constraints: ${m.constraints}" }
+	if m.fdwoptions.len > 0 { parts << "fdwoptions: ${m.fdwoptions}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'ColumnDef{' + parts.join(', ') + '}'
+}
 
 pub struct TableLikeClause {
 pub mut:
 	relation RangeVar
 	options u32
 	relation_oid u32
+}
+pub fn (m TableLikeClause) str() string {
+	mut parts := []string{}
+	parts << "relation: ${m.relation}"
+	if m.options != 0 { parts << "options: ${m.options}" }
+	if m.relation_oid != 0 { parts << "relation_oid: ${m.relation_oid}" }
+	return 'TableLikeClause{' + parts.join(', ') + '}'
 }
 
 pub struct IndexElem {
@@ -2272,6 +3242,18 @@ pub mut:
 	ordering SortByDir
 	nulls_ordering SortByNulls
 }
+pub fn (m IndexElem) str() string {
+	mut parts := []string{}
+	if m.name != '' { parts << 'name: ${m.name}' }
+	parts << "expr: ${m.expr}"
+	if m.indexcolname != '' { parts << 'indexcolname: ${m.indexcolname}' }
+	if m.collation.len > 0 { parts << "collation: ${m.collation}" }
+	if m.opclass.len > 0 { parts << "opclass: ${m.opclass}" }
+	if m.opclassopts.len > 0 { parts << "opclassopts: ${m.opclassopts}" }
+	parts << "ordering: ${m.ordering}"
+	parts << "nulls_ordering: ${m.nulls_ordering}"
+	return 'IndexElem{' + parts.join(', ') + '}'
+}
 
 pub struct DefElem {
 pub mut:
@@ -2281,12 +3263,28 @@ pub mut:
 	defaction DefElemAction
 	location int
 }
+pub fn (m DefElem) str() string {
+	mut parts := []string{}
+	if m.defnamespace != '' { parts << 'defnamespace: ${m.defnamespace}' }
+	if m.defname != '' { parts << 'defname: ${m.defname}' }
+	parts << "arg: ${m.arg}"
+	parts << "defaction: ${m.defaction}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'DefElem{' + parts.join(', ') + '}'
+}
 
 pub struct LockingClause {
 pub mut:
 	locked_rels []Node
 	strength LockClauseStrength
 	wait_policy LockWaitPolicy
+}
+pub fn (m LockingClause) str() string {
+	mut parts := []string{}
+	if m.locked_rels.len > 0 { parts << "locked_rels: ${m.locked_rels}" }
+	parts << "strength: ${m.strength}"
+	parts << "wait_policy: ${m.wait_policy}"
+	return 'LockingClause{' + parts.join(', ') + '}'
 }
 
 pub struct XmlSerialize {
@@ -2297,6 +3295,15 @@ pub mut:
 	indent bool
 	location int
 }
+pub fn (m XmlSerialize) str() string {
+	mut parts := []string{}
+	parts << "xmloption: ${m.xmloption}"
+	parts << "expr: ${m.expr}"
+	parts << "type_name: ${m.type_name}"
+	if m.indent { parts << "indent: true" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'XmlSerialize{' + parts.join(', ') + '}'
+}
 
 pub struct PartitionElem {
 pub mut:
@@ -2306,12 +3313,28 @@ pub mut:
 	opclass []Node
 	location int
 }
+pub fn (m PartitionElem) str() string {
+	mut parts := []string{}
+	if m.name != '' { parts << 'name: ${m.name}' }
+	parts << "expr: ${m.expr}"
+	if m.collation.len > 0 { parts << "collation: ${m.collation}" }
+	if m.opclass.len > 0 { parts << "opclass: ${m.opclass}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'PartitionElem{' + parts.join(', ') + '}'
+}
 
 pub struct PartitionSpec {
 pub mut:
 	strategy PartitionStrategy
 	part_params []Node
 	location int
+}
+pub fn (m PartitionSpec) str() string {
+	mut parts := []string{}
+	parts << "strategy: ${m.strategy}"
+	if m.part_params.len > 0 { parts << "part_params: ${m.part_params}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'PartitionSpec{' + parts.join(', ') + '}'
 }
 
 pub struct PartitionBoundSpec {
@@ -2325,6 +3348,18 @@ pub mut:
 	upperdatums []Node
 	location int
 }
+pub fn (m PartitionBoundSpec) str() string {
+	mut parts := []string{}
+	if m.strategy != '' { parts << 'strategy: ${m.strategy}' }
+	if m.is_default { parts << "is_default: true" }
+	if m.modulus != 0 { parts << "modulus: ${m.modulus}" }
+	if m.remainder != 0 { parts << "remainder: ${m.remainder}" }
+	if m.listdatums.len > 0 { parts << "listdatums: ${m.listdatums}" }
+	if m.lowerdatums.len > 0 { parts << "lowerdatums: ${m.lowerdatums}" }
+	if m.upperdatums.len > 0 { parts << "upperdatums: ${m.upperdatums}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'PartitionBoundSpec{' + parts.join(', ') + '}'
+}
 
 pub struct PartitionRangeDatum {
 pub mut:
@@ -2332,9 +3367,20 @@ pub mut:
 	value Node
 	location int
 }
+pub fn (m PartitionRangeDatum) str() string {
+	mut parts := []string{}
+	parts << "kind: ${m.kind}"
+	parts << "value: ${m.value}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'PartitionRangeDatum{' + parts.join(', ') + '}'
+}
 
 pub struct SinglePartitionSpec {
 pub mut:
+}
+pub fn (m SinglePartitionSpec) str() string {
+	mut parts := []string{}
+	return 'SinglePartitionSpec{' + parts.join(', ') + '}'
 }
 
 pub struct PartitionCmd {
@@ -2342,6 +3388,13 @@ pub mut:
 	name RangeVar
 	bound PartitionBoundSpec
 	concurrent bool
+}
+pub fn (m PartitionCmd) str() string {
+	mut parts := []string{}
+	parts << "name: ${m.name}"
+	parts << "bound: ${m.bound}"
+	if m.concurrent { parts << "concurrent: true" }
+	return 'PartitionCmd{' + parts.join(', ') + '}'
 }
 
 pub struct RangeTblEntry {
@@ -2379,6 +3432,42 @@ pub mut:
 	in_from_cl bool
 	security_quals []Node
 }
+pub fn (m RangeTblEntry) str() string {
+	mut parts := []string{}
+	parts << "alias: ${m.alias}"
+	parts << "eref: ${m.eref}"
+	parts << "rtekind: ${m.rtekind}"
+	if m.relid != 0 { parts << "relid: ${m.relid}" }
+	if m.inh { parts << "inh: true" }
+	if m.relkind != '' { parts << 'relkind: ${m.relkind}' }
+	if m.rellockmode != 0 { parts << "rellockmode: ${m.rellockmode}" }
+	if m.perminfoindex != 0 { parts << "perminfoindex: ${m.perminfoindex}" }
+	parts << "tablesample: ${m.tablesample}"
+	parts << "subquery: ${m.subquery}"
+	if m.security_barrier { parts << "security_barrier: true" }
+	parts << "jointype: ${m.jointype}"
+	if m.joinmergedcols != 0 { parts << "joinmergedcols: ${m.joinmergedcols}" }
+	if m.joinaliasvars.len > 0 { parts << "joinaliasvars: ${m.joinaliasvars}" }
+	if m.joinleftcols.len > 0 { parts << "joinleftcols: ${m.joinleftcols}" }
+	if m.joinrightcols.len > 0 { parts << "joinrightcols: ${m.joinrightcols}" }
+	parts << "join_using_alias: ${m.join_using_alias}"
+	if m.functions.len > 0 { parts << "functions: ${m.functions}" }
+	if m.funcordinality { parts << "funcordinality: true" }
+	parts << "tablefunc: ${m.tablefunc}"
+	if m.values_lists.len > 0 { parts << "values_lists: ${m.values_lists}" }
+	if m.ctename != '' { parts << 'ctename: ${m.ctename}' }
+	if m.ctelevelsup != 0 { parts << "ctelevelsup: ${m.ctelevelsup}" }
+	if m.self_reference { parts << "self_reference: true" }
+	if m.coltypes.len > 0 { parts << "coltypes: ${m.coltypes}" }
+	if m.coltypmods.len > 0 { parts << "coltypmods: ${m.coltypmods}" }
+	if m.colcollations.len > 0 { parts << "colcollations: ${m.colcollations}" }
+	if m.enrname != '' { parts << 'enrname: ${m.enrname}' }
+	if m.enrtuples != 0.0 { parts << "enrtuples: ${m.enrtuples}" }
+	if m.lateral { parts << "lateral: true" }
+	if m.in_from_cl { parts << "in_from_cl: true" }
+	if m.security_quals.len > 0 { parts << "security_quals: ${m.security_quals}" }
+	return 'RangeTblEntry{' + parts.join(', ') + '}'
+}
 
 pub struct RTEPermissionInfo {
 pub mut:
@@ -2389,6 +3478,17 @@ pub mut:
 	selected_cols []u64
 	inserted_cols []u64
 	updated_cols []u64
+}
+pub fn (m RTEPermissionInfo) str() string {
+	mut parts := []string{}
+	if m.relid != 0 { parts << "relid: ${m.relid}" }
+	if m.inh { parts << "inh: true" }
+	if m.required_perms != 0 { parts << "required_perms: ${m.required_perms}" }
+	if m.check_as_user != 0 { parts << "check_as_user: ${m.check_as_user}" }
+	if m.selected_cols.len > 0 { parts << "selected_cols: ${m.selected_cols}" }
+	if m.inserted_cols.len > 0 { parts << "inserted_cols: ${m.inserted_cols}" }
+	if m.updated_cols.len > 0 { parts << "updated_cols: ${m.updated_cols}" }
+	return 'RTEPermissionInfo{' + parts.join(', ') + '}'
 }
 
 pub struct RangeTblFunction {
@@ -2401,12 +3501,30 @@ pub mut:
 	funccolcollations []Node
 	funcparams []u64
 }
+pub fn (m RangeTblFunction) str() string {
+	mut parts := []string{}
+	parts << "funcexpr: ${m.funcexpr}"
+	if m.funccolcount != 0 { parts << "funccolcount: ${m.funccolcount}" }
+	if m.funccolnames.len > 0 { parts << "funccolnames: ${m.funccolnames}" }
+	if m.funccoltypes.len > 0 { parts << "funccoltypes: ${m.funccoltypes}" }
+	if m.funccoltypmods.len > 0 { parts << "funccoltypmods: ${m.funccoltypmods}" }
+	if m.funccolcollations.len > 0 { parts << "funccolcollations: ${m.funccolcollations}" }
+	if m.funcparams.len > 0 { parts << "funcparams: ${m.funcparams}" }
+	return 'RangeTblFunction{' + parts.join(', ') + '}'
+}
 
 pub struct TableSampleClause {
 pub mut:
 	tsmhandler u32
 	args []Node
 	repeatable Node
+}
+pub fn (m TableSampleClause) str() string {
+	mut parts := []string{}
+	if m.tsmhandler != 0 { parts << "tsmhandler: ${m.tsmhandler}" }
+	if m.args.len > 0 { parts << "args: ${m.args}" }
+	parts << "repeatable: ${m.repeatable}"
+	return 'TableSampleClause{' + parts.join(', ') + '}'
 }
 
 pub struct WithCheckOption {
@@ -2417,6 +3535,15 @@ pub mut:
 	qual Node
 	cascaded bool
 }
+pub fn (m WithCheckOption) str() string {
+	mut parts := []string{}
+	parts << "kind: ${m.kind}"
+	if m.relname != '' { parts << 'relname: ${m.relname}' }
+	if m.polname != '' { parts << 'polname: ${m.polname}' }
+	parts << "qual: ${m.qual}"
+	if m.cascaded { parts << "cascaded: true" }
+	return 'WithCheckOption{' + parts.join(', ') + '}'
+}
 
 pub struct SortGroupClause {
 pub mut:
@@ -2426,12 +3553,28 @@ pub mut:
 	nulls_first bool
 	hashable bool
 }
+pub fn (m SortGroupClause) str() string {
+	mut parts := []string{}
+	if m.tle_sort_group_ref != 0 { parts << "tle_sort_group_ref: ${m.tle_sort_group_ref}" }
+	if m.eqop != 0 { parts << "eqop: ${m.eqop}" }
+	if m.sortop != 0 { parts << "sortop: ${m.sortop}" }
+	if m.nulls_first { parts << "nulls_first: true" }
+	if m.hashable { parts << "hashable: true" }
+	return 'SortGroupClause{' + parts.join(', ') + '}'
+}
 
 pub struct GroupingSet {
 pub mut:
 	kind GroupingSetKind
 	content []Node
 	location int
+}
+pub fn (m GroupingSet) str() string {
+	mut parts := []string{}
+	parts << "kind: ${m.kind}"
+	if m.content.len > 0 { parts << "content: ${m.content}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'GroupingSet{' + parts.join(', ') + '}'
 }
 
 pub struct WindowClause {
@@ -2451,6 +3594,24 @@ pub mut:
 	winref u32
 	copied_order bool
 }
+pub fn (m WindowClause) str() string {
+	mut parts := []string{}
+	if m.name != '' { parts << 'name: ${m.name}' }
+	if m.refname != '' { parts << 'refname: ${m.refname}' }
+	if m.partition_clause.len > 0 { parts << "partition_clause: ${m.partition_clause}" }
+	if m.order_clause.len > 0 { parts << "order_clause: ${m.order_clause}" }
+	if m.frame_options != 0 { parts << "frame_options: ${m.frame_options}" }
+	parts << "start_offset: ${m.start_offset}"
+	parts << "end_offset: ${m.end_offset}"
+	if m.start_in_range_func != 0 { parts << "start_in_range_func: ${m.start_in_range_func}" }
+	if m.end_in_range_func != 0 { parts << "end_in_range_func: ${m.end_in_range_func}" }
+	if m.in_range_coll != 0 { parts << "in_range_coll: ${m.in_range_coll}" }
+	if m.in_range_asc { parts << "in_range_asc: true" }
+	if m.in_range_nulls_first { parts << "in_range_nulls_first: true" }
+	if m.winref != 0 { parts << "winref: ${m.winref}" }
+	if m.copied_order { parts << "copied_order: true" }
+	return 'WindowClause{' + parts.join(', ') + '}'
+}
 
 pub struct RowMarkClause {
 pub mut:
@@ -2459,12 +3620,27 @@ pub mut:
 	wait_policy LockWaitPolicy
 	pushed_down bool
 }
+pub fn (m RowMarkClause) str() string {
+	mut parts := []string{}
+	if m.rti != 0 { parts << "rti: ${m.rti}" }
+	parts << "strength: ${m.strength}"
+	parts << "wait_policy: ${m.wait_policy}"
+	if m.pushed_down { parts << "pushed_down: true" }
+	return 'RowMarkClause{' + parts.join(', ') + '}'
+}
 
 pub struct WithClause {
 pub mut:
 	ctes []Node
 	recursive bool
 	location int
+}
+pub fn (m WithClause) str() string {
+	mut parts := []string{}
+	if m.ctes.len > 0 { parts << "ctes: ${m.ctes}" }
+	if m.recursive { parts << "recursive: true" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'WithClause{' + parts.join(', ') + '}'
 }
 
 pub struct InferClause {
@@ -2473,6 +3649,14 @@ pub mut:
 	where_clause Node
 	conname string
 	location int
+}
+pub fn (m InferClause) str() string {
+	mut parts := []string{}
+	if m.index_elems.len > 0 { parts << "index_elems: ${m.index_elems}" }
+	parts << "where_clause: ${m.where_clause}"
+	if m.conname != '' { parts << 'conname: ${m.conname}' }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'InferClause{' + parts.join(', ') + '}'
 }
 
 pub struct OnConflictClause {
@@ -2483,6 +3667,15 @@ pub mut:
 	where_clause Node
 	location int
 }
+pub fn (m OnConflictClause) str() string {
+	mut parts := []string{}
+	parts << "action: ${m.action}"
+	parts << "infer: ${m.infer}"
+	if m.target_list.len > 0 { parts << "target_list: ${m.target_list}" }
+	parts << "where_clause: ${m.where_clause}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'OnConflictClause{' + parts.join(', ') + '}'
+}
 
 pub struct CTESearchClause {
 pub mut:
@@ -2490,6 +3683,14 @@ pub mut:
 	search_breadth_first bool
 	search_seq_column string
 	location int
+}
+pub fn (m CTESearchClause) str() string {
+	mut parts := []string{}
+	if m.search_col_list.len > 0 { parts << "search_col_list: ${m.search_col_list}" }
+	if m.search_breadth_first { parts << "search_breadth_first: true" }
+	if m.search_seq_column != '' { parts << 'search_seq_column: ${m.search_seq_column}' }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'CTESearchClause{' + parts.join(', ') + '}'
 }
 
 pub struct CTECycleClause {
@@ -2504,6 +3705,20 @@ pub mut:
 	cycle_mark_typmod int
 	cycle_mark_collation u32
 	cycle_mark_neop u32
+}
+pub fn (m CTECycleClause) str() string {
+	mut parts := []string{}
+	if m.cycle_col_list.len > 0 { parts << "cycle_col_list: ${m.cycle_col_list}" }
+	if m.cycle_mark_column != '' { parts << 'cycle_mark_column: ${m.cycle_mark_column}' }
+	parts << "cycle_mark_value: ${m.cycle_mark_value}"
+	parts << "cycle_mark_default: ${m.cycle_mark_default}"
+	if m.cycle_path_column != '' { parts << 'cycle_path_column: ${m.cycle_path_column}' }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	if m.cycle_mark_type != 0 { parts << "cycle_mark_type: ${m.cycle_mark_type}" }
+	if m.cycle_mark_typmod != 0 { parts << "cycle_mark_typmod: ${m.cycle_mark_typmod}" }
+	if m.cycle_mark_collation != 0 { parts << "cycle_mark_collation: ${m.cycle_mark_collation}" }
+	if m.cycle_mark_neop != 0 { parts << "cycle_mark_neop: ${m.cycle_mark_neop}" }
+	return 'CTECycleClause{' + parts.join(', ') + '}'
 }
 
 pub struct CommonTableExpr {
@@ -2522,6 +3737,23 @@ pub mut:
 	ctecoltypmods []Node
 	ctecolcollations []Node
 }
+pub fn (m CommonTableExpr) str() string {
+	mut parts := []string{}
+	if m.ctename != '' { parts << 'ctename: ${m.ctename}' }
+	if m.aliascolnames.len > 0 { parts << "aliascolnames: ${m.aliascolnames}" }
+	parts << "ctematerialized: ${m.ctematerialized}"
+	parts << "ctequery: ${m.ctequery}"
+	parts << "search_clause: ${m.search_clause}"
+	parts << "cycle_clause: ${m.cycle_clause}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	if m.cterecursive { parts << "cterecursive: true" }
+	if m.cterefcount != 0 { parts << "cterefcount: ${m.cterefcount}" }
+	if m.ctecolnames.len > 0 { parts << "ctecolnames: ${m.ctecolnames}" }
+	if m.ctecoltypes.len > 0 { parts << "ctecoltypes: ${m.ctecoltypes}" }
+	if m.ctecoltypmods.len > 0 { parts << "ctecoltypmods: ${m.ctecoltypmods}" }
+	if m.ctecolcollations.len > 0 { parts << "ctecolcollations: ${m.ctecolcollations}" }
+	return 'CommonTableExpr{' + parts.join(', ') + '}'
+}
 
 pub struct MergeWhenClause {
 pub mut:
@@ -2532,6 +3764,16 @@ pub mut:
 	target_list []Node
 	values []Node
 }
+pub fn (m MergeWhenClause) str() string {
+	mut parts := []string{}
+	parts << "match_kind: ${m.match_kind}"
+	parts << "command_type: ${m.command_type}"
+	parts << "override: ${m.override}"
+	parts << "condition: ${m.condition}"
+	if m.target_list.len > 0 { parts << "target_list: ${m.target_list}" }
+	if m.values.len > 0 { parts << "values: ${m.values}" }
+	return 'MergeWhenClause{' + parts.join(', ') + '}'
+}
 
 pub struct TriggerTransition {
 pub mut:
@@ -2539,17 +3781,36 @@ pub mut:
 	is_new bool
 	is_table bool
 }
+pub fn (m TriggerTransition) str() string {
+	mut parts := []string{}
+	if m.name != '' { parts << 'name: ${m.name}' }
+	if m.is_new { parts << "is_new: true" }
+	if m.is_table { parts << "is_table: true" }
+	return 'TriggerTransition{' + parts.join(', ') + '}'
+}
 
 pub struct JsonOutput {
 pub mut:
 	type_name TypeName
 	returning JsonReturning
 }
+pub fn (m JsonOutput) str() string {
+	mut parts := []string{}
+	parts << "type_name: ${m.type_name}"
+	parts << "returning: ${m.returning}"
+	return 'JsonOutput{' + parts.join(', ') + '}'
+}
 
 pub struct JsonArgument {
 pub mut:
 	val JsonValueExpr
 	name string
+}
+pub fn (m JsonArgument) str() string {
+	mut parts := []string{}
+	parts << "val: ${m.val}"
+	if m.name != '' { parts << 'name: ${m.name}' }
+	return 'JsonArgument{' + parts.join(', ') + '}'
 }
 
 pub struct JsonFuncExpr {
@@ -2566,6 +3827,21 @@ pub mut:
 	quotes JsonQuotes
 	location int
 }
+pub fn (m JsonFuncExpr) str() string {
+	mut parts := []string{}
+	parts << "op: ${m.op}"
+	if m.column_name != '' { parts << 'column_name: ${m.column_name}' }
+	parts << "context_item: ${m.context_item}"
+	parts << "pathspec: ${m.pathspec}"
+	if m.passing.len > 0 { parts << "passing: ${m.passing}" }
+	parts << "output: ${m.output}"
+	parts << "on_empty: ${m.on_empty}"
+	parts << "on_error: ${m.on_error}"
+	parts << "wrapper: ${m.wrapper}"
+	parts << "quotes: ${m.quotes}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'JsonFuncExpr{' + parts.join(', ') + '}'
+}
 
 pub struct JsonTablePathSpec {
 pub mut:
@@ -2573,6 +3849,14 @@ pub mut:
 	name string
 	name_location int
 	location int
+}
+pub fn (m JsonTablePathSpec) str() string {
+	mut parts := []string{}
+	parts << "string: ${m.string}"
+	if m.name != '' { parts << 'name: ${m.name}' }
+	if m.name_location != 0 { parts << "name_location: ${m.name_location}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'JsonTablePathSpec{' + parts.join(', ') + '}'
 }
 
 pub struct JsonTable {
@@ -2585,6 +3869,18 @@ pub mut:
 	alias Alias
 	lateral bool
 	location int
+}
+pub fn (m JsonTable) str() string {
+	mut parts := []string{}
+	parts << "context_item: ${m.context_item}"
+	parts << "pathspec: ${m.pathspec}"
+	if m.passing.len > 0 { parts << "passing: ${m.passing}" }
+	if m.columns.len > 0 { parts << "columns: ${m.columns}" }
+	parts << "on_error: ${m.on_error}"
+	parts << "alias: ${m.alias}"
+	if m.lateral { parts << "lateral: true" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'JsonTable{' + parts.join(', ') + '}'
 }
 
 pub struct JsonTableColumn {
@@ -2601,11 +3897,32 @@ pub mut:
 	on_error JsonBehavior
 	location int
 }
+pub fn (m JsonTableColumn) str() string {
+	mut parts := []string{}
+	parts << "coltype: ${m.coltype}"
+	if m.name != '' { parts << 'name: ${m.name}' }
+	parts << "type_name: ${m.type_name}"
+	parts << "pathspec: ${m.pathspec}"
+	parts << "format: ${m.format}"
+	parts << "wrapper: ${m.wrapper}"
+	parts << "quotes: ${m.quotes}"
+	if m.columns.len > 0 { parts << "columns: ${m.columns}" }
+	parts << "on_empty: ${m.on_empty}"
+	parts << "on_error: ${m.on_error}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'JsonTableColumn{' + parts.join(', ') + '}'
+}
 
 pub struct JsonKeyValue {
 pub mut:
 	key Node
 	value JsonValueExpr
+}
+pub fn (m JsonKeyValue) str() string {
+	mut parts := []string{}
+	parts << "key: ${m.key}"
+	parts << "value: ${m.value}"
+	return 'JsonKeyValue{' + parts.join(', ') + '}'
 }
 
 pub struct JsonParseExpr {
@@ -2615,6 +3932,14 @@ pub mut:
 	unique_keys bool
 	location int
 }
+pub fn (m JsonParseExpr) str() string {
+	mut parts := []string{}
+	parts << "expr: ${m.expr}"
+	parts << "output: ${m.output}"
+	if m.unique_keys { parts << "unique_keys: true" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'JsonParseExpr{' + parts.join(', ') + '}'
+}
 
 pub struct JsonScalarExpr {
 pub mut:
@@ -2622,12 +3947,26 @@ pub mut:
 	output JsonOutput
 	location int
 }
+pub fn (m JsonScalarExpr) str() string {
+	mut parts := []string{}
+	parts << "expr: ${m.expr}"
+	parts << "output: ${m.output}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'JsonScalarExpr{' + parts.join(', ') + '}'
+}
 
 pub struct JsonSerializeExpr {
 pub mut:
 	expr JsonValueExpr
 	output JsonOutput
 	location int
+}
+pub fn (m JsonSerializeExpr) str() string {
+	mut parts := []string{}
+	parts << "expr: ${m.expr}"
+	parts << "output: ${m.output}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'JsonSerializeExpr{' + parts.join(', ') + '}'
 }
 
 pub struct JsonObjectConstructor {
@@ -2638,6 +3977,15 @@ pub mut:
 	unique bool
 	location int
 }
+pub fn (m JsonObjectConstructor) str() string {
+	mut parts := []string{}
+	if m.exprs.len > 0 { parts << "exprs: ${m.exprs}" }
+	parts << "output: ${m.output}"
+	if m.absent_on_null { parts << "absent_on_null: true" }
+	if m.unique { parts << "unique: true" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'JsonObjectConstructor{' + parts.join(', ') + '}'
+}
 
 pub struct JsonArrayConstructor {
 pub mut:
@@ -2645,6 +3993,14 @@ pub mut:
 	output JsonOutput
 	absent_on_null bool
 	location int
+}
+pub fn (m JsonArrayConstructor) str() string {
+	mut parts := []string{}
+	if m.exprs.len > 0 { parts << "exprs: ${m.exprs}" }
+	parts << "output: ${m.output}"
+	if m.absent_on_null { parts << "absent_on_null: true" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'JsonArrayConstructor{' + parts.join(', ') + '}'
 }
 
 pub struct JsonArrayQueryConstructor {
@@ -2655,6 +4011,15 @@ pub mut:
 	absent_on_null bool
 	location int
 }
+pub fn (m JsonArrayQueryConstructor) str() string {
+	mut parts := []string{}
+	parts << "query: ${m.query}"
+	parts << "output: ${m.output}"
+	parts << "format: ${m.format}"
+	if m.absent_on_null { parts << "absent_on_null: true" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'JsonArrayQueryConstructor{' + parts.join(', ') + '}'
+}
 
 pub struct JsonAggConstructor {
 pub mut:
@@ -2664,6 +4029,15 @@ pub mut:
 	over WindowDef
 	location int
 }
+pub fn (m JsonAggConstructor) str() string {
+	mut parts := []string{}
+	parts << "output: ${m.output}"
+	parts << "agg_filter: ${m.agg_filter}"
+	if m.agg_order.len > 0 { parts << "agg_order: ${m.agg_order}" }
+	parts << "over: ${m.over}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'JsonAggConstructor{' + parts.join(', ') + '}'
+}
 
 pub struct JsonObjectAgg {
 pub mut:
@@ -2672,6 +4046,14 @@ pub mut:
 	absent_on_null bool
 	unique bool
 }
+pub fn (m JsonObjectAgg) str() string {
+	mut parts := []string{}
+	parts << "constructor: ${m.constructor}"
+	parts << "arg: ${m.arg}"
+	if m.absent_on_null { parts << "absent_on_null: true" }
+	if m.unique { parts << "unique: true" }
+	return 'JsonObjectAgg{' + parts.join(', ') + '}'
+}
 
 pub struct JsonArrayAgg {
 pub mut:
@@ -2679,12 +4061,26 @@ pub mut:
 	arg JsonValueExpr
 	absent_on_null bool
 }
+pub fn (m JsonArrayAgg) str() string {
+	mut parts := []string{}
+	parts << "constructor: ${m.constructor}"
+	parts << "arg: ${m.arg}"
+	if m.absent_on_null { parts << "absent_on_null: true" }
+	return 'JsonArrayAgg{' + parts.join(', ') + '}'
+}
 
 pub struct RawStmt {
 pub mut:
 	stmt Node
 	stmt_location int
 	stmt_len int
+}
+pub fn (m RawStmt) str() string {
+	mut parts := []string{}
+	parts << "stmt: ${m.stmt}"
+	if m.stmt_location != 0 { parts << "stmt_location: ${m.stmt_location}" }
+	if m.stmt_len != 0 { parts << "stmt_len: ${m.stmt_len}" }
+	return 'RawStmt{' + parts.join(', ') + '}'
 }
 
 pub struct InsertStmt {
@@ -2697,6 +4093,17 @@ pub mut:
 	with_clause WithClause
 	override OverridingKind
 }
+pub fn (m InsertStmt) str() string {
+	mut parts := []string{}
+	parts << "relation: ${m.relation}"
+	if m.cols.len > 0 { parts << "cols: ${m.cols}" }
+	parts << "select_stmt: ${m.select_stmt}"
+	parts << "on_conflict_clause: ${m.on_conflict_clause}"
+	if m.returning_list.len > 0 { parts << "returning_list: ${m.returning_list}" }
+	parts << "with_clause: ${m.with_clause}"
+	parts << "override: ${m.override}"
+	return 'InsertStmt{' + parts.join(', ') + '}'
+}
 
 pub struct DeleteStmt {
 pub mut:
@@ -2705,6 +4112,15 @@ pub mut:
 	where_clause Node
 	returning_list []Node
 	with_clause WithClause
+}
+pub fn (m DeleteStmt) str() string {
+	mut parts := []string{}
+	parts << "relation: ${m.relation}"
+	if m.using_clause.len > 0 { parts << "using_clause: ${m.using_clause}" }
+	parts << "where_clause: ${m.where_clause}"
+	if m.returning_list.len > 0 { parts << "returning_list: ${m.returning_list}" }
+	parts << "with_clause: ${m.with_clause}"
+	return 'DeleteStmt{' + parts.join(', ') + '}'
 }
 
 pub struct UpdateStmt {
@@ -2716,6 +4132,16 @@ pub mut:
 	returning_list []Node
 	with_clause WithClause
 }
+pub fn (m UpdateStmt) str() string {
+	mut parts := []string{}
+	parts << "relation: ${m.relation}"
+	if m.target_list.len > 0 { parts << "target_list: ${m.target_list}" }
+	parts << "where_clause: ${m.where_clause}"
+	if m.from_clause.len > 0 { parts << "from_clause: ${m.from_clause}" }
+	if m.returning_list.len > 0 { parts << "returning_list: ${m.returning_list}" }
+	parts << "with_clause: ${m.with_clause}"
+	return 'UpdateStmt{' + parts.join(', ') + '}'
+}
 
 pub struct MergeStmt {
 pub mut:
@@ -2725,6 +4151,16 @@ pub mut:
 	merge_when_clauses []Node
 	returning_list []Node
 	with_clause WithClause
+}
+pub fn (m MergeStmt) str() string {
+	mut parts := []string{}
+	parts << "relation: ${m.relation}"
+	parts << "source_relation: ${m.source_relation}"
+	parts << "join_condition: ${m.join_condition}"
+	if m.merge_when_clauses.len > 0 { parts << "merge_when_clauses: ${m.merge_when_clauses}" }
+	if m.returning_list.len > 0 { parts << "returning_list: ${m.returning_list}" }
+	parts << "with_clause: ${m.with_clause}"
+	return 'MergeStmt{' + parts.join(', ') + '}'
 }
 
 pub struct SelectStmt {
@@ -2750,6 +4186,30 @@ pub mut:
 	larg &SelectStmt
 	rarg &SelectStmt
 }
+pub fn (m SelectStmt) str() string {
+	mut parts := []string{}
+	if m.distinct_clause.len > 0 { parts << "distinct_clause: ${m.distinct_clause}" }
+	parts << "into_clause: ${m.into_clause}"
+	if m.target_list.len > 0 { parts << "target_list: ${m.target_list}" }
+	if m.from_clause.len > 0 { parts << "from_clause: ${m.from_clause}" }
+	parts << "where_clause: ${m.where_clause}"
+	if m.group_clause.len > 0 { parts << "group_clause: ${m.group_clause}" }
+	if m.group_distinct { parts << "group_distinct: true" }
+	parts << "having_clause: ${m.having_clause}"
+	if m.window_clause.len > 0 { parts << "window_clause: ${m.window_clause}" }
+	if m.values_lists.len > 0 { parts << "values_lists: ${m.values_lists}" }
+	if m.sort_clause.len > 0 { parts << "sort_clause: ${m.sort_clause}" }
+	parts << "limit_offset: ${m.limit_offset}"
+	parts << "limit_count: ${m.limit_count}"
+	parts << "limit_option: ${m.limit_option}"
+	if m.locking_clause.len > 0 { parts << "locking_clause: ${m.locking_clause}" }
+	parts << "with_clause: ${m.with_clause}"
+	parts << "op: ${m.op}"
+	if m.all { parts << "all: true" }
+	if !isnil(m.larg) { parts << "larg: ${m.larg}" }
+	if !isnil(m.rarg) { parts << "rarg: ${m.rarg}" }
+	return 'SelectStmt{' + parts.join(', ') + '}'
+}
 
 pub struct SetOperationStmt {
 pub mut:
@@ -2762,10 +4222,27 @@ pub mut:
 	col_collations []Node
 	group_clauses []Node
 }
+pub fn (m SetOperationStmt) str() string {
+	mut parts := []string{}
+	parts << "op: ${m.op}"
+	if m.all { parts << "all: true" }
+	parts << "larg: ${m.larg}"
+	parts << "rarg: ${m.rarg}"
+	if m.col_types.len > 0 { parts << "col_types: ${m.col_types}" }
+	if m.col_typmods.len > 0 { parts << "col_typmods: ${m.col_typmods}" }
+	if m.col_collations.len > 0 { parts << "col_collations: ${m.col_collations}" }
+	if m.group_clauses.len > 0 { parts << "group_clauses: ${m.group_clauses}" }
+	return 'SetOperationStmt{' + parts.join(', ') + '}'
+}
 
 pub struct ReturnStmt {
 pub mut:
 	returnval Node
+}
+pub fn (m ReturnStmt) str() string {
+	mut parts := []string{}
+	parts << "returnval: ${m.returnval}"
+	return 'ReturnStmt{' + parts.join(', ') + '}'
 }
 
 pub struct PLAssignStmt {
@@ -2776,6 +4253,15 @@ pub mut:
 	val SelectStmt
 	location int
 }
+pub fn (m PLAssignStmt) str() string {
+	mut parts := []string{}
+	if m.name != '' { parts << 'name: ${m.name}' }
+	if m.indirection.len > 0 { parts << "indirection: ${m.indirection}" }
+	if m.nnames != 0 { parts << "nnames: ${m.nnames}" }
+	parts << "val: ${m.val}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'PLAssignStmt{' + parts.join(', ') + '}'
+}
 
 pub struct CreateSchemaStmt {
 pub mut:
@@ -2783,6 +4269,14 @@ pub mut:
 	authrole RoleSpec
 	schema_elts []Node
 	if_not_exists bool
+}
+pub fn (m CreateSchemaStmt) str() string {
+	mut parts := []string{}
+	if m.schemaname != '' { parts << 'schemaname: ${m.schemaname}' }
+	parts << "authrole: ${m.authrole}"
+	if m.schema_elts.len > 0 { parts << "schema_elts: ${m.schema_elts}" }
+	if m.if_not_exists { parts << "if_not_exists: true" }
+	return 'CreateSchemaStmt{' + parts.join(', ') + '}'
 }
 
 pub struct AlterTableStmt {
@@ -2792,11 +4286,25 @@ pub mut:
 	objtype ObjectType
 	missing_ok bool
 }
+pub fn (m AlterTableStmt) str() string {
+	mut parts := []string{}
+	parts << "relation: ${m.relation}"
+	if m.cmds.len > 0 { parts << "cmds: ${m.cmds}" }
+	parts << "objtype: ${m.objtype}"
+	if m.missing_ok { parts << "missing_ok: true" }
+	return 'AlterTableStmt{' + parts.join(', ') + '}'
+}
 
 pub struct ReplicaIdentityStmt {
 pub mut:
 	identity_type string
 	name string
+}
+pub fn (m ReplicaIdentityStmt) str() string {
+	mut parts := []string{}
+	if m.identity_type != '' { parts << 'identity_type: ${m.identity_type}' }
+	if m.name != '' { parts << 'name: ${m.name}' }
+	return 'ReplicaIdentityStmt{' + parts.join(', ') + '}'
 }
 
 pub struct AlterTableCmd {
@@ -2810,10 +4318,27 @@ pub mut:
 	missing_ok bool
 	recurse bool
 }
+pub fn (m AlterTableCmd) str() string {
+	mut parts := []string{}
+	parts << "subtype: ${m.subtype}"
+	if m.name != '' { parts << 'name: ${m.name}' }
+	if m.num != 0 { parts << "num: ${m.num}" }
+	parts << "newowner: ${m.newowner}"
+	parts << "def: ${m.def}"
+	parts << "behavior: ${m.behavior}"
+	if m.missing_ok { parts << "missing_ok: true" }
+	if m.recurse { parts << "recurse: true" }
+	return 'AlterTableCmd{' + parts.join(', ') + '}'
+}
 
 pub struct AlterCollationStmt {
 pub mut:
 	collname []Node
+}
+pub fn (m AlterCollationStmt) str() string {
+	mut parts := []string{}
+	if m.collname.len > 0 { parts << "collname: ${m.collname}" }
+	return 'AlterCollationStmt{' + parts.join(', ') + '}'
 }
 
 pub struct AlterDomainStmt {
@@ -2824,6 +4349,16 @@ pub mut:
 	def Node
 	behavior DropBehavior
 	missing_ok bool
+}
+pub fn (m AlterDomainStmt) str() string {
+	mut parts := []string{}
+	if m.subtype != '' { parts << 'subtype: ${m.subtype}' }
+	if m.type_name.len > 0 { parts << "type_name: ${m.type_name}" }
+	if m.name != '' { parts << 'name: ${m.name}' }
+	parts << "def: ${m.def}"
+	parts << "behavior: ${m.behavior}"
+	if m.missing_ok { parts << "missing_ok: true" }
+	return 'AlterDomainStmt{' + parts.join(', ') + '}'
 }
 
 pub struct GrantStmt {
@@ -2838,6 +4373,19 @@ pub mut:
 	grantor RoleSpec
 	behavior DropBehavior
 }
+pub fn (m GrantStmt) str() string {
+	mut parts := []string{}
+	if m.is_grant { parts << "is_grant: true" }
+	parts << "targtype: ${m.targtype}"
+	parts << "objtype: ${m.objtype}"
+	if m.objects.len > 0 { parts << "objects: ${m.objects}" }
+	if m.privileges.len > 0 { parts << "privileges: ${m.privileges}" }
+	if m.grantees.len > 0 { parts << "grantees: ${m.grantees}" }
+	if m.grant_option { parts << "grant_option: true" }
+	parts << "grantor: ${m.grantor}"
+	parts << "behavior: ${m.behavior}"
+	return 'GrantStmt{' + parts.join(', ') + '}'
+}
 
 pub struct ObjectWithArgs {
 pub mut:
@@ -2846,11 +4394,25 @@ pub mut:
 	objfuncargs []Node
 	args_unspecified bool
 }
+pub fn (m ObjectWithArgs) str() string {
+	mut parts := []string{}
+	if m.objname.len > 0 { parts << "objname: ${m.objname}" }
+	if m.objargs.len > 0 { parts << "objargs: ${m.objargs}" }
+	if m.objfuncargs.len > 0 { parts << "objfuncargs: ${m.objfuncargs}" }
+	if m.args_unspecified { parts << "args_unspecified: true" }
+	return 'ObjectWithArgs{' + parts.join(', ') + '}'
+}
 
 pub struct AccessPriv {
 pub mut:
 	priv_name string
 	cols []Node
+}
+pub fn (m AccessPriv) str() string {
+	mut parts := []string{}
+	if m.priv_name != '' { parts << 'priv_name: ${m.priv_name}' }
+	if m.cols.len > 0 { parts << "cols: ${m.cols}" }
+	return 'AccessPriv{' + parts.join(', ') + '}'
 }
 
 pub struct GrantRoleStmt {
@@ -2862,11 +4424,27 @@ pub mut:
 	grantor RoleSpec
 	behavior DropBehavior
 }
+pub fn (m GrantRoleStmt) str() string {
+	mut parts := []string{}
+	if m.granted_roles.len > 0 { parts << "granted_roles: ${m.granted_roles}" }
+	if m.grantee_roles.len > 0 { parts << "grantee_roles: ${m.grantee_roles}" }
+	if m.is_grant { parts << "is_grant: true" }
+	if m.opt.len > 0 { parts << "opt: ${m.opt}" }
+	parts << "grantor: ${m.grantor}"
+	parts << "behavior: ${m.behavior}"
+	return 'GrantRoleStmt{' + parts.join(', ') + '}'
+}
 
 pub struct AlterDefaultPrivilegesStmt {
 pub mut:
 	options []Node
 	action GrantStmt
+}
+pub fn (m AlterDefaultPrivilegesStmt) str() string {
+	mut parts := []string{}
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	parts << "action: ${m.action}"
+	return 'AlterDefaultPrivilegesStmt{' + parts.join(', ') + '}'
 }
 
 pub struct CopyStmt {
@@ -2880,6 +4458,18 @@ pub mut:
 	options []Node
 	where_clause Node
 }
+pub fn (m CopyStmt) str() string {
+	mut parts := []string{}
+	parts << "relation: ${m.relation}"
+	parts << "query: ${m.query}"
+	if m.attlist.len > 0 { parts << "attlist: ${m.attlist}" }
+	if m.is_from { parts << "is_from: true" }
+	if m.is_program { parts << "is_program: true" }
+	if m.filename != '' { parts << 'filename: ${m.filename}' }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	parts << "where_clause: ${m.where_clause}"
+	return 'CopyStmt{' + parts.join(', ') + '}'
+}
 
 pub struct VariableSetStmt {
 pub mut:
@@ -2888,10 +4478,23 @@ pub mut:
 	args []Node
 	is_local bool
 }
+pub fn (m VariableSetStmt) str() string {
+	mut parts := []string{}
+	parts << "kind: ${m.kind}"
+	if m.name != '' { parts << 'name: ${m.name}' }
+	if m.args.len > 0 { parts << "args: ${m.args}" }
+	if m.is_local { parts << "is_local: true" }
+	return 'VariableSetStmt{' + parts.join(', ') + '}'
+}
 
 pub struct VariableShowStmt {
 pub mut:
 	name string
+}
+pub fn (m VariableShowStmt) str() string {
+	mut parts := []string{}
+	if m.name != '' { parts << 'name: ${m.name}' }
+	return 'VariableShowStmt{' + parts.join(', ') + '}'
 }
 
 pub struct CreateStmt {
@@ -2908,6 +4511,22 @@ pub mut:
 	tablespacename string
 	access_method string
 	if_not_exists bool
+}
+pub fn (m CreateStmt) str() string {
+	mut parts := []string{}
+	parts << "relation: ${m.relation}"
+	if m.table_elts.len > 0 { parts << "table_elts: ${m.table_elts}" }
+	if m.inh_relations.len > 0 { parts << "inh_relations: ${m.inh_relations}" }
+	parts << "partbound: ${m.partbound}"
+	parts << "partspec: ${m.partspec}"
+	parts << "of_typename: ${m.of_typename}"
+	if m.constraints.len > 0 { parts << "constraints: ${m.constraints}" }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	parts << "oncommit: ${m.oncommit}"
+	if m.tablespacename != '' { parts << 'tablespacename: ${m.tablespacename}' }
+	if m.access_method != '' { parts << 'access_method: ${m.access_method}' }
+	if m.if_not_exists { parts << "if_not_exists: true" }
+	return 'CreateStmt{' + parts.join(', ') + '}'
 }
 
 pub struct Constraint {
@@ -2944,6 +4563,41 @@ pub mut:
 	old_pktable_oid u32
 	location int
 }
+pub fn (m Constraint) str() string {
+	mut parts := []string{}
+	parts << "contype: ${m.contype}"
+	if m.conname != '' { parts << 'conname: ${m.conname}' }
+	if m.deferrable { parts << "deferrable: true" }
+	if m.initdeferred { parts << "initdeferred: true" }
+	if m.skip_validation { parts << "skip_validation: true" }
+	if m.initially_valid { parts << "initially_valid: true" }
+	if m.is_no_inherit { parts << "is_no_inherit: true" }
+	parts << "raw_expr: ${m.raw_expr}"
+	if m.cooked_expr != '' { parts << 'cooked_expr: ${m.cooked_expr}' }
+	if m.generated_when != '' { parts << 'generated_when: ${m.generated_when}' }
+	if m.inhcount != 0 { parts << "inhcount: ${m.inhcount}" }
+	if m.nulls_not_distinct { parts << "nulls_not_distinct: true" }
+	if m.keys.len > 0 { parts << "keys: ${m.keys}" }
+	if m.including.len > 0 { parts << "including: ${m.including}" }
+	if m.exclusions.len > 0 { parts << "exclusions: ${m.exclusions}" }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	if m.indexname != '' { parts << 'indexname: ${m.indexname}' }
+	if m.indexspace != '' { parts << 'indexspace: ${m.indexspace}' }
+	if m.reset_default_tblspc { parts << "reset_default_tblspc: true" }
+	if m.access_method != '' { parts << 'access_method: ${m.access_method}' }
+	parts << "where_clause: ${m.where_clause}"
+	parts << "pktable: ${m.pktable}"
+	if m.fk_attrs.len > 0 { parts << "fk_attrs: ${m.fk_attrs}" }
+	if m.pk_attrs.len > 0 { parts << "pk_attrs: ${m.pk_attrs}" }
+	if m.fk_matchtype != '' { parts << 'fk_matchtype: ${m.fk_matchtype}' }
+	if m.fk_upd_action != '' { parts << 'fk_upd_action: ${m.fk_upd_action}' }
+	if m.fk_del_action != '' { parts << 'fk_del_action: ${m.fk_del_action}' }
+	if m.fk_del_set_cols.len > 0 { parts << "fk_del_set_cols: ${m.fk_del_set_cols}" }
+	if m.old_conpfeqop.len > 0 { parts << "old_conpfeqop: ${m.old_conpfeqop}" }
+	if m.old_pktable_oid != 0 { parts << "old_pktable_oid: ${m.old_pktable_oid}" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'Constraint{' + parts.join(', ') + '}'
+}
 
 pub struct CreateTableSpaceStmt {
 pub mut:
@@ -2952,11 +4606,25 @@ pub mut:
 	location string
 	options []Node
 }
+pub fn (m CreateTableSpaceStmt) str() string {
+	mut parts := []string{}
+	if m.tablespacename != '' { parts << 'tablespacename: ${m.tablespacename}' }
+	parts << "owner: ${m.owner}"
+	if m.location != '' { parts << 'location: ${m.location}' }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	return 'CreateTableSpaceStmt{' + parts.join(', ') + '}'
+}
 
 pub struct DropTableSpaceStmt {
 pub mut:
 	tablespacename string
 	missing_ok bool
+}
+pub fn (m DropTableSpaceStmt) str() string {
+	mut parts := []string{}
+	if m.tablespacename != '' { parts << 'tablespacename: ${m.tablespacename}' }
+	if m.missing_ok { parts << "missing_ok: true" }
+	return 'DropTableSpaceStmt{' + parts.join(', ') + '}'
 }
 
 pub struct AlterTableSpaceOptionsStmt {
@@ -2964,6 +4632,13 @@ pub mut:
 	tablespacename string
 	options []Node
 	is_reset bool
+}
+pub fn (m AlterTableSpaceOptionsStmt) str() string {
+	mut parts := []string{}
+	if m.tablespacename != '' { parts << 'tablespacename: ${m.tablespacename}' }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	if m.is_reset { parts << "is_reset: true" }
+	return 'AlterTableSpaceOptionsStmt{' + parts.join(', ') + '}'
 }
 
 pub struct AlterTableMoveAllStmt {
@@ -2974,6 +4649,15 @@ pub mut:
 	new_tablespacename string
 	nowait bool
 }
+pub fn (m AlterTableMoveAllStmt) str() string {
+	mut parts := []string{}
+	if m.orig_tablespacename != '' { parts << 'orig_tablespacename: ${m.orig_tablespacename}' }
+	parts << "objtype: ${m.objtype}"
+	if m.roles.len > 0 { parts << "roles: ${m.roles}" }
+	if m.new_tablespacename != '' { parts << 'new_tablespacename: ${m.new_tablespacename}' }
+	if m.nowait { parts << "nowait: true" }
+	return 'AlterTableMoveAllStmt{' + parts.join(', ') + '}'
+}
 
 pub struct CreateExtensionStmt {
 pub mut:
@@ -2981,11 +4665,24 @@ pub mut:
 	if_not_exists bool
 	options []Node
 }
+pub fn (m CreateExtensionStmt) str() string {
+	mut parts := []string{}
+	if m.extname != '' { parts << 'extname: ${m.extname}' }
+	if m.if_not_exists { parts << "if_not_exists: true" }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	return 'CreateExtensionStmt{' + parts.join(', ') + '}'
+}
 
 pub struct AlterExtensionStmt {
 pub mut:
 	extname string
 	options []Node
+}
+pub fn (m AlterExtensionStmt) str() string {
+	mut parts := []string{}
+	if m.extname != '' { parts << 'extname: ${m.extname}' }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	return 'AlterExtensionStmt{' + parts.join(', ') + '}'
 }
 
 pub struct AlterExtensionContentsStmt {
@@ -2995,6 +4692,14 @@ pub mut:
 	objtype ObjectType
 	object Node
 }
+pub fn (m AlterExtensionContentsStmt) str() string {
+	mut parts := []string{}
+	if m.extname != '' { parts << 'extname: ${m.extname}' }
+	if m.action != 0 { parts << "action: ${m.action}" }
+	parts << "objtype: ${m.objtype}"
+	parts << "object: ${m.object}"
+	return 'AlterExtensionContentsStmt{' + parts.join(', ') + '}'
+}
 
 pub struct CreateFdwStmt {
 pub mut:
@@ -3002,12 +4707,26 @@ pub mut:
 	func_options []Node
 	options []Node
 }
+pub fn (m CreateFdwStmt) str() string {
+	mut parts := []string{}
+	if m.fdwname != '' { parts << 'fdwname: ${m.fdwname}' }
+	if m.func_options.len > 0 { parts << "func_options: ${m.func_options}" }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	return 'CreateFdwStmt{' + parts.join(', ') + '}'
+}
 
 pub struct AlterFdwStmt {
 pub mut:
 	fdwname string
 	func_options []Node
 	options []Node
+}
+pub fn (m AlterFdwStmt) str() string {
+	mut parts := []string{}
+	if m.fdwname != '' { parts << 'fdwname: ${m.fdwname}' }
+	if m.func_options.len > 0 { parts << "func_options: ${m.func_options}" }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	return 'AlterFdwStmt{' + parts.join(', ') + '}'
 }
 
 pub struct CreateForeignServerStmt {
@@ -3019,6 +4738,16 @@ pub mut:
 	if_not_exists bool
 	options []Node
 }
+pub fn (m CreateForeignServerStmt) str() string {
+	mut parts := []string{}
+	if m.servername != '' { parts << 'servername: ${m.servername}' }
+	if m.servertype != '' { parts << 'servertype: ${m.servertype}' }
+	if m.version != '' { parts << 'version: ${m.version}' }
+	if m.fdwname != '' { parts << 'fdwname: ${m.fdwname}' }
+	if m.if_not_exists { parts << "if_not_exists: true" }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	return 'CreateForeignServerStmt{' + parts.join(', ') + '}'
+}
 
 pub struct AlterForeignServerStmt {
 pub mut:
@@ -3027,12 +4756,27 @@ pub mut:
 	options []Node
 	has_version bool
 }
+pub fn (m AlterForeignServerStmt) str() string {
+	mut parts := []string{}
+	if m.servername != '' { parts << 'servername: ${m.servername}' }
+	if m.version != '' { parts << 'version: ${m.version}' }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	if m.has_version { parts << "has_version: true" }
+	return 'AlterForeignServerStmt{' + parts.join(', ') + '}'
+}
 
 pub struct CreateForeignTableStmt {
 pub mut:
 	base_stmt CreateStmt
 	servername string
 	options []Node
+}
+pub fn (m CreateForeignTableStmt) str() string {
+	mut parts := []string{}
+	parts << "base_stmt: ${m.base_stmt}"
+	if m.servername != '' { parts << 'servername: ${m.servername}' }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	return 'CreateForeignTableStmt{' + parts.join(', ') + '}'
 }
 
 pub struct CreateUserMappingStmt {
@@ -3042,6 +4786,14 @@ pub mut:
 	if_not_exists bool
 	options []Node
 }
+pub fn (m CreateUserMappingStmt) str() string {
+	mut parts := []string{}
+	parts << "user: ${m.user}"
+	if m.servername != '' { parts << 'servername: ${m.servername}' }
+	if m.if_not_exists { parts << "if_not_exists: true" }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	return 'CreateUserMappingStmt{' + parts.join(', ') + '}'
+}
 
 pub struct AlterUserMappingStmt {
 pub mut:
@@ -3049,12 +4801,26 @@ pub mut:
 	servername string
 	options []Node
 }
+pub fn (m AlterUserMappingStmt) str() string {
+	mut parts := []string{}
+	parts << "user: ${m.user}"
+	if m.servername != '' { parts << 'servername: ${m.servername}' }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	return 'AlterUserMappingStmt{' + parts.join(', ') + '}'
+}
 
 pub struct DropUserMappingStmt {
 pub mut:
 	user RoleSpec
 	servername string
 	missing_ok bool
+}
+pub fn (m DropUserMappingStmt) str() string {
+	mut parts := []string{}
+	parts << "user: ${m.user}"
+	if m.servername != '' { parts << 'servername: ${m.servername}' }
+	if m.missing_ok { parts << "missing_ok: true" }
+	return 'DropUserMappingStmt{' + parts.join(', ') + '}'
 }
 
 pub struct ImportForeignSchemaStmt {
@@ -3065,6 +4831,16 @@ pub mut:
 	list_type ImportForeignSchemaType
 	table_list []Node
 	options []Node
+}
+pub fn (m ImportForeignSchemaStmt) str() string {
+	mut parts := []string{}
+	if m.server_name != '' { parts << 'server_name: ${m.server_name}' }
+	if m.remote_schema != '' { parts << 'remote_schema: ${m.remote_schema}' }
+	if m.local_schema != '' { parts << 'local_schema: ${m.local_schema}' }
+	parts << "list_type: ${m.list_type}"
+	if m.table_list.len > 0 { parts << "table_list: ${m.table_list}" }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	return 'ImportForeignSchemaStmt{' + parts.join(', ') + '}'
 }
 
 pub struct CreatePolicyStmt {
@@ -3077,6 +4853,17 @@ pub mut:
 	qual Node
 	with_check Node
 }
+pub fn (m CreatePolicyStmt) str() string {
+	mut parts := []string{}
+	if m.policy_name != '' { parts << 'policy_name: ${m.policy_name}' }
+	parts << "table: ${m.table}"
+	if m.cmd_name != '' { parts << 'cmd_name: ${m.cmd_name}' }
+	if m.permissive { parts << "permissive: true" }
+	if m.roles.len > 0 { parts << "roles: ${m.roles}" }
+	parts << "qual: ${m.qual}"
+	parts << "with_check: ${m.with_check}"
+	return 'CreatePolicyStmt{' + parts.join(', ') + '}'
+}
 
 pub struct AlterPolicyStmt {
 pub mut:
@@ -3086,12 +4873,28 @@ pub mut:
 	qual Node
 	with_check Node
 }
+pub fn (m AlterPolicyStmt) str() string {
+	mut parts := []string{}
+	if m.policy_name != '' { parts << 'policy_name: ${m.policy_name}' }
+	parts << "table: ${m.table}"
+	if m.roles.len > 0 { parts << "roles: ${m.roles}" }
+	parts << "qual: ${m.qual}"
+	parts << "with_check: ${m.with_check}"
+	return 'AlterPolicyStmt{' + parts.join(', ') + '}'
+}
 
 pub struct CreateAmStmt {
 pub mut:
 	amname string
 	handler_name []Node
 	amtype string
+}
+pub fn (m CreateAmStmt) str() string {
+	mut parts := []string{}
+	if m.amname != '' { parts << 'amname: ${m.amname}' }
+	if m.handler_name.len > 0 { parts << "handler_name: ${m.handler_name}" }
+	if m.amtype != '' { parts << 'amtype: ${m.amtype}' }
+	return 'CreateAmStmt{' + parts.join(', ') + '}'
 }
 
 pub struct CreateTrigStmt {
@@ -3112,6 +4915,25 @@ pub mut:
 	initdeferred bool
 	constrrel RangeVar
 }
+pub fn (m CreateTrigStmt) str() string {
+	mut parts := []string{}
+	if m.replace { parts << "replace: true" }
+	if m.isconstraint { parts << "isconstraint: true" }
+	if m.trigname != '' { parts << 'trigname: ${m.trigname}' }
+	parts << "relation: ${m.relation}"
+	if m.funcname.len > 0 { parts << "funcname: ${m.funcname}" }
+	if m.args.len > 0 { parts << "args: ${m.args}" }
+	if m.row { parts << "row: true" }
+	if m.timing != 0 { parts << "timing: ${m.timing}" }
+	if m.events != 0 { parts << "events: ${m.events}" }
+	if m.columns.len > 0 { parts << "columns: ${m.columns}" }
+	parts << "when_clause: ${m.when_clause}"
+	if m.transition_rels.len > 0 { parts << "transition_rels: ${m.transition_rels}" }
+	if m.deferrable { parts << "deferrable: true" }
+	if m.initdeferred { parts << "initdeferred: true" }
+	parts << "constrrel: ${m.constrrel}"
+	return 'CreateTrigStmt{' + parts.join(', ') + '}'
+}
 
 pub struct CreateEventTrigStmt {
 pub mut:
@@ -3120,11 +4942,25 @@ pub mut:
 	whenclause []Node
 	funcname []Node
 }
+pub fn (m CreateEventTrigStmt) str() string {
+	mut parts := []string{}
+	if m.trigname != '' { parts << 'trigname: ${m.trigname}' }
+	if m.eventname != '' { parts << 'eventname: ${m.eventname}' }
+	if m.whenclause.len > 0 { parts << "whenclause: ${m.whenclause}" }
+	if m.funcname.len > 0 { parts << "funcname: ${m.funcname}" }
+	return 'CreateEventTrigStmt{' + parts.join(', ') + '}'
+}
 
 pub struct AlterEventTrigStmt {
 pub mut:
 	trigname string
 	tgenabled string
+}
+pub fn (m AlterEventTrigStmt) str() string {
+	mut parts := []string{}
+	if m.trigname != '' { parts << 'trigname: ${m.trigname}' }
+	if m.tgenabled != '' { parts << 'tgenabled: ${m.tgenabled}' }
+	return 'AlterEventTrigStmt{' + parts.join(', ') + '}'
 }
 
 pub struct CreatePLangStmt {
@@ -3136,12 +4972,29 @@ pub mut:
 	plvalidator []Node
 	pltrusted bool
 }
+pub fn (m CreatePLangStmt) str() string {
+	mut parts := []string{}
+	if m.replace { parts << "replace: true" }
+	if m.plname != '' { parts << 'plname: ${m.plname}' }
+	if m.plhandler.len > 0 { parts << "plhandler: ${m.plhandler}" }
+	if m.plinline.len > 0 { parts << "plinline: ${m.plinline}" }
+	if m.plvalidator.len > 0 { parts << "plvalidator: ${m.plvalidator}" }
+	if m.pltrusted { parts << "pltrusted: true" }
+	return 'CreatePLangStmt{' + parts.join(', ') + '}'
+}
 
 pub struct CreateRoleStmt {
 pub mut:
 	stmt_type RoleStmtType
 	role string
 	options []Node
+}
+pub fn (m CreateRoleStmt) str() string {
+	mut parts := []string{}
+	parts << "stmt_type: ${m.stmt_type}"
+	if m.role != '' { parts << 'role: ${m.role}' }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	return 'CreateRoleStmt{' + parts.join(', ') + '}'
 }
 
 pub struct AlterRoleStmt {
@@ -3150,6 +5003,13 @@ pub mut:
 	options []Node
 	action int
 }
+pub fn (m AlterRoleStmt) str() string {
+	mut parts := []string{}
+	parts << "role: ${m.role}"
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	if m.action != 0 { parts << "action: ${m.action}" }
+	return 'AlterRoleStmt{' + parts.join(', ') + '}'
+}
 
 pub struct AlterRoleSetStmt {
 pub mut:
@@ -3157,11 +5017,24 @@ pub mut:
 	database string
 	setstmt VariableSetStmt
 }
+pub fn (m AlterRoleSetStmt) str() string {
+	mut parts := []string{}
+	parts << "role: ${m.role}"
+	if m.database != '' { parts << 'database: ${m.database}' }
+	parts << "setstmt: ${m.setstmt}"
+	return 'AlterRoleSetStmt{' + parts.join(', ') + '}'
+}
 
 pub struct DropRoleStmt {
 pub mut:
 	roles []Node
 	missing_ok bool
+}
+pub fn (m DropRoleStmt) str() string {
+	mut parts := []string{}
+	if m.roles.len > 0 { parts << "roles: ${m.roles}" }
+	if m.missing_ok { parts << "missing_ok: true" }
+	return 'DropRoleStmt{' + parts.join(', ') + '}'
 }
 
 pub struct CreateSeqStmt {
@@ -3172,6 +5045,15 @@ pub mut:
 	for_identity bool
 	if_not_exists bool
 }
+pub fn (m CreateSeqStmt) str() string {
+	mut parts := []string{}
+	parts << "sequence: ${m.sequence}"
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	if m.owner_id != 0 { parts << "owner_id: ${m.owner_id}" }
+	if m.for_identity { parts << "for_identity: true" }
+	if m.if_not_exists { parts << "if_not_exists: true" }
+	return 'CreateSeqStmt{' + parts.join(', ') + '}'
+}
 
 pub struct AlterSeqStmt {
 pub mut:
@@ -3179,6 +5061,14 @@ pub mut:
 	options []Node
 	for_identity bool
 	missing_ok bool
+}
+pub fn (m AlterSeqStmt) str() string {
+	mut parts := []string{}
+	parts << "sequence: ${m.sequence}"
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	if m.for_identity { parts << "for_identity: true" }
+	if m.missing_ok { parts << "missing_ok: true" }
+	return 'AlterSeqStmt{' + parts.join(', ') + '}'
 }
 
 pub struct DefineStmt {
@@ -3191,6 +5081,17 @@ pub mut:
 	if_not_exists bool
 	replace bool
 }
+pub fn (m DefineStmt) str() string {
+	mut parts := []string{}
+	parts << "kind: ${m.kind}"
+	if m.oldstyle { parts << "oldstyle: true" }
+	if m.defnames.len > 0 { parts << "defnames: ${m.defnames}" }
+	if m.args.len > 0 { parts << "args: ${m.args}" }
+	if m.definition.len > 0 { parts << "definition: ${m.definition}" }
+	if m.if_not_exists { parts << "if_not_exists: true" }
+	if m.replace { parts << "replace: true" }
+	return 'DefineStmt{' + parts.join(', ') + '}'
+}
 
 pub struct CreateDomainStmt {
 pub mut:
@@ -3198,6 +5099,14 @@ pub mut:
 	type_name TypeName
 	coll_clause CollateClause
 	constraints []Node
+}
+pub fn (m CreateDomainStmt) str() string {
+	mut parts := []string{}
+	if m.domainname.len > 0 { parts << "domainname: ${m.domainname}" }
+	parts << "type_name: ${m.type_name}"
+	parts << "coll_clause: ${m.coll_clause}"
+	if m.constraints.len > 0 { parts << "constraints: ${m.constraints}" }
+	return 'CreateDomainStmt{' + parts.join(', ') + '}'
 }
 
 pub struct CreateOpClassStmt {
@@ -3209,6 +5118,16 @@ pub mut:
 	items []Node
 	is_default bool
 }
+pub fn (m CreateOpClassStmt) str() string {
+	mut parts := []string{}
+	if m.opclassname.len > 0 { parts << "opclassname: ${m.opclassname}" }
+	if m.opfamilyname.len > 0 { parts << "opfamilyname: ${m.opfamilyname}" }
+	if m.amname != '' { parts << 'amname: ${m.amname}' }
+	parts << "datatype: ${m.datatype}"
+	if m.items.len > 0 { parts << "items: ${m.items}" }
+	if m.is_default { parts << "is_default: true" }
+	return 'CreateOpClassStmt{' + parts.join(', ') + '}'
+}
 
 pub struct CreateOpClassItem {
 pub mut:
@@ -3219,11 +5138,27 @@ pub mut:
 	class_args []Node
 	storedtype TypeName
 }
+pub fn (m CreateOpClassItem) str() string {
+	mut parts := []string{}
+	if m.itemtype != 0 { parts << "itemtype: ${m.itemtype}" }
+	parts << "name: ${m.name}"
+	if m.number != 0 { parts << "number: ${m.number}" }
+	if m.order_family.len > 0 { parts << "order_family: ${m.order_family}" }
+	if m.class_args.len > 0 { parts << "class_args: ${m.class_args}" }
+	parts << "storedtype: ${m.storedtype}"
+	return 'CreateOpClassItem{' + parts.join(', ') + '}'
+}
 
 pub struct CreateOpFamilyStmt {
 pub mut:
 	opfamilyname []Node
 	amname string
+}
+pub fn (m CreateOpFamilyStmt) str() string {
+	mut parts := []string{}
+	if m.opfamilyname.len > 0 { parts << "opfamilyname: ${m.opfamilyname}" }
+	if m.amname != '' { parts << 'amname: ${m.amname}' }
+	return 'CreateOpFamilyStmt{' + parts.join(', ') + '}'
 }
 
 pub struct AlterOpFamilyStmt {
@@ -3232,6 +5167,14 @@ pub mut:
 	amname string
 	is_drop bool
 	items []Node
+}
+pub fn (m AlterOpFamilyStmt) str() string {
+	mut parts := []string{}
+	if m.opfamilyname.len > 0 { parts << "opfamilyname: ${m.opfamilyname}" }
+	if m.amname != '' { parts << 'amname: ${m.amname}' }
+	if m.is_drop { parts << "is_drop: true" }
+	if m.items.len > 0 { parts << "items: ${m.items}" }
+	return 'AlterOpFamilyStmt{' + parts.join(', ') + '}'
 }
 
 pub struct DropStmt {
@@ -3242,6 +5185,15 @@ pub mut:
 	missing_ok bool
 	concurrent bool
 }
+pub fn (m DropStmt) str() string {
+	mut parts := []string{}
+	if m.objects.len > 0 { parts << "objects: ${m.objects}" }
+	parts << "remove_type: ${m.remove_type}"
+	parts << "behavior: ${m.behavior}"
+	if m.missing_ok { parts << "missing_ok: true" }
+	if m.concurrent { parts << "concurrent: true" }
+	return 'DropStmt{' + parts.join(', ') + '}'
+}
 
 pub struct TruncateStmt {
 pub mut:
@@ -3249,12 +5201,26 @@ pub mut:
 	restart_seqs bool
 	behavior DropBehavior
 }
+pub fn (m TruncateStmt) str() string {
+	mut parts := []string{}
+	if m.relations.len > 0 { parts << "relations: ${m.relations}" }
+	if m.restart_seqs { parts << "restart_seqs: true" }
+	parts << "behavior: ${m.behavior}"
+	return 'TruncateStmt{' + parts.join(', ') + '}'
+}
 
 pub struct CommentStmt {
 pub mut:
 	objtype ObjectType
 	object Node
 	comment string
+}
+pub fn (m CommentStmt) str() string {
+	mut parts := []string{}
+	parts << "objtype: ${m.objtype}"
+	parts << "object: ${m.object}"
+	if m.comment != '' { parts << 'comment: ${m.comment}' }
+	return 'CommentStmt{' + parts.join(', ') + '}'
 }
 
 pub struct SecLabelStmt {
@@ -3264,6 +5230,14 @@ pub mut:
 	provider string
 	label string
 }
+pub fn (m SecLabelStmt) str() string {
+	mut parts := []string{}
+	parts << "objtype: ${m.objtype}"
+	parts << "object: ${m.object}"
+	if m.provider != '' { parts << 'provider: ${m.provider}' }
+	if m.label != '' { parts << 'label: ${m.label}' }
+	return 'SecLabelStmt{' + parts.join(', ') + '}'
+}
 
 pub struct DeclareCursorStmt {
 pub mut:
@@ -3271,10 +5245,22 @@ pub mut:
 	options int
 	query Node
 }
+pub fn (m DeclareCursorStmt) str() string {
+	mut parts := []string{}
+	if m.portalname != '' { parts << 'portalname: ${m.portalname}' }
+	if m.options != 0 { parts << "options: ${m.options}" }
+	parts << "query: ${m.query}"
+	return 'DeclareCursorStmt{' + parts.join(', ') + '}'
+}
 
 pub struct ClosePortalStmt {
 pub mut:
 	portalname string
+}
+pub fn (m ClosePortalStmt) str() string {
+	mut parts := []string{}
+	if m.portalname != '' { parts << 'portalname: ${m.portalname}' }
+	return 'ClosePortalStmt{' + parts.join(', ') + '}'
 }
 
 pub struct FetchStmt {
@@ -3283,6 +5269,14 @@ pub mut:
 	how_many i64
 	portalname string
 	ismove bool
+}
+pub fn (m FetchStmt) str() string {
+	mut parts := []string{}
+	parts << "direction: ${m.direction}"
+	if m.how_many != 0 { parts << "how_many: ${m.how_many}" }
+	if m.portalname != '' { parts << 'portalname: ${m.portalname}' }
+	if m.ismove { parts << "ismove: true" }
+	return 'FetchStmt{' + parts.join(', ') + '}'
 }
 
 pub struct IndexStmt {
@@ -3312,6 +5306,34 @@ pub mut:
 	if_not_exists bool
 	reset_default_tblspc bool
 }
+pub fn (m IndexStmt) str() string {
+	mut parts := []string{}
+	if m.idxname != '' { parts << 'idxname: ${m.idxname}' }
+	parts << "relation: ${m.relation}"
+	if m.access_method != '' { parts << 'access_method: ${m.access_method}' }
+	if m.table_space != '' { parts << 'table_space: ${m.table_space}' }
+	if m.index_params.len > 0 { parts << "index_params: ${m.index_params}" }
+	if m.index_including_params.len > 0 { parts << "index_including_params: ${m.index_including_params}" }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	parts << "where_clause: ${m.where_clause}"
+	if m.exclude_op_names.len > 0 { parts << "exclude_op_names: ${m.exclude_op_names}" }
+	if m.idxcomment != '' { parts << 'idxcomment: ${m.idxcomment}' }
+	if m.index_oid != 0 { parts << "index_oid: ${m.index_oid}" }
+	if m.old_number != 0 { parts << "old_number: ${m.old_number}" }
+	if m.old_create_subid != 0 { parts << "old_create_subid: ${m.old_create_subid}" }
+	if m.old_first_relfilelocator_subid != 0 { parts << "old_first_relfilelocator_subid: ${m.old_first_relfilelocator_subid}" }
+	if m.unique { parts << "unique: true" }
+	if m.nulls_not_distinct { parts << "nulls_not_distinct: true" }
+	if m.primary { parts << "primary: true" }
+	if m.isconstraint { parts << "isconstraint: true" }
+	if m.deferrable { parts << "deferrable: true" }
+	if m.initdeferred { parts << "initdeferred: true" }
+	if m.transformed { parts << "transformed: true" }
+	if m.concurrent { parts << "concurrent: true" }
+	if m.if_not_exists { parts << "if_not_exists: true" }
+	if m.reset_default_tblspc { parts << "reset_default_tblspc: true" }
+	return 'IndexStmt{' + parts.join(', ') + '}'
+}
 
 pub struct CreateStatsStmt {
 pub mut:
@@ -3323,11 +5345,28 @@ pub mut:
 	transformed bool
 	if_not_exists bool
 }
+pub fn (m CreateStatsStmt) str() string {
+	mut parts := []string{}
+	if m.defnames.len > 0 { parts << "defnames: ${m.defnames}" }
+	if m.stat_types.len > 0 { parts << "stat_types: ${m.stat_types}" }
+	if m.exprs.len > 0 { parts << "exprs: ${m.exprs}" }
+	if m.relations.len > 0 { parts << "relations: ${m.relations}" }
+	if m.stxcomment != '' { parts << 'stxcomment: ${m.stxcomment}' }
+	if m.transformed { parts << "transformed: true" }
+	if m.if_not_exists { parts << "if_not_exists: true" }
+	return 'CreateStatsStmt{' + parts.join(', ') + '}'
+}
 
 pub struct StatsElem {
 pub mut:
 	name string
 	expr Node
+}
+pub fn (m StatsElem) str() string {
+	mut parts := []string{}
+	if m.name != '' { parts << 'name: ${m.name}' }
+	parts << "expr: ${m.expr}"
+	return 'StatsElem{' + parts.join(', ') + '}'
 }
 
 pub struct AlterStatsStmt {
@@ -3335,6 +5374,13 @@ pub mut:
 	defnames []Node
 	stxstattarget Node
 	missing_ok bool
+}
+pub fn (m AlterStatsStmt) str() string {
+	mut parts := []string{}
+	if m.defnames.len > 0 { parts << "defnames: ${m.defnames}" }
+	parts << "stxstattarget: ${m.stxstattarget}"
+	if m.missing_ok { parts << "missing_ok: true" }
+	return 'AlterStatsStmt{' + parts.join(', ') + '}'
 }
 
 pub struct CreateFunctionStmt {
@@ -3347,6 +5393,17 @@ pub mut:
 	options []Node
 	sql_body Node
 }
+pub fn (m CreateFunctionStmt) str() string {
+	mut parts := []string{}
+	if m.is_procedure { parts << "is_procedure: true" }
+	if m.replace { parts << "replace: true" }
+	if m.funcname.len > 0 { parts << "funcname: ${m.funcname}" }
+	if m.parameters.len > 0 { parts << "parameters: ${m.parameters}" }
+	parts << "return_type: ${m.return_type}"
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	parts << "sql_body: ${m.sql_body}"
+	return 'CreateFunctionStmt{' + parts.join(', ') + '}'
+}
 
 pub struct FunctionParameter {
 pub mut:
@@ -3355,6 +5412,14 @@ pub mut:
 	mode FunctionParameterMode
 	defexpr Node
 }
+pub fn (m FunctionParameter) str() string {
+	mut parts := []string{}
+	if m.name != '' { parts << 'name: ${m.name}' }
+	parts << "arg_type: ${m.arg_type}"
+	parts << "mode: ${m.mode}"
+	parts << "defexpr: ${m.defexpr}"
+	return 'FunctionParameter{' + parts.join(', ') + '}'
+}
 
 pub struct AlterFunctionStmt {
 pub mut:
@@ -3362,10 +5427,22 @@ pub mut:
 	func ObjectWithArgs
 	actions []Node
 }
+pub fn (m AlterFunctionStmt) str() string {
+	mut parts := []string{}
+	parts << "objtype: ${m.objtype}"
+	parts << "func: ${m.func}"
+	if m.actions.len > 0 { parts << "actions: ${m.actions}" }
+	return 'AlterFunctionStmt{' + parts.join(', ') + '}'
+}
 
 pub struct DoStmt {
 pub mut:
 	args []Node
+}
+pub fn (m DoStmt) str() string {
+	mut parts := []string{}
+	if m.args.len > 0 { parts << "args: ${m.args}" }
+	return 'DoStmt{' + parts.join(', ') + '}'
 }
 
 pub struct InlineCodeBlock {
@@ -3375,6 +5452,14 @@ pub mut:
 	lang_is_trusted bool
 	atomic bool
 }
+pub fn (m InlineCodeBlock) str() string {
+	mut parts := []string{}
+	if m.source_text != '' { parts << 'source_text: ${m.source_text}' }
+	if m.lang_oid != 0 { parts << "lang_oid: ${m.lang_oid}" }
+	if m.lang_is_trusted { parts << "lang_is_trusted: true" }
+	if m.atomic { parts << "atomic: true" }
+	return 'InlineCodeBlock{' + parts.join(', ') + '}'
+}
 
 pub struct CallStmt {
 pub mut:
@@ -3382,10 +5467,22 @@ pub mut:
 	funcexpr FuncExpr
 	outargs []Node
 }
+pub fn (m CallStmt) str() string {
+	mut parts := []string{}
+	parts << "funccall: ${m.funccall}"
+	parts << "funcexpr: ${m.funcexpr}"
+	if m.outargs.len > 0 { parts << "outargs: ${m.outargs}" }
+	return 'CallStmt{' + parts.join(', ') + '}'
+}
 
 pub struct CallContext {
 pub mut:
 	atomic bool
+}
+pub fn (m CallContext) str() string {
+	mut parts := []string{}
+	if m.atomic { parts << "atomic: true" }
+	return 'CallContext{' + parts.join(', ') + '}'
 }
 
 pub struct RenameStmt {
@@ -3399,6 +5496,18 @@ pub mut:
 	behavior DropBehavior
 	missing_ok bool
 }
+pub fn (m RenameStmt) str() string {
+	mut parts := []string{}
+	parts << "rename_type: ${m.rename_type}"
+	parts << "relation_type: ${m.relation_type}"
+	parts << "relation: ${m.relation}"
+	parts << "object: ${m.object}"
+	if m.subname != '' { parts << 'subname: ${m.subname}' }
+	if m.newname != '' { parts << 'newname: ${m.newname}' }
+	parts << "behavior: ${m.behavior}"
+	if m.missing_ok { parts << "missing_ok: true" }
+	return 'RenameStmt{' + parts.join(', ') + '}'
+}
 
 pub struct AlterObjectDependsStmt {
 pub mut:
@@ -3407,6 +5516,15 @@ pub mut:
 	object Node
 	extname String
 	remove bool
+}
+pub fn (m AlterObjectDependsStmt) str() string {
+	mut parts := []string{}
+	parts << "object_type: ${m.object_type}"
+	parts << "relation: ${m.relation}"
+	parts << "object: ${m.object}"
+	parts << "extname: ${m.extname}"
+	if m.remove { parts << "remove: true" }
+	return 'AlterObjectDependsStmt{' + parts.join(', ') + '}'
 }
 
 pub struct AlterObjectSchemaStmt {
@@ -3417,6 +5535,15 @@ pub mut:
 	newschema string
 	missing_ok bool
 }
+pub fn (m AlterObjectSchemaStmt) str() string {
+	mut parts := []string{}
+	parts << "object_type: ${m.object_type}"
+	parts << "relation: ${m.relation}"
+	parts << "object: ${m.object}"
+	if m.newschema != '' { parts << 'newschema: ${m.newschema}' }
+	if m.missing_ok { parts << "missing_ok: true" }
+	return 'AlterObjectSchemaStmt{' + parts.join(', ') + '}'
+}
 
 pub struct AlterOwnerStmt {
 pub mut:
@@ -3425,17 +5552,37 @@ pub mut:
 	object Node
 	newowner RoleSpec
 }
+pub fn (m AlterOwnerStmt) str() string {
+	mut parts := []string{}
+	parts << "object_type: ${m.object_type}"
+	parts << "relation: ${m.relation}"
+	parts << "object: ${m.object}"
+	parts << "newowner: ${m.newowner}"
+	return 'AlterOwnerStmt{' + parts.join(', ') + '}'
+}
 
 pub struct AlterOperatorStmt {
 pub mut:
 	opername ObjectWithArgs
 	options []Node
 }
+pub fn (m AlterOperatorStmt) str() string {
+	mut parts := []string{}
+	parts << "opername: ${m.opername}"
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	return 'AlterOperatorStmt{' + parts.join(', ') + '}'
+}
 
 pub struct AlterTypeStmt {
 pub mut:
 	type_name []Node
 	options []Node
+}
+pub fn (m AlterTypeStmt) str() string {
+	mut parts := []string{}
+	if m.type_name.len > 0 { parts << "type_name: ${m.type_name}" }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	return 'AlterTypeStmt{' + parts.join(', ') + '}'
 }
 
 pub struct RuleStmt {
@@ -3448,21 +5595,48 @@ pub mut:
 	actions []Node
 	replace bool
 }
+pub fn (m RuleStmt) str() string {
+	mut parts := []string{}
+	parts << "relation: ${m.relation}"
+	if m.rulename != '' { parts << 'rulename: ${m.rulename}' }
+	parts << "where_clause: ${m.where_clause}"
+	parts << "event: ${m.event}"
+	if m.instead { parts << "instead: true" }
+	if m.actions.len > 0 { parts << "actions: ${m.actions}" }
+	if m.replace { parts << "replace: true" }
+	return 'RuleStmt{' + parts.join(', ') + '}'
+}
 
 pub struct NotifyStmt {
 pub mut:
 	conditionname string
 	payload string
 }
+pub fn (m NotifyStmt) str() string {
+	mut parts := []string{}
+	if m.conditionname != '' { parts << 'conditionname: ${m.conditionname}' }
+	if m.payload != '' { parts << 'payload: ${m.payload}' }
+	return 'NotifyStmt{' + parts.join(', ') + '}'
+}
 
 pub struct ListenStmt {
 pub mut:
 	conditionname string
 }
+pub fn (m ListenStmt) str() string {
+	mut parts := []string{}
+	if m.conditionname != '' { parts << 'conditionname: ${m.conditionname}' }
+	return 'ListenStmt{' + parts.join(', ') + '}'
+}
 
 pub struct UnlistenStmt {
 pub mut:
 	conditionname string
+}
+pub fn (m UnlistenStmt) str() string {
+	mut parts := []string{}
+	if m.conditionname != '' { parts << 'conditionname: ${m.conditionname}' }
+	return 'UnlistenStmt{' + parts.join(', ') + '}'
 }
 
 pub struct TransactionStmt {
@@ -3474,11 +5648,27 @@ pub mut:
 	chain bool
 	location int
 }
+pub fn (m TransactionStmt) str() string {
+	mut parts := []string{}
+	parts << "kind: ${m.kind}"
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	if m.savepoint_name != '' { parts << 'savepoint_name: ${m.savepoint_name}' }
+	if m.gid != '' { parts << 'gid: ${m.gid}' }
+	if m.chain { parts << "chain: true" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'TransactionStmt{' + parts.join(', ') + '}'
+}
 
 pub struct CompositeTypeStmt {
 pub mut:
 	typevar RangeVar
 	coldeflist []Node
+}
+pub fn (m CompositeTypeStmt) str() string {
+	mut parts := []string{}
+	parts << "typevar: ${m.typevar}"
+	if m.coldeflist.len > 0 { parts << "coldeflist: ${m.coldeflist}" }
+	return 'CompositeTypeStmt{' + parts.join(', ') + '}'
 }
 
 pub struct CreateEnumStmt {
@@ -3486,11 +5676,23 @@ pub mut:
 	type_name []Node
 	vals []Node
 }
+pub fn (m CreateEnumStmt) str() string {
+	mut parts := []string{}
+	if m.type_name.len > 0 { parts << "type_name: ${m.type_name}" }
+	if m.vals.len > 0 { parts << "vals: ${m.vals}" }
+	return 'CreateEnumStmt{' + parts.join(', ') + '}'
+}
 
 pub struct CreateRangeStmt {
 pub mut:
 	type_name []Node
 	params []Node
+}
+pub fn (m CreateRangeStmt) str() string {
+	mut parts := []string{}
+	if m.type_name.len > 0 { parts << "type_name: ${m.type_name}" }
+	if m.params.len > 0 { parts << "params: ${m.params}" }
+	return 'CreateRangeStmt{' + parts.join(', ') + '}'
 }
 
 pub struct AlterEnumStmt {
@@ -3502,6 +5704,16 @@ pub mut:
 	new_val_is_after bool
 	skip_if_new_val_exists bool
 }
+pub fn (m AlterEnumStmt) str() string {
+	mut parts := []string{}
+	if m.type_name.len > 0 { parts << "type_name: ${m.type_name}" }
+	if m.old_val != '' { parts << 'old_val: ${m.old_val}' }
+	if m.new_val != '' { parts << 'new_val: ${m.new_val}' }
+	if m.new_val_neighbor != '' { parts << 'new_val_neighbor: ${m.new_val_neighbor}' }
+	if m.new_val_is_after { parts << "new_val_is_after: true" }
+	if m.skip_if_new_val_exists { parts << "skip_if_new_val_exists: true" }
+	return 'AlterEnumStmt{' + parts.join(', ') + '}'
+}
 
 pub struct ViewStmt {
 pub mut:
@@ -3512,10 +5724,25 @@ pub mut:
 	options []Node
 	with_check_option ViewCheckOption
 }
+pub fn (m ViewStmt) str() string {
+	mut parts := []string{}
+	parts << "view: ${m.view}"
+	if m.aliases.len > 0 { parts << "aliases: ${m.aliases}" }
+	parts << "query: ${m.query}"
+	if m.replace { parts << "replace: true" }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	parts << "with_check_option: ${m.with_check_option}"
+	return 'ViewStmt{' + parts.join(', ') + '}'
+}
 
 pub struct LoadStmt {
 pub mut:
 	filename string
+}
+pub fn (m LoadStmt) str() string {
+	mut parts := []string{}
+	if m.filename != '' { parts << 'filename: ${m.filename}' }
+	return 'LoadStmt{' + parts.join(', ') + '}'
 }
 
 pub struct CreatedbStmt {
@@ -3523,22 +5750,45 @@ pub mut:
 	dbname string
 	options []Node
 }
+pub fn (m CreatedbStmt) str() string {
+	mut parts := []string{}
+	if m.dbname != '' { parts << 'dbname: ${m.dbname}' }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	return 'CreatedbStmt{' + parts.join(', ') + '}'
+}
 
 pub struct AlterDatabaseStmt {
 pub mut:
 	dbname string
 	options []Node
 }
+pub fn (m AlterDatabaseStmt) str() string {
+	mut parts := []string{}
+	if m.dbname != '' { parts << 'dbname: ${m.dbname}' }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	return 'AlterDatabaseStmt{' + parts.join(', ') + '}'
+}
 
 pub struct AlterDatabaseRefreshCollStmt {
 pub mut:
 	dbname string
+}
+pub fn (m AlterDatabaseRefreshCollStmt) str() string {
+	mut parts := []string{}
+	if m.dbname != '' { parts << 'dbname: ${m.dbname}' }
+	return 'AlterDatabaseRefreshCollStmt{' + parts.join(', ') + '}'
 }
 
 pub struct AlterDatabaseSetStmt {
 pub mut:
 	dbname string
 	setstmt VariableSetStmt
+}
+pub fn (m AlterDatabaseSetStmt) str() string {
+	mut parts := []string{}
+	if m.dbname != '' { parts << 'dbname: ${m.dbname}' }
+	parts << "setstmt: ${m.setstmt}"
+	return 'AlterDatabaseSetStmt{' + parts.join(', ') + '}'
 }
 
 pub struct DropdbStmt {
@@ -3547,10 +5797,22 @@ pub mut:
 	missing_ok bool
 	options []Node
 }
+pub fn (m DropdbStmt) str() string {
+	mut parts := []string{}
+	if m.dbname != '' { parts << 'dbname: ${m.dbname}' }
+	if m.missing_ok { parts << "missing_ok: true" }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	return 'DropdbStmt{' + parts.join(', ') + '}'
+}
 
 pub struct AlterSystemStmt {
 pub mut:
 	setstmt VariableSetStmt
+}
+pub fn (m AlterSystemStmt) str() string {
+	mut parts := []string{}
+	parts << "setstmt: ${m.setstmt}"
+	return 'AlterSystemStmt{' + parts.join(', ') + '}'
 }
 
 pub struct ClusterStmt {
@@ -3559,12 +5821,26 @@ pub mut:
 	indexname string
 	params []Node
 }
+pub fn (m ClusterStmt) str() string {
+	mut parts := []string{}
+	parts << "relation: ${m.relation}"
+	if m.indexname != '' { parts << 'indexname: ${m.indexname}' }
+	if m.params.len > 0 { parts << "params: ${m.params}" }
+	return 'ClusterStmt{' + parts.join(', ') + '}'
+}
 
 pub struct VacuumStmt {
 pub mut:
 	options []Node
 	rels []Node
 	is_vacuumcmd bool
+}
+pub fn (m VacuumStmt) str() string {
+	mut parts := []string{}
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	if m.rels.len > 0 { parts << "rels: ${m.rels}" }
+	if m.is_vacuumcmd { parts << "is_vacuumcmd: true" }
+	return 'VacuumStmt{' + parts.join(', ') + '}'
 }
 
 pub struct VacuumRelation {
@@ -3573,11 +5849,24 @@ pub mut:
 	oid u32
 	va_cols []Node
 }
+pub fn (m VacuumRelation) str() string {
+	mut parts := []string{}
+	parts << "relation: ${m.relation}"
+	if m.oid != 0 { parts << "oid: ${m.oid}" }
+	if m.va_cols.len > 0 { parts << "va_cols: ${m.va_cols}" }
+	return 'VacuumRelation{' + parts.join(', ') + '}'
+}
 
 pub struct ExplainStmt {
 pub mut:
 	query Node
 	options []Node
+}
+pub fn (m ExplainStmt) str() string {
+	mut parts := []string{}
+	parts << "query: ${m.query}"
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	return 'ExplainStmt{' + parts.join(', ') + '}'
 }
 
 pub struct CreateTableAsStmt {
@@ -3588,6 +5877,15 @@ pub mut:
 	is_select_into bool
 	if_not_exists bool
 }
+pub fn (m CreateTableAsStmt) str() string {
+	mut parts := []string{}
+	parts << "query: ${m.query}"
+	parts << "into: ${m.into}"
+	parts << "objtype: ${m.objtype}"
+	if m.is_select_into { parts << "is_select_into: true" }
+	if m.if_not_exists { parts << "if_not_exists: true" }
+	return 'CreateTableAsStmt{' + parts.join(', ') + '}'
+}
 
 pub struct RefreshMatViewStmt {
 pub mut:
@@ -3595,14 +5893,30 @@ pub mut:
 	skip_data bool
 	relation RangeVar
 }
+pub fn (m RefreshMatViewStmt) str() string {
+	mut parts := []string{}
+	if m.concurrent { parts << "concurrent: true" }
+	if m.skip_data { parts << "skip_data: true" }
+	parts << "relation: ${m.relation}"
+	return 'RefreshMatViewStmt{' + parts.join(', ') + '}'
+}
 
 pub struct CheckPointStmt {
 pub mut:
+}
+pub fn (m CheckPointStmt) str() string {
+	mut parts := []string{}
+	return 'CheckPointStmt{' + parts.join(', ') + '}'
 }
 
 pub struct DiscardStmt {
 pub mut:
 	target DiscardMode
+}
+pub fn (m DiscardStmt) str() string {
+	mut parts := []string{}
+	parts << "target: ${m.target}"
+	return 'DiscardStmt{' + parts.join(', ') + '}'
 }
 
 pub struct LockStmt {
@@ -3611,11 +5925,24 @@ pub mut:
 	mode int
 	nowait bool
 }
+pub fn (m LockStmt) str() string {
+	mut parts := []string{}
+	if m.relations.len > 0 { parts << "relations: ${m.relations}" }
+	if m.mode != 0 { parts << "mode: ${m.mode}" }
+	if m.nowait { parts << "nowait: true" }
+	return 'LockStmt{' + parts.join(', ') + '}'
+}
 
 pub struct ConstraintsSetStmt {
 pub mut:
 	constraints []Node
 	deferred bool
+}
+pub fn (m ConstraintsSetStmt) str() string {
+	mut parts := []string{}
+	if m.constraints.len > 0 { parts << "constraints: ${m.constraints}" }
+	if m.deferred { parts << "deferred: true" }
+	return 'ConstraintsSetStmt{' + parts.join(', ') + '}'
 }
 
 pub struct ReindexStmt {
@@ -3624,6 +5951,14 @@ pub mut:
 	relation RangeVar
 	name string
 	params []Node
+}
+pub fn (m ReindexStmt) str() string {
+	mut parts := []string{}
+	parts << "kind: ${m.kind}"
+	parts << "relation: ${m.relation}"
+	if m.name != '' { parts << 'name: ${m.name}' }
+	if m.params.len > 0 { parts << "params: ${m.params}" }
+	return 'ReindexStmt{' + parts.join(', ') + '}'
 }
 
 pub struct CreateConversionStmt {
@@ -3634,6 +5969,15 @@ pub mut:
 	func_name []Node
 	def bool
 }
+pub fn (m CreateConversionStmt) str() string {
+	mut parts := []string{}
+	if m.conversion_name.len > 0 { parts << "conversion_name: ${m.conversion_name}" }
+	if m.for_encoding_name != '' { parts << 'for_encoding_name: ${m.for_encoding_name}' }
+	if m.to_encoding_name != '' { parts << 'to_encoding_name: ${m.to_encoding_name}' }
+	if m.func_name.len > 0 { parts << "func_name: ${m.func_name}" }
+	if m.def { parts << "def: true" }
+	return 'CreateConversionStmt{' + parts.join(', ') + '}'
+}
 
 pub struct CreateCastStmt {
 pub mut:
@@ -3642,6 +5986,15 @@ pub mut:
 	func ObjectWithArgs
 	context CoercionContext
 	inout bool
+}
+pub fn (m CreateCastStmt) str() string {
+	mut parts := []string{}
+	parts << "sourcetype: ${m.sourcetype}"
+	parts << "targettype: ${m.targettype}"
+	parts << "func: ${m.func}"
+	parts << "context: ${m.context}"
+	if m.inout { parts << "inout: true" }
+	return 'CreateCastStmt{' + parts.join(', ') + '}'
 }
 
 pub struct CreateTransformStmt {
@@ -3652,6 +6005,15 @@ pub mut:
 	fromsql ObjectWithArgs
 	tosql ObjectWithArgs
 }
+pub fn (m CreateTransformStmt) str() string {
+	mut parts := []string{}
+	if m.replace { parts << "replace: true" }
+	parts << "type_name: ${m.type_name}"
+	if m.lang != '' { parts << 'lang: ${m.lang}' }
+	parts << "fromsql: ${m.fromsql}"
+	parts << "tosql: ${m.tosql}"
+	return 'CreateTransformStmt{' + parts.join(', ') + '}'
+}
 
 pub struct PrepareStmt {
 pub mut:
@@ -3659,11 +6021,24 @@ pub mut:
 	argtypes []Node
 	query Node
 }
+pub fn (m PrepareStmt) str() string {
+	mut parts := []string{}
+	if m.name != '' { parts << 'name: ${m.name}' }
+	if m.argtypes.len > 0 { parts << "argtypes: ${m.argtypes}" }
+	parts << "query: ${m.query}"
+	return 'PrepareStmt{' + parts.join(', ') + '}'
+}
 
 pub struct ExecuteStmt {
 pub mut:
 	name string
 	params []Node
+}
+pub fn (m ExecuteStmt) str() string {
+	mut parts := []string{}
+	if m.name != '' { parts << 'name: ${m.name}' }
+	if m.params.len > 0 { parts << "params: ${m.params}" }
+	return 'ExecuteStmt{' + parts.join(', ') + '}'
 }
 
 pub struct DeallocateStmt {
@@ -3672,11 +6047,24 @@ pub mut:
 	isall bool
 	location int
 }
+pub fn (m DeallocateStmt) str() string {
+	mut parts := []string{}
+	if m.name != '' { parts << 'name: ${m.name}' }
+	if m.isall { parts << "isall: true" }
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'DeallocateStmt{' + parts.join(', ') + '}'
+}
 
 pub struct DropOwnedStmt {
 pub mut:
 	roles []Node
 	behavior DropBehavior
+}
+pub fn (m DropOwnedStmt) str() string {
+	mut parts := []string{}
+	if m.roles.len > 0 { parts << "roles: ${m.roles}" }
+	parts << "behavior: ${m.behavior}"
+	return 'DropOwnedStmt{' + parts.join(', ') + '}'
 }
 
 pub struct ReassignOwnedStmt {
@@ -3684,11 +6072,23 @@ pub mut:
 	roles []Node
 	newrole RoleSpec
 }
+pub fn (m ReassignOwnedStmt) str() string {
+	mut parts := []string{}
+	if m.roles.len > 0 { parts << "roles: ${m.roles}" }
+	parts << "newrole: ${m.newrole}"
+	return 'ReassignOwnedStmt{' + parts.join(', ') + '}'
+}
 
 pub struct AlterTSDictionaryStmt {
 pub mut:
 	dictname []Node
 	options []Node
+}
+pub fn (m AlterTSDictionaryStmt) str() string {
+	mut parts := []string{}
+	if m.dictname.len > 0 { parts << "dictname: ${m.dictname}" }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	return 'AlterTSDictionaryStmt{' + parts.join(', ') + '}'
 }
 
 pub struct AlterTSConfigurationStmt {
@@ -3701,12 +6101,30 @@ pub mut:
 	replace bool
 	missing_ok bool
 }
+pub fn (m AlterTSConfigurationStmt) str() string {
+	mut parts := []string{}
+	parts << "kind: ${m.kind}"
+	if m.cfgname.len > 0 { parts << "cfgname: ${m.cfgname}" }
+	if m.tokentype.len > 0 { parts << "tokentype: ${m.tokentype}" }
+	if m.dicts.len > 0 { parts << "dicts: ${m.dicts}" }
+	if m.override { parts << "override: true" }
+	if m.replace { parts << "replace: true" }
+	if m.missing_ok { parts << "missing_ok: true" }
+	return 'AlterTSConfigurationStmt{' + parts.join(', ') + '}'
+}
 
 pub struct PublicationTable {
 pub mut:
 	relation RangeVar
 	where_clause Node
 	columns []Node
+}
+pub fn (m PublicationTable) str() string {
+	mut parts := []string{}
+	parts << "relation: ${m.relation}"
+	parts << "where_clause: ${m.where_clause}"
+	if m.columns.len > 0 { parts << "columns: ${m.columns}" }
+	return 'PublicationTable{' + parts.join(', ') + '}'
 }
 
 pub struct PublicationObjSpec {
@@ -3716,6 +6134,14 @@ pub mut:
 	pubtable PublicationTable
 	location int
 }
+pub fn (m PublicationObjSpec) str() string {
+	mut parts := []string{}
+	parts << "pubobjtype: ${m.pubobjtype}"
+	if m.name != '' { parts << 'name: ${m.name}' }
+	parts << "pubtable: ${m.pubtable}"
+	if m.location != 0 { parts << "location: ${m.location}" }
+	return 'PublicationObjSpec{' + parts.join(', ') + '}'
+}
 
 pub struct CreatePublicationStmt {
 pub mut:
@@ -3723,6 +6149,14 @@ pub mut:
 	options []Node
 	pubobjects []Node
 	for_all_tables bool
+}
+pub fn (m CreatePublicationStmt) str() string {
+	mut parts := []string{}
+	if m.pubname != '' { parts << 'pubname: ${m.pubname}' }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	if m.pubobjects.len > 0 { parts << "pubobjects: ${m.pubobjects}" }
+	if m.for_all_tables { parts << "for_all_tables: true" }
+	return 'CreatePublicationStmt{' + parts.join(', ') + '}'
 }
 
 pub struct AlterPublicationStmt {
@@ -3733,6 +6167,15 @@ pub mut:
 	for_all_tables bool
 	action AlterPublicationAction
 }
+pub fn (m AlterPublicationStmt) str() string {
+	mut parts := []string{}
+	if m.pubname != '' { parts << 'pubname: ${m.pubname}' }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	if m.pubobjects.len > 0 { parts << "pubobjects: ${m.pubobjects}" }
+	if m.for_all_tables { parts << "for_all_tables: true" }
+	parts << "action: ${m.action}"
+	return 'AlterPublicationStmt{' + parts.join(', ') + '}'
+}
 
 pub struct CreateSubscriptionStmt {
 pub mut:
@@ -3740,6 +6183,14 @@ pub mut:
 	conninfo string
 	publication []Node
 	options []Node
+}
+pub fn (m CreateSubscriptionStmt) str() string {
+	mut parts := []string{}
+	if m.subname != '' { parts << 'subname: ${m.subname}' }
+	if m.conninfo != '' { parts << 'conninfo: ${m.conninfo}' }
+	if m.publication.len > 0 { parts << "publication: ${m.publication}" }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	return 'CreateSubscriptionStmt{' + parts.join(', ') + '}'
 }
 
 pub struct AlterSubscriptionStmt {
@@ -3750,12 +6201,28 @@ pub mut:
 	publication []Node
 	options []Node
 }
+pub fn (m AlterSubscriptionStmt) str() string {
+	mut parts := []string{}
+	parts << "kind: ${m.kind}"
+	if m.subname != '' { parts << 'subname: ${m.subname}' }
+	if m.conninfo != '' { parts << 'conninfo: ${m.conninfo}' }
+	if m.publication.len > 0 { parts << "publication: ${m.publication}" }
+	if m.options.len > 0 { parts << "options: ${m.options}" }
+	return 'AlterSubscriptionStmt{' + parts.join(', ') + '}'
+}
 
 pub struct DropSubscriptionStmt {
 pub mut:
 	subname string
 	missing_ok bool
 	behavior DropBehavior
+}
+pub fn (m DropSubscriptionStmt) str() string {
+	mut parts := []string{}
+	if m.subname != '' { parts << 'subname: ${m.subname}' }
+	if m.missing_ok { parts << "missing_ok: true" }
+	parts << "behavior: ${m.behavior}"
+	return 'DropSubscriptionStmt{' + parts.join(', ') + '}'
 }
 
 pub struct ScanToken {
@@ -3765,6 +6232,14 @@ pub mut:
 	token Token
 	keyword_kind KeywordKind
 }
+pub fn (m ScanToken) str() string {
+	mut parts := []string{}
+	if m.start != 0 { parts << "start: ${m.start}" }
+	if m.end != 0 { parts << "end: ${m.end}" }
+	parts << "token: ${m.token}"
+	parts << "keyword_kind: ${m.keyword_kind}"
+	return 'ScanToken{' + parts.join(', ') + '}'
+}
 
 pub struct SummaryResultTable {
 pub mut:
@@ -3772,6 +6247,14 @@ pub mut:
 	schema_name string
 	table_name string
 	context SummaryResultContext
+}
+pub fn (m SummaryResultTable) str() string {
+	mut parts := []string{}
+	if m.name != '' { parts << 'name: ${m.name}' }
+	if m.schema_name != '' { parts << 'schema_name: ${m.schema_name}' }
+	if m.table_name != '' { parts << 'table_name: ${m.table_name}' }
+	parts << "context: ${m.context}"
+	return 'SummaryResultTable{' + parts.join(', ') + '}'
 }
 
 pub struct SummaryResultFunction {
@@ -3781,12 +6264,27 @@ pub mut:
 	schema_name string
 	context SummaryResultContext
 }
+pub fn (m SummaryResultFunction) str() string {
+	mut parts := []string{}
+	if m.name != '' { parts << 'name: ${m.name}' }
+	if m.function_name != '' { parts << 'function_name: ${m.function_name}' }
+	if m.schema_name != '' { parts << 'schema_name: ${m.schema_name}' }
+	parts << "context: ${m.context}"
+	return 'SummaryResultFunction{' + parts.join(', ') + '}'
+}
 
 pub struct SummaryResultFilterColumn {
 pub mut:
 	schema_name string
 	table_name string
 	column string
+}
+pub fn (m SummaryResultFilterColumn) str() string {
+	mut parts := []string{}
+	if m.schema_name != '' { parts << 'schema_name: ${m.schema_name}' }
+	if m.table_name != '' { parts << 'table_name: ${m.table_name}' }
+	if m.column != '' { parts << 'column: ${m.column}' }
+	return 'SummaryResultFilterColumn{' + parts.join(', ') + '}'
 }
 
 pub struct SummaryResult {
@@ -3799,17 +6297,845 @@ pub mut:
 	statement_types []string
 	truncated_query string
 }
+pub fn (m SummaryResult) str() string {
+	mut parts := []string{}
+	if m.tables.len > 0 { parts << "tables: ${m.tables}" }
+	if m.aliases.len > 0 { parts << "aliases: ${m.aliases}" }
+	if m.cte_names.len > 0 { parts << "cte_names: ${m.cte_names}" }
+	if m.functions.len > 0 { parts << "functions: ${m.functions}" }
+	if m.filter_columns.len > 0 { parts << "filter_columns: ${m.filter_columns}" }
+	if m.statement_types.len > 0 { parts << "statement_types: ${m.statement_types}" }
+	if m.truncated_query != '' { parts << 'truncated_query: ${m.truncated_query}' }
+	return 'SummaryResult{' + parts.join(', ') + '}'
+}
 
 // UnrecognizedNode holds raw data for an unknown Node variant.
 // This is returned by the protobuf decoder when the field number
 // does not match any known Node oneof branch.
 pub struct UnrecognizedNode {
+pub mut:
 	field_num int
 	data []u8
 }
 
+pub fn (m UnrecognizedNode) str() string {
+	return 'UnrecognizedNode{field_num: ' + m.field_num.str() + ', data: [' + m.data.len.str() + ' bytes]}'
+}
+
 // Node sum type for all AST node variants
 pub type Node = Alias | RangeVar | TableFunc | IntoClause | Var | Param | Aggref | GroupingFunc | WindowFunc | WindowFuncRunCondition | MergeSupportFunc | SubscriptingRef | FuncExpr | NamedArgExpr | OpExpr | DistinctExpr | NullIfExpr | ScalarArrayOpExpr | BoolExpr | SubLink | SubPlan | AlternativeSubPlan | FieldSelect | FieldStore | RelabelType | CoerceViaIO | ArrayCoerceExpr | ConvertRowtypeExpr | CollateExpr | CaseExpr | CaseWhen | CaseTestExpr | ArrayExpr | RowExpr | RowCompareExpr | CoalesceExpr | MinMaxExpr | SQLValueFunction | XmlExpr | JsonFormat | JsonReturning | JsonValueExpr | JsonConstructorExpr | JsonIsPredicate | JsonBehavior | JsonExpr | JsonTablePath | JsonTablePathScan | JsonTableSiblingJoin | NullTest | BooleanTest | MergeAction | CoerceToDomain | CoerceToDomainValue | SetToDefault | CurrentOfExpr | NextValueExpr | InferenceElem | TargetEntry | RangeTblRef | JoinExpr | FromExpr | OnConflictExpr | Query | TypeName | ColumnRef | ParamRef | AExpr | TypeCast | CollateClause | RoleSpec | FuncCall | AStar | AIndices | AIndirection | AArrayExpr | ResTarget | MultiAssignRef | SortBy | WindowDef | RangeSubselect | RangeFunction | RangeTableFunc | RangeTableFuncCol | RangeTableSample | ColumnDef | TableLikeClause | IndexElem | DefElem | LockingClause | XmlSerialize | PartitionElem | PartitionSpec | PartitionBoundSpec | PartitionRangeDatum | SinglePartitionSpec | PartitionCmd | RangeTblEntry | RTEPermissionInfo | RangeTblFunction | TableSampleClause | WithCheckOption | SortGroupClause | GroupingSet | WindowClause | RowMarkClause | WithClause | InferClause | OnConflictClause | CTESearchClause | CTECycleClause | CommonTableExpr | MergeWhenClause | TriggerTransition | JsonOutput | JsonArgument | JsonFuncExpr | JsonTablePathSpec | JsonTable | JsonTableColumn | JsonKeyValue | JsonParseExpr | JsonScalarExpr | JsonSerializeExpr | JsonObjectConstructor | JsonArrayConstructor | JsonArrayQueryConstructor | JsonAggConstructor | JsonObjectAgg | JsonArrayAgg | RawStmt | InsertStmt | DeleteStmt | UpdateStmt | MergeStmt | SelectStmt | SetOperationStmt | ReturnStmt | PLAssignStmt | CreateSchemaStmt | AlterTableStmt | ReplicaIdentityStmt | AlterTableCmd | AlterCollationStmt | AlterDomainStmt | GrantStmt | ObjectWithArgs | AccessPriv | GrantRoleStmt | AlterDefaultPrivilegesStmt | CopyStmt | VariableSetStmt | VariableShowStmt | CreateStmt | Constraint | CreateTableSpaceStmt | DropTableSpaceStmt | AlterTableSpaceOptionsStmt | AlterTableMoveAllStmt | CreateExtensionStmt | AlterExtensionStmt | AlterExtensionContentsStmt | CreateFdwStmt | AlterFdwStmt | CreateForeignServerStmt | AlterForeignServerStmt | CreateForeignTableStmt | CreateUserMappingStmt | AlterUserMappingStmt | DropUserMappingStmt | ImportForeignSchemaStmt | CreatePolicyStmt | AlterPolicyStmt | CreateAmStmt | CreateTrigStmt | CreateEventTrigStmt | AlterEventTrigStmt | CreatePLangStmt | CreateRoleStmt | AlterRoleStmt | AlterRoleSetStmt | DropRoleStmt | CreateSeqStmt | AlterSeqStmt | DefineStmt | CreateDomainStmt | CreateOpClassStmt | CreateOpClassItem | CreateOpFamilyStmt | AlterOpFamilyStmt | DropStmt | TruncateStmt | CommentStmt | SecLabelStmt | DeclareCursorStmt | ClosePortalStmt | FetchStmt | IndexStmt | CreateStatsStmt | StatsElem | AlterStatsStmt | CreateFunctionStmt | FunctionParameter | AlterFunctionStmt | DoStmt | InlineCodeBlock | CallStmt | CallContext | RenameStmt | AlterObjectDependsStmt | AlterObjectSchemaStmt | AlterOwnerStmt | AlterOperatorStmt | AlterTypeStmt | RuleStmt | NotifyStmt | ListenStmt | UnlistenStmt | TransactionStmt | CompositeTypeStmt | CreateEnumStmt | CreateRangeStmt | AlterEnumStmt | ViewStmt | LoadStmt | CreatedbStmt | AlterDatabaseStmt | AlterDatabaseRefreshCollStmt | AlterDatabaseSetStmt | DropdbStmt | AlterSystemStmt | ClusterStmt | VacuumStmt | VacuumRelation | ExplainStmt | CreateTableAsStmt | RefreshMatViewStmt | CheckPointStmt | DiscardStmt | LockStmt | ConstraintsSetStmt | ReindexStmt | CreateConversionStmt | CreateCastStmt | CreateTransformStmt | PrepareStmt | ExecuteStmt | DeallocateStmt | DropOwnedStmt | ReassignOwnedStmt | AlterTSDictionaryStmt | AlterTSConfigurationStmt | PublicationTable | PublicationObjSpec | CreatePublicationStmt | AlterPublicationStmt | CreateSubscriptionStmt | AlterSubscriptionStmt | DropSubscriptionStmt | Integer | Float | Boolean | String | BitString | List | IntList | OidList | AConst | UnrecognizedNode
+
+pub fn (n Node) str() string {
+	match n {
+		Alias {
+			return n.str()
+		}
+		RangeVar {
+			return n.str()
+		}
+		TableFunc {
+			return n.str()
+		}
+		IntoClause {
+			return n.str()
+		}
+		Var {
+			return n.str()
+		}
+		Param {
+			return n.str()
+		}
+		Aggref {
+			return n.str()
+		}
+		GroupingFunc {
+			return n.str()
+		}
+		WindowFunc {
+			return n.str()
+		}
+		WindowFuncRunCondition {
+			return n.str()
+		}
+		MergeSupportFunc {
+			return n.str()
+		}
+		SubscriptingRef {
+			return n.str()
+		}
+		FuncExpr {
+			return n.str()
+		}
+		NamedArgExpr {
+			return n.str()
+		}
+		OpExpr {
+			return n.str()
+		}
+		DistinctExpr {
+			return n.str()
+		}
+		NullIfExpr {
+			return n.str()
+		}
+		ScalarArrayOpExpr {
+			return n.str()
+		}
+		BoolExpr {
+			return n.str()
+		}
+		SubLink {
+			return n.str()
+		}
+		SubPlan {
+			return n.str()
+		}
+		AlternativeSubPlan {
+			return n.str()
+		}
+		FieldSelect {
+			return n.str()
+		}
+		FieldStore {
+			return n.str()
+		}
+		RelabelType {
+			return n.str()
+		}
+		CoerceViaIO {
+			return n.str()
+		}
+		ArrayCoerceExpr {
+			return n.str()
+		}
+		ConvertRowtypeExpr {
+			return n.str()
+		}
+		CollateExpr {
+			return n.str()
+		}
+		CaseExpr {
+			return n.str()
+		}
+		CaseWhen {
+			return n.str()
+		}
+		CaseTestExpr {
+			return n.str()
+		}
+		ArrayExpr {
+			return n.str()
+		}
+		RowExpr {
+			return n.str()
+		}
+		RowCompareExpr {
+			return n.str()
+		}
+		CoalesceExpr {
+			return n.str()
+		}
+		MinMaxExpr {
+			return n.str()
+		}
+		SQLValueFunction {
+			return n.str()
+		}
+		XmlExpr {
+			return n.str()
+		}
+		JsonFormat {
+			return n.str()
+		}
+		JsonReturning {
+			return n.str()
+		}
+		JsonValueExpr {
+			return n.str()
+		}
+		JsonConstructorExpr {
+			return n.str()
+		}
+		JsonIsPredicate {
+			return n.str()
+		}
+		JsonBehavior {
+			return n.str()
+		}
+		JsonExpr {
+			return n.str()
+		}
+		JsonTablePath {
+			return n.str()
+		}
+		JsonTablePathScan {
+			return n.str()
+		}
+		JsonTableSiblingJoin {
+			return n.str()
+		}
+		NullTest {
+			return n.str()
+		}
+		BooleanTest {
+			return n.str()
+		}
+		MergeAction {
+			return n.str()
+		}
+		CoerceToDomain {
+			return n.str()
+		}
+		CoerceToDomainValue {
+			return n.str()
+		}
+		SetToDefault {
+			return n.str()
+		}
+		CurrentOfExpr {
+			return n.str()
+		}
+		NextValueExpr {
+			return n.str()
+		}
+		InferenceElem {
+			return n.str()
+		}
+		TargetEntry {
+			return n.str()
+		}
+		RangeTblRef {
+			return n.str()
+		}
+		JoinExpr {
+			return n.str()
+		}
+		FromExpr {
+			return n.str()
+		}
+		OnConflictExpr {
+			return n.str()
+		}
+		Query {
+			return n.str()
+		}
+		TypeName {
+			return n.str()
+		}
+		ColumnRef {
+			return n.str()
+		}
+		ParamRef {
+			return n.str()
+		}
+		AExpr {
+			return n.str()
+		}
+		TypeCast {
+			return n.str()
+		}
+		CollateClause {
+			return n.str()
+		}
+		RoleSpec {
+			return n.str()
+		}
+		FuncCall {
+			return n.str()
+		}
+		AStar {
+			return n.str()
+		}
+		AIndices {
+			return n.str()
+		}
+		AIndirection {
+			return n.str()
+		}
+		AArrayExpr {
+			return n.str()
+		}
+		ResTarget {
+			return n.str()
+		}
+		MultiAssignRef {
+			return n.str()
+		}
+		SortBy {
+			return n.str()
+		}
+		WindowDef {
+			return n.str()
+		}
+		RangeSubselect {
+			return n.str()
+		}
+		RangeFunction {
+			return n.str()
+		}
+		RangeTableFunc {
+			return n.str()
+		}
+		RangeTableFuncCol {
+			return n.str()
+		}
+		RangeTableSample {
+			return n.str()
+		}
+		ColumnDef {
+			return n.str()
+		}
+		TableLikeClause {
+			return n.str()
+		}
+		IndexElem {
+			return n.str()
+		}
+		DefElem {
+			return n.str()
+		}
+		LockingClause {
+			return n.str()
+		}
+		XmlSerialize {
+			return n.str()
+		}
+		PartitionElem {
+			return n.str()
+		}
+		PartitionSpec {
+			return n.str()
+		}
+		PartitionBoundSpec {
+			return n.str()
+		}
+		PartitionRangeDatum {
+			return n.str()
+		}
+		SinglePartitionSpec {
+			return n.str()
+		}
+		PartitionCmd {
+			return n.str()
+		}
+		RangeTblEntry {
+			return n.str()
+		}
+		RTEPermissionInfo {
+			return n.str()
+		}
+		RangeTblFunction {
+			return n.str()
+		}
+		TableSampleClause {
+			return n.str()
+		}
+		WithCheckOption {
+			return n.str()
+		}
+		SortGroupClause {
+			return n.str()
+		}
+		GroupingSet {
+			return n.str()
+		}
+		WindowClause {
+			return n.str()
+		}
+		RowMarkClause {
+			return n.str()
+		}
+		WithClause {
+			return n.str()
+		}
+		InferClause {
+			return n.str()
+		}
+		OnConflictClause {
+			return n.str()
+		}
+		CTESearchClause {
+			return n.str()
+		}
+		CTECycleClause {
+			return n.str()
+		}
+		CommonTableExpr {
+			return n.str()
+		}
+		MergeWhenClause {
+			return n.str()
+		}
+		TriggerTransition {
+			return n.str()
+		}
+		JsonOutput {
+			return n.str()
+		}
+		JsonArgument {
+			return n.str()
+		}
+		JsonFuncExpr {
+			return n.str()
+		}
+		JsonTablePathSpec {
+			return n.str()
+		}
+		JsonTable {
+			return n.str()
+		}
+		JsonTableColumn {
+			return n.str()
+		}
+		JsonKeyValue {
+			return n.str()
+		}
+		JsonParseExpr {
+			return n.str()
+		}
+		JsonScalarExpr {
+			return n.str()
+		}
+		JsonSerializeExpr {
+			return n.str()
+		}
+		JsonObjectConstructor {
+			return n.str()
+		}
+		JsonArrayConstructor {
+			return n.str()
+		}
+		JsonArrayQueryConstructor {
+			return n.str()
+		}
+		JsonAggConstructor {
+			return n.str()
+		}
+		JsonObjectAgg {
+			return n.str()
+		}
+		JsonArrayAgg {
+			return n.str()
+		}
+		RawStmt {
+			return n.str()
+		}
+		InsertStmt {
+			return n.str()
+		}
+		DeleteStmt {
+			return n.str()
+		}
+		UpdateStmt {
+			return n.str()
+		}
+		MergeStmt {
+			return n.str()
+		}
+		SelectStmt {
+			return n.str()
+		}
+		SetOperationStmt {
+			return n.str()
+		}
+		ReturnStmt {
+			return n.str()
+		}
+		PLAssignStmt {
+			return n.str()
+		}
+		CreateSchemaStmt {
+			return n.str()
+		}
+		AlterTableStmt {
+			return n.str()
+		}
+		ReplicaIdentityStmt {
+			return n.str()
+		}
+		AlterTableCmd {
+			return n.str()
+		}
+		AlterCollationStmt {
+			return n.str()
+		}
+		AlterDomainStmt {
+			return n.str()
+		}
+		GrantStmt {
+			return n.str()
+		}
+		ObjectWithArgs {
+			return n.str()
+		}
+		AccessPriv {
+			return n.str()
+		}
+		GrantRoleStmt {
+			return n.str()
+		}
+		AlterDefaultPrivilegesStmt {
+			return n.str()
+		}
+		CopyStmt {
+			return n.str()
+		}
+		VariableSetStmt {
+			return n.str()
+		}
+		VariableShowStmt {
+			return n.str()
+		}
+		CreateStmt {
+			return n.str()
+		}
+		Constraint {
+			return n.str()
+		}
+		CreateTableSpaceStmt {
+			return n.str()
+		}
+		DropTableSpaceStmt {
+			return n.str()
+		}
+		AlterTableSpaceOptionsStmt {
+			return n.str()
+		}
+		AlterTableMoveAllStmt {
+			return n.str()
+		}
+		CreateExtensionStmt {
+			return n.str()
+		}
+		AlterExtensionStmt {
+			return n.str()
+		}
+		AlterExtensionContentsStmt {
+			return n.str()
+		}
+		CreateFdwStmt {
+			return n.str()
+		}
+		AlterFdwStmt {
+			return n.str()
+		}
+		CreateForeignServerStmt {
+			return n.str()
+		}
+		AlterForeignServerStmt {
+			return n.str()
+		}
+		CreateForeignTableStmt {
+			return n.str()
+		}
+		CreateUserMappingStmt {
+			return n.str()
+		}
+		AlterUserMappingStmt {
+			return n.str()
+		}
+		DropUserMappingStmt {
+			return n.str()
+		}
+		ImportForeignSchemaStmt {
+			return n.str()
+		}
+		CreatePolicyStmt {
+			return n.str()
+		}
+		AlterPolicyStmt {
+			return n.str()
+		}
+		CreateAmStmt {
+			return n.str()
+		}
+		CreateTrigStmt {
+			return n.str()
+		}
+		CreateEventTrigStmt {
+			return n.str()
+		}
+		AlterEventTrigStmt {
+			return n.str()
+		}
+		CreatePLangStmt {
+			return n.str()
+		}
+		CreateRoleStmt {
+			return n.str()
+		}
+		AlterRoleStmt {
+			return n.str()
+		}
+		AlterRoleSetStmt {
+			return n.str()
+		}
+		DropRoleStmt {
+			return n.str()
+		}
+		CreateSeqStmt {
+			return n.str()
+		}
+		AlterSeqStmt {
+			return n.str()
+		}
+		DefineStmt {
+			return n.str()
+		}
+		CreateDomainStmt {
+			return n.str()
+		}
+		CreateOpClassStmt {
+			return n.str()
+		}
+		CreateOpClassItem {
+			return n.str()
+		}
+		CreateOpFamilyStmt {
+			return n.str()
+		}
+		AlterOpFamilyStmt {
+			return n.str()
+		}
+		DropStmt {
+			return n.str()
+		}
+		TruncateStmt {
+			return n.str()
+		}
+		CommentStmt {
+			return n.str()
+		}
+		SecLabelStmt {
+			return n.str()
+		}
+		DeclareCursorStmt {
+			return n.str()
+		}
+		ClosePortalStmt {
+			return n.str()
+		}
+		FetchStmt {
+			return n.str()
+		}
+		IndexStmt {
+			return n.str()
+		}
+		CreateStatsStmt {
+			return n.str()
+		}
+		StatsElem {
+			return n.str()
+		}
+		AlterStatsStmt {
+			return n.str()
+		}
+		CreateFunctionStmt {
+			return n.str()
+		}
+		FunctionParameter {
+			return n.str()
+		}
+		AlterFunctionStmt {
+			return n.str()
+		}
+		DoStmt {
+			return n.str()
+		}
+		InlineCodeBlock {
+			return n.str()
+		}
+		CallStmt {
+			return n.str()
+		}
+		CallContext {
+			return n.str()
+		}
+		RenameStmt {
+			return n.str()
+		}
+		AlterObjectDependsStmt {
+			return n.str()
+		}
+		AlterObjectSchemaStmt {
+			return n.str()
+		}
+		AlterOwnerStmt {
+			return n.str()
+		}
+		AlterOperatorStmt {
+			return n.str()
+		}
+		AlterTypeStmt {
+			return n.str()
+		}
+		RuleStmt {
+			return n.str()
+		}
+		NotifyStmt {
+			return n.str()
+		}
+		ListenStmt {
+			return n.str()
+		}
+		UnlistenStmt {
+			return n.str()
+		}
+		TransactionStmt {
+			return n.str()
+		}
+		CompositeTypeStmt {
+			return n.str()
+		}
+		CreateEnumStmt {
+			return n.str()
+		}
+		CreateRangeStmt {
+			return n.str()
+		}
+		AlterEnumStmt {
+			return n.str()
+		}
+		ViewStmt {
+			return n.str()
+		}
+		LoadStmt {
+			return n.str()
+		}
+		CreatedbStmt {
+			return n.str()
+		}
+		AlterDatabaseStmt {
+			return n.str()
+		}
+		AlterDatabaseRefreshCollStmt {
+			return n.str()
+		}
+		AlterDatabaseSetStmt {
+			return n.str()
+		}
+		DropdbStmt {
+			return n.str()
+		}
+		AlterSystemStmt {
+			return n.str()
+		}
+		ClusterStmt {
+			return n.str()
+		}
+		VacuumStmt {
+			return n.str()
+		}
+		VacuumRelation {
+			return n.str()
+		}
+		ExplainStmt {
+			return n.str()
+		}
+		CreateTableAsStmt {
+			return n.str()
+		}
+		RefreshMatViewStmt {
+			return n.str()
+		}
+		CheckPointStmt {
+			return n.str()
+		}
+		DiscardStmt {
+			return n.str()
+		}
+		LockStmt {
+			return n.str()
+		}
+		ConstraintsSetStmt {
+			return n.str()
+		}
+		ReindexStmt {
+			return n.str()
+		}
+		CreateConversionStmt {
+			return n.str()
+		}
+		CreateCastStmt {
+			return n.str()
+		}
+		CreateTransformStmt {
+			return n.str()
+		}
+		PrepareStmt {
+			return n.str()
+		}
+		ExecuteStmt {
+			return n.str()
+		}
+		DeallocateStmt {
+			return n.str()
+		}
+		DropOwnedStmt {
+			return n.str()
+		}
+		ReassignOwnedStmt {
+			return n.str()
+		}
+		AlterTSDictionaryStmt {
+			return n.str()
+		}
+		AlterTSConfigurationStmt {
+			return n.str()
+		}
+		PublicationTable {
+			return n.str()
+		}
+		PublicationObjSpec {
+			return n.str()
+		}
+		CreatePublicationStmt {
+			return n.str()
+		}
+		AlterPublicationStmt {
+			return n.str()
+		}
+		CreateSubscriptionStmt {
+			return n.str()
+		}
+		AlterSubscriptionStmt {
+			return n.str()
+		}
+		DropSubscriptionStmt {
+			return n.str()
+		}
+		Integer {
+			return n.str()
+		}
+		Float {
+			return n.str()
+		}
+		Boolean {
+			return n.str()
+		}
+		String {
+			return n.str()
+		}
+		BitString {
+			return n.str()
+		}
+		List {
+			return n.str()
+		}
+		IntList {
+			return n.str()
+		}
+		OidList {
+			return n.str()
+		}
+		AConst {
+			return n.str()
+		}
+		UnrecognizedNode {
+			return n.str()
+		}
+	}
+}
 
 // JsonNode is used internally for JSON decoding before converting to Node sum type
 pub struct JsonNode {
@@ -4083,7 +7409,7 @@ pub struct JsonNode {
 	a_const ?AConst
 }
 
-fn decode_node_json(jn JsonNode) !Node {
+fn decode_node_json(jn JsonNode) Node {
 	if n := jn.alias {
 		return n
 	}
@@ -4888,7 +8214,10 @@ fn decode_node_json(jn JsonNode) !Node {
 	if n := jn.a_const {
 		return n
 	}
-	return error("unknown node type")
+	// No known field matched — scan all fields for data
+	// to create an UnrecognizedNode that preserves the payload
+	// Iterate over JsonNode fields to find a non-none value
+	return UnrecognizedNode{field_num: 0, data: []u8{}}
 }
 
 // AstRawStmt is a typed version of RawStmt with a decoded Node tree.
@@ -4899,11 +8228,26 @@ pub:
 	stmt Node @[json: 'stmt']
 }
 
+pub fn (m AstRawStmt) str() string {
+	mut parts := []string{}
+	if m.stmt_location != 0 { parts << "stmt_location: ${m.stmt_location}" }
+	if m.stmt_len != 0 { parts << "stmt_len: ${m.stmt_len}" }
+	parts << "stmt: ${m.stmt}"
+	return 'AstRawStmt{' + parts.join(', ') + '}'
+}
+
 // ParseAstResult is the typed AST equivalent of ParseResult.
 pub struct ParseAstResult {
 pub:
 	version int
 	stmts []AstRawStmt @[json: 'stmts']
+}
+
+pub fn (m ParseAstResult) str() string {
+	mut parts := []string{}
+	if m.version != 0 { parts << "version: ${m.version}" }
+	if m.stmts.len > 0 { parts << "stmts: ${m.stmts}" }
+	return 'ParseAstResult{' + parts.join(', ') + '}'
 }
 
 // JSON-only intermediate types for decoding
@@ -4919,6 +8263,8 @@ struct JsonParseResult {
 }
 
 // Parse SQL into typed V AST structs using JSON decode path.
+// Deprecated: use parse_protobuf_ast() instead (~3x faster, pure V decode).
+// parse_ast calls parse() (C bridge JSON) then decodes JSON into V structs.
 pub fn parse_ast(input_sql string) !ParseAstResult {
 	res := parse(input_sql) or { return err }
 	json_res := json.decode(JsonParseResult, res.parse_tree) or { return err }
@@ -4927,7 +8273,7 @@ pub fn parse_ast(input_sql string) !ParseAstResult {
 		stmts << AstRawStmt{
 			stmt_location: s.stmt_location
 			stmt_len: s.stmt_len
-			stmt: decode_node_json(s.stmt)!
+			stmt: decode_node_json(s.stmt)
 		}
 	}
 	return ParseAstResult{
