@@ -1,5 +1,7 @@
 module pg_query
 
+import json
+
 pub struct ParseResult {
 pub:
 	parse_tree    string
@@ -204,6 +206,25 @@ pub fn parse_protobuf(input string) !ParseResultProtobuf {
 	return ParseResultProtobuf{
 		parse_tree:    pb
 		stderr_buffer: sb
+	}
+}
+
+// Parse a JSON parse tree string into typed V AST structs.
+// Unlike parse_ast() (which calls parse() internally), this accepts
+// any JSON string produced by pg_query.parse() or an external source.
+pub fn parse_json_ast(json_string string) !ParseAstResult {
+	json_res := json.decode(JsonParseResult, json_string) or { return err }
+	mut stmts := []AstRawStmt{}
+	for s in json_res.stmts {
+		stmts << AstRawStmt{
+			stmt_location: s.stmt_location
+			stmt_len: s.stmt_len
+			stmt: decode_node_json(s.stmt)!
+		}
+	}
+	return ParseAstResult{
+		version: json_res.version
+		stmts: stmts
 	}
 }
 

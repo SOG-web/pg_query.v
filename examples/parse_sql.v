@@ -133,7 +133,46 @@ fn main() {
 	println('\n=== Deparse roundtrip ===')
 	println('  ${deparsed.query}')
 
-	// ── 9. Concurrent parsing ──
+	// ── 9. Pure-V AST roundtrip: parse -> typed AST -> encode -> deparse ──
+	ast := pg_query.parse_protobuf_ast('SELECT id, name FROM users') or {
+		eprintln('Parse error: ${err}')
+		return
+	}
+	encoded := pg_query.encode_ast(ast)
+	deparsed2 := pg_query.deparse_protobuf(encoded) or {
+		eprintln('Deparse error: ${err}')
+		return
+	}
+	println('\n=== Pure-V AST roundtrip ===')
+	println('  input:  SELECT id, name FROM users')
+	println('  output: ${deparsed2.query}')
+	println('  V decode + V encode + C deparse')
+
+	// ── 10. Query rewrite: modify AST in pure V ──
+	mut sel := ast.stmts[0].stmt as pg_query.SelectStmt
+	mut new_from := []pg_query.Node{}
+	for n in sel.from_clause {
+		if n is pg_query.RangeVar {
+			mut rv := n
+			rv.relname = 'users_v2'
+			new_from << rv
+		} else {
+			new_from << n
+		}
+	}
+	sel.from_clause = new_from
+	rewritten := pg_query.deparse_ast(pg_query.ParseAstResult{
+		version: ast.version
+		stmts: [pg_query.AstRawStmt{
+			stmt_location: ast.stmts[0].stmt_location
+			stmt_len: ast.stmts[0].stmt_len
+			stmt: sel
+		}]
+	}) or { eprintln('Rewrite deparse error: ${err}'); return }
+	println('\n=== Query rewrite (users → users_v2) ===')
+	println('  ${rewritten}')
+
+	// ── 11. Concurrent parsing ──
 	// The C parser uses thread-local memory contexts and is safe to
 	// call from multiple OS threads simultaneously. Do NOT call exit()
 	// while other threads may be actively parsing.

@@ -44,15 +44,26 @@ fn main() {
 	elapsed = time.since(start)
 	println('  parse_protobuf() → raw bytes       ${f64(elapsed.microseconds()) / f64(total_ops):8.2f} us/op  (${elapsed.milliseconds()} ms)')
 
-		// --- Typed AST path (V-native protobuf decode) ---
-		start = time.now()
-		for _ in 0 .. n {
-			for q in queries {
-				pg_query.parse_protobuf_ast(q) or { panic(err) }
-			}
+	// --- Typed AST path (V-native protobuf decode) ---
+	start = time.now()
+	for _ in 0 .. n {
+		for q in queries {
+			pg_query.parse_protobuf_ast(q) or { panic(err) }
 		}
-		elapsed = time.since(start)
-		println('  parse_protobuf_ast() → typed AST    ${f64(elapsed.microseconds()) / f64(total_ops):8.2f} us/op  (${elapsed.milliseconds()} ms)')
+	}
+	elapsed = time.since(start)
+	println('  parse_protobuf_ast() → typed AST    ${f64(elapsed.microseconds()) / f64(total_ops):8.2f} us/op  (${elapsed.milliseconds()} ms)')
+
+	// --- JSON-to-AST path (JSON decode + sum-type conversion) ---
+	start = time.now()
+	for _ in 0 .. n {
+		for q in queries {
+			res := pg_query.parse(q) or { panic(err) }
+			pg_query.parse_json_ast(res.parse_tree) or { panic(err) }
+		}
+	}
+	elapsed = time.since(start)
+	println('  parse_json_ast()  → typed AST      ${f64(elapsed.microseconds()) / f64(total_ops):8.2f} us/op  (${elapsed.milliseconds()} ms)')
 
 	// --- Fingerprint (fastest path) ---
 	start = time.now()
