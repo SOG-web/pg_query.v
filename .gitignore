@@ -34,3 +34,4 @@ pg_query/*.o.tmp
 examples/bench
 examples/concurrent_parse
 examples/parse_sql
+examples/perf_check
