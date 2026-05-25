@@ -10,30 +10,32 @@ use cases.
 
 | Function | Returns | Use Case | Speed |
 |---|---|---|---|
-| `normalize()` | `string` | Anonymize query literals for logging | ~4 us/op |
-| `fingerprint()` | `u64` | Consistent hash for query structure | ~9 us/op |
-| `parse()` | JSON `string` | Full tree inspection, debugging | ~7 us/op |
-| `parse_protobuf_ast()` | typed V AST structs | Shard key / table extraction | ~33 us/op |
-| `parse_json_ast()` | typed V AST structs | JSON → typed AST (external JSON) | ~94 us/op |
+| `normalize()` | `string` | Anonymize query literals for logging | ~3 us/op |
+| `fingerprint()` | `u64` | Consistent hash for query structure | ~6 us/op |
+| `parse()` | JSON `string` | Full tree inspection, debugging | ~4 us/op |
+| `parse_protobuf_ast()` | typed V AST structs | Shard key / table extraction | ~19 us/op |
+| `parse_json_ast()` | typed V AST structs | JSON → typed AST (external JSON) | ~54 us/op |
 | `encode_parse_result()` | `[]u8` protobuf | Serialize AST back to wire format | 111 µs |
 | `deparse_ast()` | `!string` | Query rewrite pipeline | encode + C deparse (160 µs) |
 
-## Benchmark (2026-05-16)
+## Benchmark (2026-05-25)
 
 ```
-normalize() → anonymized SQL               7.5 us/op
-parse() → JSON string                     13.1 us/op
-fingerprint() → hash                      16.4 us/op
-parse_protobuf_ast() → typed AST          62.3 us/op
-parse_json_ast() → typed AST             166.4 us/op
+normalize() → anonymized SQL               2.6 us/op
+parse() → JSON string                      3.2 us/op
+fingerprint() → hash                       5.6 us/op
+parse_protobuf_ast() → typed AST          18.6 us/op
+parse_json_ast() → typed AST              53.7 us/op
 encode_parse_result() → protobuf         111.0 us/op
 deparse_ast() → SQL (encode+deparse)     159.7 us/op
 ```
 
-**Conditions**: 6 queries × 1000 iterations = 6000 ops per path, M2 MacBook Air.
-**Note**: All `parse_*` numbers doubled versus earlier runs due to macOS scheduler variance.
-Encode is ~1.8× slower than decode because it dynamically grows output arrays and walks
-the sum-type dispatch table. Deparse overhead over encode is ~49 µs (C library call).
+**Conditions**: 2 queries × 10000 iterations = 20000 ops per path, M2 MacBook Air.
+(encode & deparse from 6q × 1000i bench.v — unchanged).
+**Note**: Parse-path numbers halved versus prior run (scheduler variance resolved).
+Bridge elimination reduced C call overhead for parse paths. Encode is ~1.8× slower than
+decode because it dynamically grows output arrays and walks the sum-type dispatch table.
+Deparse overhead over encode is ~49 µs (C library call).
 
 ## Concurrency Stress Test
 
@@ -67,7 +69,7 @@ the sum-type dispatch table. Deparse overhead over encode is ~49 µs (C library 
 - [x] Forward-compatible decode (`UnrecognizedNode` fallback)
 - [x] Packed encoding for repeated scalar/enum fields
 - [x] `parse_ast()` deprecated in favor of `parse_protobuf_ast()` (~3× faster)
-- [x] `PostgresDeparseOpts` ABI decoupled (opaque voidptr via C bridge setters)
+- [x] `PostgresDeparseOpts` ABI decoupled (opaque voidptr, bridge layer eliminated)
 - [x] `valid_enum_int_strict()` for rejecting invalid enum values
 - [x] Self-validating version tests (no hardcoded PG version strings)
 - [x] Example: `examples/parse_sql.v` — all paths + typed AST traversal + rewriting + concurrency
@@ -93,11 +95,11 @@ the sum-type dispatch table. Deparse overhead over encode is ~49 µs (C library 
 
 | Use Case | Path | Ready? |
 |---|---|---|
-| Fingerprint routing | `fingerprint()` | ✅ ~9 us/op |
-| Normalize for logging | `normalize()` | ✅ ~4 us/op |
+| Fingerprint routing | `fingerprint()` | ✅ ~6 us/op |
+| Normalize for logging | `normalize()` | ✅ ~3 us/op |
 | Statement splitting | `split_with_scanner()` | ✅ |
 | DDL detection | `is_utility_stmt()` | ✅ |
-| Shard key extraction | `parse_protobuf_ast()` | ✅ ~33 us/op |
+| Shard key extraction | `parse_protobuf_ast()` | ✅ ~19 us/op |
 | Query rewriting | `deparse_ast()` | ✅ parse → modify V AST → reserialize |
 
 ## Key Decisions

@@ -62,7 +62,7 @@ pub fn deparse_ast(result ParseAstResult) !string {
 
 fn protobuf_from_bytes(buf []u8) Protobuf {
 	return Protobuf{
-		len: usize(buf.len)
+		len:  usize(buf.len)
 		data: buf.bytestr()
 	}
 }
@@ -78,8 +78,6 @@ pub:
 	fingerprint_str string
 	stderr_buffer   string
 }
-
-
 
 pub struct SplitStmt {
 pub:
@@ -135,12 +133,12 @@ pub:
 
 pub struct PgError {
 pub:
-	message    string
-	funcname   string
-	filename   string
-	lineno     int
-	cursorpos  int
-	context    string
+	message   string
+	funcname  string
+	filename  string
+	lineno    int
+	cursorpos int
+	context   string
 }
 
 pub fn (e PgError) msg() string {
@@ -162,13 +160,13 @@ fn pg_error_from(err &C.PgQueryError) ?PgError {
 	if err == unsafe { nil } {
 		return none
 	}
-		return PgError{
-		message:    cstring(err.message)
-		funcname:   cstring(err.funcname)
-		filename:   cstring(err.filename)
-		lineno:     err.lineno
-		cursorpos:  err.cursorpos
-		context:    cstring(err.context)
+	return PgError{
+		message:   cstring(err.message)
+		funcname:  cstring(err.funcname)
+		filename:  cstring(err.filename)
+		lineno:    err.lineno
+		cursorpos: err.cursorpos
+		context:   cstring(err.context)
 	}
 }
 
@@ -229,13 +227,13 @@ pub fn parse_json_ast(json_string string) !ParseAstResult {
 	for s in json_res.stmts {
 		stmts << AstRawStmt{
 			stmt_location: s.stmt_location
-			stmt_len: s.stmt_len
-			stmt: decode_node_json(s.stmt)
+			stmt_len:      s.stmt_len
+			stmt:          decode_node_json(s.stmt)
 		}
 	}
 	return ParseAstResult{
 		version: json_res.version
-		stmts: stmts
+		stmts:   stmts
 	}
 }
 
@@ -426,9 +424,18 @@ pub fn deparse_protobuf_opts(pb Protobuf, opts DeparseOpts) !DeparseResult {
 	c_pb := protobuf_to_c(pb)
 	c_opts := deparse_opts_to_c(opts)
 	defer {
-		C.pg_query_bridge_deparse_opts_free(c_opts)
+		if c_opts.comment_count > 0 {
+			unsafe {
+				n := int(c_opts.comment_count)
+				arr := &voidptr(c_opts.comments)
+				for i in 0 .. n {
+					C.free(arr[i])
+				}
+				C.free(c_opts.comments)
+			}
+		}
 	}
-	res := C.pg_query_bridge_deparse_protobuf_opts(c_pb, c_opts)
+	res := C.pg_query_deparse_protobuf_opts(c_pb, c_opts)
 	if pe := pg_error_from(res.error) {
 		C.pg_query_free_deparse_result(res)
 		return pe
@@ -494,11 +501,11 @@ pub fn exit() {
 
 // Postgres version information.
 pub fn pg_version() string {
-	return cstring(C.pg_query_bridge_pg_version())
+	return pg_version_str
 }
 
 pub fn pg_major_version() string {
-	return cstring(C.pg_query_bridge_pg_major_version())
+	return pg_major_version_str
 }
 
 pub fn pg_version_num() int {
@@ -549,30 +556,43 @@ fn split_stmts_from_c(res C.PgQuerySplitResult) []SplitStmt {
 		return []
 	}
 	mut stmts := []SplitStmt{len: res.n_stmts}
-	for i in 0 .. res.n_stmts {
-		stmt_ptr := C.pg_query_bridge_split_stmts_get(res.stmts, i)
-		c_stmt := unsafe { &C.PgQuerySplitStmt(stmt_ptr) }
-		stmts[i] = SplitStmt{
-			stmt_location: c_stmt.stmt_location
-			stmt_len:      c_stmt.stmt_len
+	unsafe {
+		for i in 0 .. res.n_stmts {
+			c_stmt := res.stmts[i]
+			stmts[i] = SplitStmt{
+				stmt_location: c_stmt.stmt_location
+				stmt_len:      c_stmt.stmt_len
+			}
 		}
 	}
 	return stmts
 }
 
-fn deparse_opts_to_c(opts DeparseOpts) voidptr {
-	mut c_opts := C.pg_query_bridge_deparse_opts_new()
-	C.pg_query_bridge_deparse_opts_set_comment_count(c_opts, usize(opts.comments.len))
-	C.pg_query_bridge_deparse_opts_set_pretty_print(c_opts, opts.pretty_print)
-	C.pg_query_bridge_deparse_opts_set_indent_size(c_opts, opts.indent_size)
-	C.pg_query_bridge_deparse_opts_set_max_line_length(c_opts, opts.max_line_length)
-	C.pg_query_bridge_deparse_opts_set_trailing_newline(c_opts, opts.trailing_newline)
-	C.pg_query_bridge_deparse_opts_set_commas_start_of_line(c_opts, opts.commas_start_of_line)
+fn deparse_opts_to_c(opts DeparseOpts) C.PostgresDeparseOpts {
+	mut c_opts := C.PostgresDeparseOpts{
+		comments:             unsafe { nil }
+		comment_count:        usize(0)
+		pretty_print:         opts.pretty_print
+		indent_size:          opts.indent_size
+		max_line_length:      opts.max_line_length
+		trailing_newline:     opts.trailing_newline
+		commas_start_of_line: opts.commas_start_of_line
+	}
 	if opts.comments.len > 0 {
-		C.pg_query_bridge_deparse_opts_init_comments(c_opts, usize(opts.comments.len))
-		for i, comment in opts.comments {
-			C.pg_query_bridge_deparse_opts_set_comment(c_opts, usize(i), comment.match_location,
-				comment.newlines_before_comment, comment.newlines_after_comment, comment.str.str)
+		unsafe {
+			n := opts.comments.len
+			raw := C.calloc(usize(n), usize(8))
+			arr := &voidptr(raw)
+			for i in 0 .. n {
+				c := &C.PostgresDeparseComment(C.calloc(1, usize(sizeof(C.PostgresDeparseComment))))
+				c.match_location = opts.comments[i].match_location
+				c.newlines_before_comment = opts.comments[i].newlines_before_comment
+				c.newlines_after_comment = opts.comments[i].newlines_after_comment
+				c.str = opts.comments[i].str.str
+				arr[i] = voidptr(c)
+			}
+			c_opts.comments = raw
+			c_opts.comment_count = usize(n)
 		}
 	}
 	return c_opts
@@ -583,14 +603,15 @@ fn deparse_comments_from_c(res C.PgQueryDeparseCommentsResult) []DeparseComment 
 		return []
 	}
 	mut comments := []DeparseComment{len: int(res.comment_count)}
-	for i in 0 .. res.comment_count {
-		comment_ptr := C.pg_query_bridge_deparse_comments_get(res.comments, i)
-		c := unsafe { &C.PostgresDeparseComment(comment_ptr) }
-		comments[i] = DeparseComment{
-			match_location:          c.match_location
-			newlines_before_comment: c.newlines_before_comment
-			newlines_after_comment:  c.newlines_after_comment
-			str:                     cstring(c.str)
+	unsafe {
+		for i in 0 .. res.comment_count {
+			c := res.comments[i]
+			comments[i] = DeparseComment{
+				match_location:          c.match_location
+				newlines_before_comment: c.newlines_before_comment
+				newlines_after_comment:  c.newlines_after_comment
+				str:                     cstring(c.str)
+			}
 		}
 	}
 	return comments
@@ -601,7 +622,7 @@ fn is_utility_items_from_c(res C.PgQueryIsUtilityResult) []bool {
 		return []
 	}
 	mut items := []bool{len: res.length}
-	ptr := unsafe { &u8(res.items) }
+	ptr := unsafe { &u8(voidptr(res.items)) }
 	for i in 0 .. res.length {
 		items[i] = unsafe { ptr[i] } != 0
 	}

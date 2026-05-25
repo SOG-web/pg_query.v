@@ -1,14 +1,10 @@
 module pg_query
 
-#flag -I @VMODROOT/libpg_query
-#flag -I @VMODROOT/pg_query
-#flag -I @VMODROOT/libpg_query/vendor
-#flag @VMODROOT/libpg_query/libpg_query.a
-#flag @VMODROOT/pg_query/c_bridge.o
+#flag -I @VMODROOT/c
+#flag -I @VMODROOT/c/vendor
+#flag @VMODROOT/c/libpg_query.a
 #flag linux -pthread
 #include "pg_query.h"
-#include "c_bridge.h"
-
 @[typedef]
 pub struct C.PgQueryError {
 	message   &char
@@ -68,7 +64,7 @@ pub struct C.PgQuerySplitStmt {
 
 @[typedef]
 pub struct C.PgQuerySplitResult {
-	stmts         voidptr
+	stmts         &&C.PgQuerySplitStmt
 	n_stmts       int
 	stderr_buffer &char
 	error         &C.PgQueryError
@@ -88,13 +84,22 @@ pub struct C.PostgresDeparseComment {
 	str                     &char
 }
 
-// C.PostgresDeparseOpts is intentionally opaque — all field access
-// goes through C bridge setters in c_bridge.c to avoid ABI coupling.
-// If you need to add/remove fields, update c_bridge.c bridge functions only.
+// PostgresDeparseOpts is fully visible now — constructed directly in V.
+// comments is voidptr to avoid V `&&T` cast issues; binary layout is identical.
+@[typedef]
+pub struct C.PostgresDeparseOpts {
+	comments             voidptr
+	comment_count        usize
+	pretty_print         bool
+	indent_size          int
+	max_line_length      int
+	trailing_newline     bool
+	commas_start_of_line bool
+}
 
 @[typedef]
 pub struct C.PgQueryDeparseCommentsResult {
-	comments      voidptr
+	comments      &&C.PostgresDeparseComment
 	comment_count usize
 	error         &C.PgQueryError
 }
@@ -108,7 +113,7 @@ pub struct C.PgQueryPlpgsqlParseResult {
 @[typedef]
 pub struct C.PgQueryIsUtilityResult {
 	length int
-	items  voidptr
+	items  &bool
 	error  &C.PgQueryError
 }
 
@@ -119,18 +124,19 @@ pub struct C.PgQuerySummaryParseResult {
 	error         &C.PgQueryError
 }
 
-// Parse mode enum
-pub const pg_query_parse_default = C.PG_QUERY_PARSE_DEFAULT
-pub const pg_query_parse_type_name = C.PG_QUERY_PARSE_TYPE_NAME
-pub const pg_query_parse_plpgsql_expr = C.PG_QUERY_PARSE_PLPGSQL_EXPR
-pub const pg_query_parse_plpgsql_assign1 = C.PG_QUERY_PARSE_PLPGSQL_ASSIGN1
-pub const pg_query_parse_plpgsql_assign2 = C.PG_QUERY_PARSE_PLPGSQL_ASSIGN2
-pub const pg_query_parse_plpgsql_assign3 = C.PG_QUERY_PARSE_PLPGSQL_ASSIGN3
-
-// Parse option flags
-pub const pg_query_disable_backslash_quote = C.PG_QUERY_DISABLE_BACKSLASH_QUOTE
-pub const pg_query_disable_standard_conforming_strings = C.PG_QUERY_DISABLE_STANDARD_CONFORMING_STRINGS
-pub const pg_query_disable_escape_string_warning = C.PG_QUERY_DISABLE_ESCAPE_STRING_WARNING
+// C macros hardcoded as V consts (only change on PG version bumps)
+pub const pg_query_parse_default = 0
+pub const pg_query_parse_type_name = 1
+pub const pg_query_parse_plpgsql_expr = 2
+pub const pg_query_parse_plpgsql_assign1 = 3
+pub const pg_query_parse_plpgsql_assign2 = 4
+pub const pg_query_parse_plpgsql_assign3 = 5
+pub const pg_query_disable_backslash_quote = 16
+pub const pg_query_disable_standard_conforming_strings = 32
+pub const pg_query_disable_escape_string_warning = 64
+pub const pg_version_num = 170007
+pub const pg_version_str = '17.7'
+pub const pg_major_version_str = '17'
 
 // Parse functions
 fn C.pg_query_parse(const_input &char) C.PgQueryParseResult
@@ -156,8 +162,8 @@ fn C.pg_query_split_with_parser(const_input &char) C.PgQuerySplitResult
 
 // Deparse functions
 fn C.pg_query_deparse_protobuf(parse_tree C.PgQueryProtobuf) C.PgQueryDeparseResult
-fn C.pg_query_deparse_protobuf_opts(parse_tree C.PgQueryProtobuf, opts voidptr) C.PgQueryDeparseResult
-fn C.pg_query_is_utility_stmt(const_input &char) C.PgQueryIsUtilityResult
+fn C.pg_query_deparse_protobuf_opts(parse_tree C.PgQueryProtobuf, opts C.PostgresDeparseOpts) C.PgQueryDeparseResult
+fn C.pg_query_is_utility_stmt(const_query &char) C.PgQueryIsUtilityResult
 fn C.pg_query_deparse_comments_for_query(const_query &char) C.PgQueryDeparseCommentsResult
 
 // Summary
@@ -179,23 +185,4 @@ fn C.pg_query_free_summary_parse_result(result C.PgQuerySummaryParseResult)
 // Lifecycle
 fn C.pg_query_exit()
 
-// Bridge helpers (c_bridge.c) — all PostgresDeparseOpts access via voidptr
-fn C.pg_query_bridge_split_stmts_get(stmts voidptr, index int) voidptr
-fn C.pg_query_bridge_deparse_comments_get(comments voidptr, index usize) voidptr
-fn C.pg_query_bridge_pg_version() &char
-fn C.pg_query_bridge_pg_major_version() &char
-fn C.pg_query_bridge_deparse_opts_new() voidptr
-fn C.pg_query_bridge_deparse_opts_set_pretty_print(opts voidptr, val int)
-fn C.pg_query_bridge_deparse_opts_set_indent_size(opts voidptr, val int)
-fn C.pg_query_bridge_deparse_opts_set_max_line_length(opts voidptr, val int)
-fn C.pg_query_bridge_deparse_opts_set_trailing_newline(opts voidptr, val int)
-fn C.pg_query_bridge_deparse_opts_set_commas_start_of_line(opts voidptr, val int)
-fn C.pg_query_bridge_deparse_opts_set_comment_count(opts voidptr, count usize)
-fn C.pg_query_bridge_deparse_opts_init_comments(opts voidptr, count usize)
-fn C.pg_query_bridge_deparse_opts_set_comment(opts voidptr, index usize, location int, newlines_before int, newlines_after int, const_str &char)
-fn C.pg_query_bridge_deparse_opts_free(opts voidptr)
-fn C.pg_query_bridge_deparse_protobuf_opts(parse_tree C.PgQueryProtobuf, opts voidptr) C.PgQueryDeparseResult
 
-// Protobuf bridge functions
-fn C.pg_query_bridge_parse_ast_direct(const_input &char, parser_options int) voidptr
-fn C.pg_query_bridge_free_ast_result(ptr voidptr)

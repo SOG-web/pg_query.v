@@ -1,8 +1,8 @@
 // pg_query.v AST generator
 // Reads protobuf/pg_query.proto and generates:
-//   pg_query/pg_query_ast.v      - V AST struct definitions (JSON decode path)
-//   pg_query/pg_query_ast_c.h    - C header with V-compatible structs (direct bridge)
-//   pg_query/protobuf_bridge.c   - C bridge with converter functions
+//   pg_query_ast.v      - V AST struct definitions
+//   pg_query_decode.v   - V-native protobuf decode
+//   pg_query_encode.v   - V-native protobuf encode
 
 import os
 
@@ -532,7 +532,7 @@ fn generate_code(pf ProtoFile) {
 }
 
 // ============================================================
-// Generate pg_query/pg_query_ast.v (V struct definitions)
+// Generate pg_query_ast.v (V struct definitions)
 // ============================================================
 
 fn generate_str_method(m ProtoMessage, pf ProtoFile) string {
@@ -789,11 +789,11 @@ fn generate_v_ast(pf ProtoFile, node_oneof_fields []ProtoField) {
 	out += '\t}\n'
 	out += '}\n\n'
 
-	os.write_file('pg_query/pg_query_ast.v', out) or {
+	os.write_file('pg_query_ast.v', out) or {
 		eprintln('Failed to write pg_query_ast.v: ${err}')
 		return
 	}
-	println('Generated pg_query/pg_query_ast.v (${out.len} bytes, ${pf.messages.len} messages, ${pf.enums.len} enums)')
+	println('Generated pg_query_ast.v (${out.len} bytes, ${pf.messages.len} messages, ${pf.enums.len} enums)')
 }
 
 // Topological sort messages so dependencies are defined before dependents
@@ -892,7 +892,7 @@ fn topological_sort_messages(pf ProtoFile) []ProtoMessage {
 }
 
 // ============================================================
-// Generate pg_query/pg_query_decode.v (V-native protobuf decode)
+// Generate pg_query_decode.v (V-native protobuf decode)
 // ============================================================
 fn generate_v_protobuf_decode(pf ProtoFile, node_oneof_fields []ProtoField) {
 	mut out := ''
@@ -1068,11 +1068,11 @@ fn generate_v_protobuf_decode(pf ProtoFile, node_oneof_fields []ProtoField) {
 	out += '\t}\n'
 	out += '}\n\n'
 
-	os.write_file('pg_query/pg_query_decode.v', out) or {
+	os.write_file('pg_query_decode.v', out) or {
 		eprintln('Failed to write pg_query_decode.v: ${err}')
 		return
 	}
-	println('Generated pg_query/pg_query_decode.v (${out.len} bytes)')
+	println('Generated pg_query_decode.v (${out.len} bytes)')
 }
 
 fn proto_decode_field_case(f ProtoField, vname string, msg_name string, pf ProtoFile) string {
@@ -1409,7 +1409,7 @@ fn proto_decode_oneof_field_case(f ProtoField, vname string, pf ProtoFile) strin
 }
 
 // ============================================================
-// Generate pg_query/pg_query_encode.v (V-native protobuf encode)
+// Generate pg_query_encode.v (V-native protobuf encode)
 // ============================================================
 fn generate_v_protobuf_encode(pf ProtoFile, node_oneof_fields []ProtoField) {
 	mut out := ''
@@ -1522,11 +1522,11 @@ fn generate_v_protobuf_encode(pf ProtoFile, node_oneof_fields []ProtoField) {
 	out += '\treturn buf\n'
 	out += '}\n\n'
 
-	os.write_file('pg_query/pg_query_encode.v', out) or {
+	os.write_file('pg_query_encode.v', out) or {
 		eprintln('Failed to write pg_query_encode.v: ${err}')
 		return
 	}
-	println('Generated pg_query/pg_query_encode.v (${out.len} bytes)')
+	println('Generated pg_query_encode.v (${out.len} bytes)')
 }
 
 fn proto_type_write_expr(typ string, val_expr string) (int, string) {
