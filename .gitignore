@@ -26,9 +26,12 @@ bin/
 # Ignore installed modules through `v install --local`:
 modules/
 
+# Module resolution symlink (Option B layout)
+pg_query
+
 # Compiled C bridge objects
-pg_query/*.o
-pg_query/*.o.tmp
+*.o
+*.o.tmp
 
 # Compiled example binaries
 examples/bench

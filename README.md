@@ -40,11 +40,8 @@ cd pg_query.v
 # Build the static C library (requires Internet — downloads Postgres 17.7 source)
 make -C libpg_query build
 
-# Build the C helper object
-make build
-
 # Verify everything works
-v test pg_query/
+v test .
 ```
 
 ## Usage
@@ -188,11 +185,8 @@ parse('SELECT $$$') or {
 # Build C library
 make -C libpg_query build
 
-# Build the C helper object
-make build
-
 # Run tests
-v test pg_query/
+v test .
 
 # Run examples
 v run examples/parse_sql.v
@@ -204,22 +198,18 @@ v -o examples/parse_sql examples/parse_sql.v && ./examples/parse_sql
 v -o examples/concurrent_parse examples/concurrent_parse.v && ./examples/concurrent_parse
 v -o examples/bench examples/bench.v && ./examples/bench
 
-# Rebuild C helper (after editing c_bridge.c)
-cc -c -I libpg_query pg_query/c_bridge.c -o pg_query/c_bridge.o
-
 # Regenerate AST structs and decoders (after changing proto schema)
 v run tools/gen_ast.v
 ```
 
 ## How it works
 
-The library bundles [libpg_query](https://github.com/pganalyze/libpg_query) (version 6.2.2, wrapping PostgreSQL 17.7), pre-built as a static archive (`libpg_query.a`). The V wrapper in `pg_query/` has these layers:
+The library bundles [libpg_query](https://github.com/pganalyze/libpg_query) (version 6.2.2, wrapping PostgreSQL 17.7), pre-built as a static archive (`libpg_query.a`). The V wrapper has these layers:
 
 | Layer | Files | Role |
 |---|---|---|
 | **C bindings** | `pgquery.c.v` | `#flag` / `#include` declarations for the C ABI |
 | **V wrapper** | `pgquery.v` | Safe `!` result types for all public APIs |
-| **C helpers** | `c_bridge.c/h` | Thin C helpers for deparse opts, version strings |
 | **Protobuf helpers** | `pg_query_protobuf.v` | V-native protobuf wire-format read/write helpers |
 | **Generated decoders** | `pg_query_decode.v` (generated) | 270+ per-message `decode_*` functions |
 | **Generated encoders** | `pg_query_encode.v` (generated) | 270+ per-message `encode_*` functions |

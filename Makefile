@@ -1,18 +1,17 @@
-.PHONY: all build test clean
+.PHONY: all build test clean dev-setup
 
 all: build
 
-build: pg_query/c_bridge.o libpg_query/libpg_query.a
-
-pg_query/c_bridge.o: pg_query/c_bridge.c pg_query/c_bridge.h libpg_query/pg_query.h
-	cc -c -I libpg_query pg_query/c_bridge.c -o pg_query/c_bridge.o
-
-libpg_query/libpg_query.a:
+build:
 	make -C libpg_query build
+	cp libpg_query/libpg_query.a c/libpg_query.a
+
+dev-setup:
+	ln -sf . pg_query
 
 test: build
-	v test pg_query/
+	v test .
 
 clean:
-	rm -f pg_query/c_bridge.o
 	make -C libpg_query clean
+	rm -rf c/libpg_query.a

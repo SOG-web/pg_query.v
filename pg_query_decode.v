@@ -11376,12 +11376,12 @@ fn decode_insert_stmt(buf []u8, depth int) (InsertStmt, int) {
 
 fn decode_select_stmt(buf []u8, depth int) (SelectStmt, int) {
 	if depth <= 0 { return SelectStmt{
-		larg: unsafe { nil }
-		rarg: unsafe { nil }
+		larg: none
+		rarg: none
 	}, 0 }
 	mut r := SelectStmt{
-		larg: unsafe { nil }
-		rarg: unsafe { nil }
+		larg: none
+		rarg: none
 	}
 	mut off := 0
 	for off < buf.len {
@@ -11979,14 +11979,14 @@ fn decode_json_agg_constructor(buf []u8, depth int) (JsonAggConstructor, int) {
 fn decode_p_l_assign_stmt(buf []u8, depth int) (PLAssignStmt, int) {
 	if depth <= 0 { return PLAssignStmt{
 		val: SelectStmt{
-			larg: unsafe { nil }
-			rarg: unsafe { nil }
+			larg: none
+			rarg: none
 		}
 	}, 0 }
 	mut r := PLAssignStmt{
 			val: SelectStmt{
-			larg: unsafe { nil }
-			rarg: unsafe { nil }
+			larg: none
+			rarg: none
 		}
 	}
 	mut off := 0
